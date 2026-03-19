@@ -49,7 +49,7 @@
 
 ## Tasks
 
-- [ ] **T01: Generate IDL, install Solana deps, and create constants** `est:45m`
+- [x] **T01: Generate IDL, install Solana deps, and create constants** `est:45m`
   - Why: Everything in this slice depends on IDL types and Solana packages. `anchor build` must run first to produce IDL JSON and TypeScript types. Constants and env schema are needed by the wallet provider and Anchor hook.
   - Files: `target/idl/gherkin_pay.json`, `target/idl/gherkin_pay_hook.json`, `app/web/src/idl/gherkin_pay.json`, `app/web/src/idl/gherkin_pay_hook.json`, `app/web/src/types/gherkin_pay.ts`, `app/web/src/types/gherkin_pay_hook.ts`, `app/web/src/lib/constants.ts`, `app/web/src/env.js`, `app/web/package.json`
   - Do: (1) Run `anchor build` in project root to generate IDL + types. (2) Copy IDL JSON to `app/web/src/idl/`. (3) Copy TypeScript types to `app/web/src/types/`. (4) Install Solana deps: `@solana/web3.js@^1.98`, `@solana/wallet-adapter-base`, `@solana/wallet-adapter-react`, `@solana/wallet-adapter-react-ui`, `@coral-xyz/anchor`. (5) Create `lib/constants.ts` with program IDs, RPC endpoint from env. (6) Add `NEXT_PUBLIC_SOLANA_RPC_URL` to `env.js` T3 schema with devnet default.

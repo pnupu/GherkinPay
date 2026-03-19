@@ -1,0 +1,261 @@
+{
+  "address": "3pG9tTyExGA3C7sdvw5AcUvfmwydtRCLV22KPb6SfYRc",
+  "metadata": {
+    "name": "gherkin_pay_hook",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "GherkinPay Transfer Hook — Compliance enforcement via Token-2022"
+  },
+  "instructions": [
+    {
+      "name": "initialize_extra_account_meta_list",
+      "discriminator": [
+        92,
+        197,
+        174,
+        197,
+        41,
+        124,
+        19,
+        3
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "extra_account_meta_list",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  120,
+                  116,
+                  114,
+                  97,
+                  45,
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "set_compliance",
+      "discriminator": [
+        46,
+        128,
+        120,
+        26,
+        105,
+        175,
+        165,
+        6
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "wallet"
+        },
+        {
+          "name": "compliance_entry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  109,
+                  112,
+                  108,
+                  105,
+                  97,
+                  110,
+                  99,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              },
+              {
+                "kind": "account",
+                "path": "wallet"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "is_allowed",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "transfer_hook",
+      "discriminator": [
+        220,
+        57,
+        220,
+        152,
+        126,
+        125,
+        97,
+        168
+      ],
+      "accounts": [
+        {
+          "name": "source_token"
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "destination_token"
+        },
+        {
+          "name": "owner"
+        },
+        {
+          "name": "extra_account_meta_list",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  120,
+                  116,
+                  114,
+                  97,
+                  45,
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "source_compliance"
+        },
+        {
+          "name": "destination_compliance"
+        }
+      ],
+      "args": [
+        {
+          "name": "_amount",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "ComplianceEntry",
+      "discriminator": [
+        3,
+        112,
+        228,
+        41,
+        214,
+        132,
+        1,
+        249
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "SenderNotCompliant",
+      "msg": "Sender is not on the compliance allowlist"
+    },
+    {
+      "code": 6001,
+      "name": "ReceiverNotCompliant",
+      "msg": "Receiver is not on the compliance allowlist"
+    }
+  ],
+  "types": [
+    {
+      "name": "ComplianceEntry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "is_allowed",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -63,6 +63,14 @@ This task unblocks everything else in S02 — without IDL files, the Anchor clie
 - `grep "PROGRAM_ID\|HOOK_PROGRAM_ID\|DEVNET_RPC_ENDPOINT" app/web/src/lib/constants.ts` — all three constants present
 - `grep -r "from ['\"]@/" app/web/src/lib/constants.ts` — empty (no @/ imports)
 
+## Observability Impact
+
+- **Build signal:** `anchor build` exit code — confirms on-chain programs compile and IDL generation succeeds. If toolchain is missing, IDL must be hand-crafted from Rust source.
+- **Env validation:** T3 env schema (`env.js`) validates `NEXT_PUBLIC_SOLANA_RPC_URL` at startup. Missing or malformed value causes immediate build/dev failure with a clear Zod error.
+- **Dependency resolution:** `bun pm ls @solana/web3.js` confirms v1.x — v2 would silently break wallet adapter and Anchor at runtime.
+- **Future agent inspection:** Check `app/web/src/idl/*.json` for valid IDL, `app/web/src/lib/constants.ts` for program IDs, `app/web/src/env.js` for RPC URL schema.
+- **Failure visibility:** Missing IDL files → TypeScript import errors in downstream tasks. Wrong web3.js version → peer dependency warnings and runtime `Program` constructor failures.
+
 ## Inputs
 
 - `Anchor.toml` — program IDs: `gherkin_pay = 2wL3PPjoG4UmVrNYZyXvxfTfV738AVCG8LHJPUEtxEeV`, `gherkin_pay_hook = 3pG9tTyExGA3C7sdvw5AcUvfmwydtRCLV22KPb6SfYRc`
