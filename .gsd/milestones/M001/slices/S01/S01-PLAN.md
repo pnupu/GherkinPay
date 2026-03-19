@@ -43,7 +43,7 @@
   - Verify: `cd app/web && bun install && grep -c "gp-border" src/styles/globals.css` shows ≥16; `grep "var(--border)" src/styles/globals.css` returns only shadcn theme definitions (not old rules); `cat components.json` shows `~/` paths; `ls src/lib/utils.ts` exists.
   - Done when: `components.json`, `src/lib/utils.ts` exist; all `--border`/`--sidebar` refs in existing CSS rules point to `--gp-border`/`--gp-sidebar`; shadcn CSS variables present in `globals.css` with GherkinPay oklch values.
 
-- [ ] **T02: Add shadcn components, wire smoke-test Button, and verify build** `est:45m`
+- [x] **T02: Add shadcn components, wire smoke-test Button, and verify build** `est:45m`
   - Why: Proves the shadcn integration actually works end-to-end — components render inside the existing app shell with correct imports, and the full Next.js build passes clean. This is the slice's exit gate.
   - Files: `app/web/src/components/ui/button.tsx`, `app/web/src/components/ui/table.tsx`, `app/web/src/components/ui/badge.tsx`, `app/web/src/components/ui/dialog.tsx`, `app/web/src/app/(console)/layout.tsx`
   - Do: (1) Run `npx shadcn@latest add button table badge dialog` in `app/web`. (2) Verify all generated component files use `~/lib/utils` imports (not `@/lib/utils`). Fix if needed. (3) Import `Button` from `~/components/ui/button` into the console layout and render it as a minimal smoke test (e.g., a small themed button in the header area). (4) Run `bun run build` — must exit 0. (5) Run `bun run typecheck` — must exit 0.

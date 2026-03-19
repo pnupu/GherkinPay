@@ -12,3 +12,7 @@ When integrating shadcn into an existing design system, check for collisions on 
 ## sed on macOS: requires '' after -i
 
 macOS sed requires `sed -i ''` (empty string argument after -i flag) for in-place editing. Linux sed uses `sed -i` without the empty string.
+
+## Typecheck must run after build in app/web
+
+The `tsconfig.json` includes `.next/types/**/*.ts` which Next.js generates during `bun run build`. Running `bun run typecheck` before build (or on a clean `.next/` dir) fails with TS6053 "File not found" errors for every route type file. Always build first, then typecheck.

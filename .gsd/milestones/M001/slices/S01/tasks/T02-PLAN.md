@@ -84,3 +84,12 @@ Adds the four core shadcn components needed by downstream slices (Button, Table,
 - `app/web/src/components/ui/dialog.tsx` — shadcn Dialog component
 - `app/web/src/app/(console)/layout.tsx` — modified: imports and renders `Button` as smoke test
 - `.next/` build output confirming clean build
+
+## Observability Impact
+
+- **Component inventory:** `ls app/web/src/components/ui/` — lists installed shadcn components. Missing files indicate failed `shadcn add`.
+- **Import alias correctness:** `grep -r '@/lib/utils' app/web/src/components/ui/` — must return nothing. Any match means the CLI generated wrong imports.
+- **Build status:** `cd app/web && bun run build` — non-zero exit means broken integration (CSS parse errors, missing imports, type mismatches).
+- **Type resolution:** `cd app/web && bun run typecheck` — catches `~/` alias mismatches and missing type exports from shadcn components.
+- **Smoke-test rendering:** `grep "Button" app/web/src/app/\(console\)/layout.tsx` — confirms the Button component is wired into the app shell. Absence means the smoke test wasn't added.
+- **Failure shape:** If shadcn components import wrong aliases, Next.js build fails with "Module not found: Can't resolve '~/lib/utils'" or similar. If CSS variables are missing, components render with browser defaults (grey borders, white backgrounds).
