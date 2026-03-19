@@ -52,7 +52,7 @@ This milestone is complete only when all are true:
 
 ## Slices
 
-- [ ] **S01: shadcn Setup and Design System** `risk:medium` `depends:[]`
+- [x] **S01: shadcn Setup and Design System** `risk:medium` `depends:[]`
   > After this: shadcn CLI installed, Button/Table/Badge/Dialog components rendering inside the existing app shell with GherkinPay's dark green theme visually intact; `bun run build` passes.
 
 - [ ] **S02: Wallet Connect and Anchor Client** `risk:high` `depends:[S01]`

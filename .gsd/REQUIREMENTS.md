@@ -4,7 +4,7 @@ This file is the explicit capability and coverage contract for the project.
 
 ## Active
 
-### R001 — Wallet Connection
+### R001 — Users can connect a Solana wallet (Phantom, Solflare) to the app and see their connected address in the UI
 - Class: primary-user-loop
 - Status: active
 - Description: Users can connect a Solana wallet (Phantom, Solflare) to the app and see their connected address in the UI
@@ -15,7 +15,7 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: unmapped
 - Notes: App Router requires wallet providers in a client boundary
 
-### R002 — Live Agreement Reads
+### R002 — Agreements page shows real PaymentAgreement accounts from devnet, not hardcoded data
 - Class: primary-user-loop
 - Status: active
 - Description: Agreements page shows real PaymentAgreement accounts from devnet, not hardcoded data
@@ -26,7 +26,7 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: unmapped
 - Notes: Must handle empty state and loading states
 
-### R003 — Live Milestone Reads
+### R003 — Milestones page shows real ConditionAccount data per payment, phase status, and amounts
 - Class: primary-user-loop
 - Status: active
 - Description: Milestones page shows real ConditionAccount data per payment, phase status, and amounts
@@ -37,7 +37,7 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: unmapped
 - Notes: Requires joining PaymentAgreement + ConditionAccount data
 
-### R004 — Live Compliance Reads
+### R004 — Compliance page shows real allowlist entries from the hook program's ComplianceEntry accounts
 - Class: primary-user-loop
 - Status: active
 - Description: Compliance page shows real allowlist entries from the hook program's ComplianceEntry accounts
@@ -48,7 +48,7 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: unmapped
 - Notes: PDA seeds: ["compliance", mint, wallet]
 
-### R005 — On-Chain Activity Feed
+### R005 — Activity page shows real on-chain events (PaymentCreated, PaymentFunded, PaymentReleased, etc.) parsed from program logs
 - Class: primary-user-loop
 - Status: active
 - Description: Activity page shows real on-chain events (PaymentCreated, PaymentFunded, PaymentReleased, etc.) parsed from program logs
@@ -59,7 +59,7 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: unmapped
 - Notes: Use getParsedTransactions or event subscription
 
-### R006 — shadcn/ui Component System
+### R006 — All UI elements use shadcn/ui components (Button, Dialog, Table, Form, etc.) on top of Tailwind v4
 - Class: quality-attribute
 - Status: active
 - Description: All UI elements use shadcn/ui components (Button, Dialog, Table, Form, etc.) on top of Tailwind v4
@@ -67,10 +67,10 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M001/S01
 - Supporting slices: M001/S02, M001/S03, M001/S04, M001/S05, M001/S06
-- Validation: unmapped
-- Notes: shadcn canary path (Tailwind v4 compatible); existing design tokens must coexist
+- Validation: S01: shadcn installed, themed to GherkinPay dark green palette, 4 core components (Button/Table/Badge/Dialog) available, bun run build passes. Full validation when S02-S06 adopt components.
+- Notes: shadcn canary path (Tailwind v4 compatible); existing design tokens coexist via --gp-border/--gp-sidebar rename pattern. Foundation complete in S01; adoption tracked across supporting slices.
 
-### R007 — Create Payment Wizard
+### R007 — Users can create a new payment agreement (simple or milestone), define conditions with AND/OR logic, and finalize the setup
 - Class: primary-user-loop
 - Status: active
 - Description: Users can create a new payment agreement (simple or milestone), define conditions with AND/OR logic, and finalize the setup
@@ -81,7 +81,7 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: unmapped
 - Notes: All 5 condition types; milestone mode up to 8 milestones
 
-### R008 — Fund Payment
+### R008 — Payer can deposit USDC into escrow after conditions are finalized
 - Class: primary-user-loop
 - Status: active
 - Description: Payer can deposit USDC into escrow after conditions are finalized
@@ -92,7 +92,7 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: unmapped
 - Notes: Requires token account lookup; devnet USDC only
 
-### R009 — Evaluate and Release
+### R009 — Any party can trigger evaluate-and-release once conditions are met, moving funds from escrow to payee
 - Class: primary-user-loop
 - Status: active
 - Description: Any party can trigger evaluate-and-release once conditions are met, moving funds from escrow to payee
@@ -103,7 +103,7 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: unmapped
 - Notes: Must show clear error if conditions not yet met
 
-### R010 — Cancel Payment and Refund
+### R010 — Authority can cancel an active payment, returning escrowed funds to the payer
 - Class: primary-user-loop
 - Status: active
 - Description: Authority can cancel an active payment, returning escrowed funds to the payer
@@ -114,7 +114,7 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: unmapped
 - Notes: Only works pre-completion; hook program enforces compliance on refund transfers too
 
-### R011 — Time Condition Crank
+### R011 — Anyone can trigger the time crank for a payment condition once the unlock timestamp has passed
 - Class: primary-user-loop
 - Status: active
 - Description: Anyone can trigger the time crank for a payment condition once the unlock timestamp has passed
@@ -125,7 +125,7 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: unmapped
 - Notes: crankTime instruction; UI should show "Crank" button when unlock_at < now and not yet met
 
-### R012 — Oracle Condition Crank (Pyth)
+### R012 — Users can trigger the oracle crank for a payment condition using a Pyth price feed
 - Class: primary-user-loop
 - Status: active
 - Description: Users can trigger the oracle crank for a payment condition using a Pyth price feed
@@ -136,7 +136,7 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: unmapped
 - Notes: Pyth devnet feeds; crankOracle instruction
 
-### R013 — Token Gate Crank
+### R013 — Anyone can trigger the token gate crank to verify a holder's token balance meets the threshold
 - Class: primary-user-loop
 - Status: active
 - Description: Anyone can trigger the token gate crank to verify a holder's token balance meets the threshold
@@ -147,7 +147,7 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: unmapped
 - Notes: crankTokenGate instruction
 
-### R014 — Multisig Signing
+### R014 — Registered signers can approve a multisig condition from the UI; threshold tracking is shown
 - Class: primary-user-loop
 - Status: active
 - Description: Registered signers can approve a multisig condition from the UI; threshold tracking is shown
@@ -158,7 +158,7 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: unmapped
 - Notes: signMultisig instruction; show who has signed and how many remain
 
-### R015 — Webhook Confirmation
+### R015 — Registered relayers can submit webhook event hash confirmations from the UI
 - Class: primary-user-loop
 - Status: active
 - Description: Registered relayers can submit webhook event hash confirmations from the UI
@@ -169,7 +169,7 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: unmapped
 - Notes: confirmWebhook instruction; only the registered relayer pubkey can confirm
 
-### R016 — Compliance Allowlist Management
+### R016 — Admins can add or update wallet allowlist entries in the Token-2022 hook program
 - Class: admin/support
 - Status: active
 - Description: Admins can add or update wallet allowlist entries in the Token-2022 hook program
@@ -180,7 +180,7 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: unmapped
 - Notes: setCompliance instruction on gherkin_pay_hook program
 
-### R017 — Relayer Registration
+### R017 — Relayer operators can register their pubkey and metadata in the app
 - Class: admin/support
 - Status: active
 - Description: Relayer operators can register their pubkey and metadata in the app
@@ -193,7 +193,7 @@ This file is the explicit capability and coverage contract for the project.
 
 ## Deferred
 
-### R018 — Pyth Oracle Feed Browser
+### R018 — UI for browsing and selecting Pyth price feeds by symbol when creating oracle conditions
 - Class: differentiator
 - Status: deferred
 - Description: UI for browsing and selecting Pyth price feeds by symbol when creating oracle conditions
@@ -204,7 +204,7 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: unmapped
 - Notes: Deferred to post-M003; paste-address approach works for M002
 
-### R019 — Mobile Wallet Support
+### R019 — Full Mobile Wallet Adapter support for iOS/Android wallets
 - Class: quality-attribute
 - Status: deferred
 - Description: Full Mobile Wallet Adapter support for iOS/Android wallets
@@ -217,7 +217,7 @@ This file is the explicit capability and coverage contract for the project.
 
 ## Out of Scope
 
-### R020 — Multi-token Support
+### R020 — Payments denominated in tokens other than USDC are not supported in the UI
 - Class: anti-feature
 - Status: out-of-scope
 - Description: Payments denominated in tokens other than USDC are not supported in the UI
@@ -228,7 +228,7 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: n/a
 - Notes: Contract is generic; UI restriction only. Can revisit.
 
-### R021 — Mainnet Deployment
+### R021 — The app targets devnet only during all three milestones
 - Class: constraint
 - Status: out-of-scope
 - Description: The app targets devnet only during all three milestones
@@ -248,7 +248,7 @@ This file is the explicit capability and coverage contract for the project.
 | R003 | primary-user-loop | active | M001/S04 | none | unmapped |
 | R004 | primary-user-loop | active | M001/S05 | none | unmapped |
 | R005 | primary-user-loop | active | M001/S06 | none | unmapped |
-| R006 | quality-attribute | active | M001/S01 | M001/S02–S06 | unmapped |
+| R006 | quality-attribute | active | M001/S01 | M001/S02, M001/S03, M001/S04, M001/S05, M001/S06 | S01: shadcn installed, themed to GherkinPay dark green palette, 4 core components (Button/Table/Badge/Dialog) available, bun run build passes. Full validation when S02-S06 adopt components. |
 | R007 | primary-user-loop | active | M002/S01 | M002/S02 | unmapped |
 | R008 | primary-user-loop | active | M002/S02 | none | unmapped |
 | R009 | primary-user-loop | active | M002/S03 | none | unmapped |
