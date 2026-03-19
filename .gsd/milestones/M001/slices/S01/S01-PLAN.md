@@ -36,7 +36,7 @@
 
 ## Tasks
 
-- [ ] **T01: Initialize shadcn config, install dependencies, and merge CSS namespaces** `est:1h`
+- [x] **T01: Initialize shadcn config, install dependencies, and merge CSS namespaces** `est:1h`
   - Why: Establishes the shadcn foundation — config, utility, dependencies — and resolves the CSS variable namespace collision before any components can be added. This is the riskiest step because a missed `--border` rename breaks existing styling.
   - Files: `app/web/components.json`, `app/web/src/lib/utils.ts`, `app/web/src/styles/globals.css`, `app/web/package.json`
   - Do: (1) Copy `app/web` from main repo (`/Users/ilkka/GherkinPay/app/web`) into the worktree since it's untracked. (2) Run `bun install` in `app/web`. (3) Create `components.json` manually with `~/` aliases (avoid interactive shadcn init). (4) Create `src/lib/utils.ts` with `cn()`. (5) Install shadcn deps: `class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react`, `tw-animate-css`. (6) In `globals.css`: rename all `--border` custom property refs to `--gp-border` (16 occurrences in rules) and `--sidebar` to `--gp-sidebar` (2 occurrences). Keep the `:root` definition lines renamed too. (7) Add `@import "tw-animate-css"` after the tailwindcss import. (8) Add shadcn `@theme inline` block mapping oklch tokens to GherkinPay dark green palette.
@@ -49,6 +49,16 @@
   - Do: (1) Run `npx shadcn@latest add button table badge dialog` in `app/web`. (2) Verify all generated component files use `~/lib/utils` imports (not `@/lib/utils`). Fix if needed. (3) Import `Button` from `~/components/ui/button` into the console layout and render it as a minimal smoke test (e.g., a small themed button in the header area). (4) Run `bun run build` — must exit 0. (5) Run `bun run typecheck` — must exit 0.
   - Verify: `cd app/web && bun run build` exits 0; `bun run typecheck` exits 0; `ls src/components/ui/{button,table,badge,dialog}.tsx` all exist; `grep "Button" src/app/\(console\)/layout.tsx` shows import.
   - Done when: All 4 shadcn components exist with correct `~/` imports; Button rendered in console layout; `bun run build` and `bun run typecheck` both pass clean.
+
+## Observability / Diagnostics
+
+- **CSS variable collision check:** `grep "var(--border)" app/web/src/styles/globals.css` — should return only shadcn `:root` definitions, never in `.panel`, `.table`, etc. selectors. Any match outside `:root` means a missed rename.
+- **Build diagnostics:** `cd app/web && bun run build` — Next.js build output captures CSS parse errors, missing imports, and type errors. Non-zero exit = broken integration.
+- **Type checking:** `cd app/web && bun run typecheck` — catches import alias mismatches (`~/` vs `@/`) and missing type exports.
+- **Component inventory:** `ls app/web/src/components/ui/` — lists installed shadcn components. Empty = shadcn add failed.
+- **Dependency audit:** `cd app/web && bun pm ls` — confirms shadcn peer deps (class-variance-authority, clsx, tailwind-merge, lucide-react, tw-animate-css) are installed.
+- **Failure visibility:** CSS variable collisions manifest as wrong colors at runtime (e.g., borders reverting to browser defaults). Dev server visual inspection catches these.
+- **Redaction:** No secrets or sensitive data in this slice — all files are frontend config and styling.
 
 ## Files Likely Touched
 

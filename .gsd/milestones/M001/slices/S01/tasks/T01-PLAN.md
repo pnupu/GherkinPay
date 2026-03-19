@@ -143,6 +143,13 @@ Establishes the shadcn foundation inside the existing GherkinPay Next.js 15 fron
 - `cat app/web/components.json | grep "~/components/ui"` confirms correct alias
 - `cat app/web/src/lib/utils.ts` shows `cn` export
 
+## Observability Impact
+
+- **Signals changed:** `globals.css` gains shadcn CSS custom properties in `:root` — inspectable via browser DevTools computed styles on any element.
+- **Inspection surface:** `grep -c "gp-border" app/web/src/styles/globals.css` validates rename completeness (expect ≥16). `grep "var(--border)" app/web/src/styles/globals.css` shows only shadcn definitions if clean.
+- **Failure visibility:** A missed `--border` rename causes existing UI elements to pick up shadcn's `--border` value instead of the GherkinPay `--gp-border` value — visually detectable as wrong border colors. `bun install` failure is immediately visible as non-zero exit.
+- **No runtime services:** This task only modifies static config and CSS — no servers, logs, or runtime diagnostics needed.
+
 ## Inputs
 
 - `/Users/ilkka/GherkinPay/app/web` — existing untracked frontend source to copy into worktree
