@@ -26,7 +26,7 @@
 
 ## Tasks
 
-- [ ] **T01: Fund payment mutation hook and ATA lookup** `est:30m`
+- [x] **T01: Fund payment mutation hook and ATA lookup** `est:30m`
   - Why: The fund flow needs a mutation hook that derives the payer's USDC ATA, builds the fundPayment instruction, signs, confirms, and invalidates cache. The ATA lookup pattern (Token-2022 program ID) is also needed for release in S03.
   - Files: `app/web/src/lib/mutations/fund-payment.ts`, `app/web/src/lib/token.ts`
   - Do: Create `lib/token.ts` with a `getUsdcAta(owner: PublicKey)` helper using `getAssociatedTokenAddressSync` with `TOKEN_2022_PROGRAM_ID`. Create `useFundPayment()` mutation hook: accepts paymentPDA, derives escrowPDA and conditionPDA, looks up payer ATA, calls `program.methods.fundPayment()` with correct accounts (payer = connected wallet), confirms, invalidates `["agreements"]` cache.
@@ -39,6 +39,13 @@
   - Do: Create `FundPaymentDialog` component: shadcn Dialog with payment summary (amount, payer, payee, escrow), "Fund" confirm button, and TransactionStatus display. On the agreements page, add a "Fund" action button to each row where `status === 'created'`. Clicking opens the FundPaymentDialog. The dialog checks if the payer's USDC token account exists and has sufficient balance — if not, show a clear error instead of the fund button.
   - Verify: `bun run build` passes; Fund button appears on Created payments
   - Done when: Fund button opens dialog, signs transaction, payment status updates to Active in the list
+
+## Observability / Diagnostics
+
+- **Runtime signals:** `useFundPayment()` logs `[GherkinPay] Funding payment:`, `[GherkinPay] fundPayment accounts:`, and `[GherkinPay] fundPayment tx:` to the browser console on success. On failure, `[GherkinPay] Fund payment failed:` is logged with the error object.
+- **Inspection surfaces:** Open browser DevTools → Console → filter `[GherkinPay]` to see all fund-flow events. The derived PDA addresses are logged before the RPC call for on-chain verification via Solana Explorer.
+- **Failure visibility:** Wallet-not-connected errors throw before any RPC call. On-chain instruction errors (insufficient balance, wrong mint, account mismatch) surface as Anchor `ProgramError` in the mutation's `onError` callback and the console log.
+- **Redaction:** No private keys or seed phrases are logged. Only public keys and transaction signatures appear in console output.
 
 ## Files Likely Touched
 
