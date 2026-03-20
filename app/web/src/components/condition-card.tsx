@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { PublicKey } from "@solana/web3.js";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -11,6 +12,7 @@ import { useAnchorProgram } from "~/lib/anchor";
 import { useCrankTime } from "~/lib/mutations/crank-time";
 import { useCrankOracle, parsePythPrice, isPriceStale } from "~/lib/mutations/crank-oracle";
 import { useCrankTokenGate } from "~/lib/mutations/crank-token-gate";
+import { useSignMultisig } from "~/lib/mutations/sign-multisig";
 import { decodeAnchorError } from "~/lib/errors";
 import type {
   ParsedCondition,
@@ -201,6 +203,112 @@ function useOraclePrice(
   return { price, stale };
 }
 
+/* ── multisig approval sub-component ──── */
+
+function MultisigAction({
+  data,
+  index,
+  paymentKey,
+  conditionKey,
+}: {
+  data: MultisigData;
+  index: number;
+  paymentKey: PublicKey;
+  conditionKey: PublicKey;
+}) {
+  const { publicKey: walletPubkey } = useWallet();
+  const signMultisig = useSignMultisig();
+
+  // Find connected wallet in the signer list using PublicKey.equals()
+  const signerIndex = useMemo(() => {
+    if (!walletPubkey) return -1;
+    return data.signers.findIndex((s) =>
+      new PublicKey(s).equals(walletPubkey),
+    );
+  }, [data.signers, walletPubkey]);
+
+  const alreadyApproved = signerIndex >= 0 && data.approvals[signerIndex];
+
+  const txStatus =
+    signMultisig.status === "pending"
+      ? ("pending" as const)
+      : signMultisig.status === "success"
+        ? ("success" as const)
+        : signMultisig.status === "error"
+          ? ("error" as const)
+          : ("idle" as const);
+
+  const txSignature =
+    typeof signMultisig.data === "string" ? signMultisig.data : null;
+  const txError = signMultisig.error
+    ? decodeAnchorError(signMultisig.error)
+    : null;
+
+  return (
+    <div className="space-y-2">
+      {/* Per-signer approval list */}
+      <ul className="space-y-1">
+        {data.signers.map((signer, i) => (
+          <li key={signer} className="flex items-center gap-2 text-xs">
+            <span
+              className={cn(
+                "inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px]",
+                data.approvals[i]
+                  ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
+                  : "bg-muted text-muted-foreground",
+              )}
+            >
+              {data.approvals[i] ? "✓" : "○"}
+            </span>
+            <span className="font-mono">{truncate(signer)}</span>
+            {walletPubkey &&
+              new PublicKey(signer).equals(walletPubkey) && (
+                <Badge variant="outline" className="text-[10px] px-1 py-0">
+                  you
+                </Badge>
+              )}
+          </li>
+        ))}
+      </ul>
+
+      {/* Action area */}
+      {!walletPubkey ? (
+        <span className="text-xs text-muted-foreground">
+          Connect wallet to approve
+        </span>
+      ) : signerIndex === -1 ? (
+        <span className="text-xs text-muted-foreground">
+          Not a signer for this condition
+        </span>
+      ) : alreadyApproved ? (
+        <span className="text-xs text-green-700 dark:text-green-400">
+          You already approved ✓
+        </span>
+      ) : (
+        <Button
+          size="sm"
+          onClick={() =>
+            signMultisig.mutate({
+              paymentPubkey: paymentKey,
+              conditionAccountPubkey: conditionKey,
+              conditionIndex: index,
+            })
+          }
+          disabled={signMultisig.isPending}
+        >
+          Approve
+        </Button>
+      )}
+
+      <TransactionStatus
+        status={txStatus}
+        signature={txSignature}
+        error={txError}
+      />
+    </div>
+  );
+}
+
 /* ── crank action area ────────────────── */
 
 function CrankAction({
@@ -334,20 +442,31 @@ function CrankAction({
           );
         })()}
 
-      {/* Multisig and Webhook don't have permissionless cranks */}
-      {(condition.type === "multisig" || condition.type === "webhook") && (
+      {/* Multisig: interactive approval UI */}
+      {condition.type === "multisig" && (
+        <MultisigAction
+          data={condition.data as MultisigData}
+          index={index}
+          paymentKey={paymentKey}
+          conditionKey={conditionKey}
+        />
+      )}
+
+      {/* Webhook: placeholder for T02 */}
+      {condition.type === "webhook" && (
         <span className="text-xs text-muted-foreground">
-          {condition.type === "multisig"
-            ? "Requires signer approvals"
-            : "Awaiting webhook relay"}
+          Awaiting webhook relay
         </span>
       )}
 
-      <TransactionStatus
-        status={txStatus}
-        signature={txSignature}
-        error={txError}
-      />
+      {/* TransactionStatus for permissionless cranks (multisig has its own) */}
+      {condition.type !== "multisig" && (
+        <TransactionStatus
+          status={txStatus}
+          signature={txSignature}
+          error={txError}
+        />
+      )}
     </div>
   );
 }

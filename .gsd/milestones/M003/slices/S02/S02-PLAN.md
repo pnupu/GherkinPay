@@ -47,7 +47,7 @@
 
 ## Tasks
 
-- [ ] **T01: Wire signMultisig mutation and multisig approval UI into condition card** `est:25m`
+- [x] **T01: Wire signMultisig mutation and multisig approval UI into condition card** `est:25m`
   - Why: Delivers R014 — multisig signers need to approve conditions from the agreement detail view with per-signer status tracking
   - Files: `app/web/src/lib/mutations/sign-multisig.ts`, `app/web/src/components/condition-card.tsx`
   - Do: Create `useSignMultisig()` mutation hook following `crank-time.ts` pattern exactly; in CrankAction, replace the multisig placeholder span with wallet-gated "Approve" button — use `useWallet().publicKey` and `PublicKey.equals()` to check if connected wallet is in `MultisigData.signers[]`, find the signer index, check `approvals[index]`; show per-signer approval list (truncated pubkeys with ✓/○ status); show "Connect wallet" message when disconnected; handle already-approved and condition-met states
