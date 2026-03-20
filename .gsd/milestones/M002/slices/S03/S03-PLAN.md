@@ -42,7 +42,7 @@
 
 ## Tasks
 
-- [ ] **T01: Release and cancel mutation hooks** `est:45m`
+- [x] **T01: Release and cancel mutation hooks** `est:45m`
   - Why: Both operations are single-instruction but release has the tricky `nextConditionAccount` logic — for simple payments or the last milestone, pass the same conditionPDA; for milestone payments with remaining milestones, derive the next milestone's conditionPDA. Cancel is straightforward but requires authority signer. A `crankTime` helper is needed so release can be tested with time-based conditions.
   - Files: `app/web/src/lib/mutations/release-payment.ts`, `app/web/src/lib/mutations/cancel-payment.ts`
   - Do: Create `useReleasePayment()`: accepts paymentPDA, fetches the PaymentAgreement account to determine `isMilestone`, `currentMilestone`, `milestoneCount`. Derives conditionPDA for currentMilestone. Determines nextConditionPDA: if `!isMilestone || currentMilestone === milestoneCount - 1`, use same conditionPDA; else derive conditionPDA for `currentMilestone + 1`. Looks up payee ATA via `getUsdcAta()`. Before calling evaluateAndRelease, check if any conditions are TimeBased with past `unlockAt` — if so, call `crankTime(conditionIndex)` first. Then call `evaluateAndRelease()` with correct accounts. Invalidate `["agreements"]` and `["milestones"]` cache. Create `useCancelPayment()`: accepts paymentPDA, derives escrowPDA, looks up payer ATA, calls `cancelPayment()` with authority = connected wallet, invalidates cache.
