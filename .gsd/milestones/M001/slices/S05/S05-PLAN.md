@@ -31,7 +31,7 @@
   - Verify: `cd app/web && bun run build && bun run typecheck` both exit 0; `grep -q "hookProgram" src/lib/queries/compliance.ts`
   - Done when: Compliance page fetches live ComplianceEntry data from devnet, renders with shadcn components, and zero hardcoded arrays remain.
 
-- [ ] **T02: Clean up relayers page — remove mock data, add static placeholder** `est:10m`
+- [x] **T02: Clean up relayers page — remove mock data, add static placeholder** `est:10m`
   - Why: Relayers page has a hardcoded mock array that must be removed. Real relayer registration is M003 scope, so this page gets an informational empty state with shadcn components.
   - Files: `app/web/src/app/(console)/relayers/page.tsx`
   - Do: Remove the hardcoded `relayers` array. Replace table with a shadcn-styled empty state message explaining relayer registration is coming soon. Keep existing header structure. Use shadcn Card or simple styled div.
