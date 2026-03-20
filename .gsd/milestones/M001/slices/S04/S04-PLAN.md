@@ -42,7 +42,7 @@
   - Verify: `cd app/web && bun run build && bun run typecheck` both exit 0; `rg "useMilestones" app/web/src/lib/queries/milestones.ts` confirms export
   - Done when: `useMilestones()` exported, typechecks, and follows established query hook patterns
 
-- [ ] **T02: Rewrite milestones page with live data** `est:30m`
+- [x] **T02: Rewrite milestones page with live data** `est:30m`
   - Why: Replace hardcoded mock array with live consumption from `useMilestones()`. Completes the slice goal.
   - Files: `app/web/src/app/(console)/milestones/page.tsx`
   - Do: Rewrite as `"use client"` component consuming `useMilestones()`. Remove all tRPC imports, HydrateClient wrapper, and mock data. Four UI states: disconnected (connect prompt), loading (skeleton rows), empty (informational message), populated (shadcn Table). Columns: milestone index, parent agreement ID, amount (USDC formatted / 1e6), status badge (pending/active/released mapped via STATUS_CONFIG), condition count, operator (and/or), finalized flag. Status badge variants follow the same pattern as agreements page. Use shadcn Table, Badge, Skeleton. All imports use `~/` alias.

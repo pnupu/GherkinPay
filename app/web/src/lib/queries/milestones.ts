@@ -1,6 +1,6 @@
 "use client";
 
-import type { Program, BN } from "@coral-xyz/anchor";
+import type { Program } from "@coral-xyz/anchor";
 import { useQuery } from "@tanstack/react-query";
 import { useWallet } from "@solana/wallet-adapter-react";
 import type { GherkinPay } from "~/types/gherkin_pay";
