@@ -65,7 +65,7 @@
   - Verify: `bun run typecheck` passes; component renders without errors
   - Done when: ConditionBuilder renders all 5 condition type forms with add/remove, operator selection, and field validation
 
-- [ ] **T04: Create payment wizard Dialog** `est:1h`
+- [x] **T04: Create payment wizard Dialog** `est:1h`
   - Why: This is the main UI — a multi-step Dialog that collects payment details, conditions, and submits the transaction. It composes the ConditionBuilder and uses the mutation hook.
   - Files: `app/web/src/components/create-payment-wizard.tsx`, `app/web/src/app/(console)/agreements/page.tsx`
   - Do: Build a `CreatePaymentWizard` component as a shadcn Dialog with 3 steps: (1) Payment details — simple/milestone toggle (Tabs), payer wallet (defaults to connected wallet), payee wallet, token mint (hardcoded USDC devnet, display-only), total amount. For milestone mode: milestone count, per-milestone amounts (must sum to total). (2) Conditions — ConditionBuilder for simple mode, or tabbed ConditionBuilder per milestone for milestone mode. (3) Review + Submit — summary of all fields, submit button that calls `useCreatePayment()`, TransactionStatus display. Wire the wizard trigger: replace the existing "Create payment" button on the agreements page to open this Dialog. Use react-hook-form for the full wizard state with zod validation schema.

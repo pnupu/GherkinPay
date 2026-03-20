@@ -1,4 +1,5 @@
 import { api, HydrateClient } from "~/trpc/server";
+import { CreatePaymentWizard } from "~/components/create-payment-wizard";
 
 const agreements = [
   {
@@ -38,9 +39,7 @@ export default async function AgreementsPage() {
           <button className="btn btn-secondary" type="button">
             Add condition
           </button>
-          <button className="btn btn-primary" type="button">
-            Create payment
-          </button>
+          <CreatePaymentWizard />
         </div>
       </header>
 
