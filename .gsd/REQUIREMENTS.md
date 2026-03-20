@@ -12,8 +12,8 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M001/S02
 - Supporting slices: none
-- Validation: unmapped
-- Notes: App Router requires wallet providers in a client boundary
+- Validation: S02: Wallet adapter wired (provider, button, Anchor hook), build+typecheck pass. Awaiting human UAT — connecting a real wallet requires browser extension.
+- Notes: App Router requires wallet providers in a client boundary. Infrastructure complete in S02; runtime proof requires human with Phantom/Solflare extension.
 
 ### R002 — Agreements page shows real PaymentAgreement accounts from devnet, not hardcoded data
 - Class: primary-user-loop
@@ -243,7 +243,7 @@ This file is the explicit capability and coverage contract for the project.
 
 | ID | Class | Status | Primary owner | Supporting | Proof |
 |---|---|---|---|---|---|
-| R001 | primary-user-loop | active | M001/S02 | none | unmapped |
+| R001 | primary-user-loop | active | M001/S02 | none | S02: Wallet adapter wired (provider, button, Anchor hook), build+typecheck pass. Awaiting human UAT — connecting a real wallet requires browser extension. |
 | R002 | primary-user-loop | active | M001/S03 | none | unmapped |
 | R003 | primary-user-loop | active | M001/S04 | none | unmapped |
 | R004 | primary-user-loop | active | M001/S05 | none | unmapped |

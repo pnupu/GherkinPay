@@ -55,7 +55,7 @@ This milestone is complete only when all are true:
 - [x] **S01: shadcn Setup and Design System** `risk:medium` `depends:[]`
   > After this: shadcn CLI installed, Button/Table/Badge/Dialog components rendering inside the existing app shell with GherkinPay's dark green theme visually intact; `bun run build` passes.
 
-- [ ] **S02: Wallet Connect and Anchor Client** `risk:high` `depends:[S01]`
+- [x] **S02: Wallet Connect and Anchor Client** `risk:high` `depends:[S01]`
   > After this: Phantom/Solflare wallet connects from the console header; connected pubkey visible in UI; Anchor program client initialised for both programs pointing at devnet.
 
 - [ ] **S03: Agreements — Live Reads** `risk:medium` `depends:[S02]`
