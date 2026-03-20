@@ -155,7 +155,7 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M003/S02
 - Supporting slices: none
-- Validation: unmapped
+- Validation: S02 delivered — useSignMultisig hook, MultisigAction component with per-signer ✓/○ status, wallet-gated Approve button, error decoding (6005/6006). Build passes. Awaiting devnet UAT with wallet switching.
 - Notes: signMultisig instruction; show who has signed and how many remain
 
 ### R015 — Webhook Confirmation
@@ -166,7 +166,7 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M003/S02
 - Supporting slices: none
-- Validation: unmapped
+- Validation: S02 delivered — useConfirmWebhook hook, WebhookAction component with hex input validation (64-char regex), wallet-gated Confirm button, error decoding (6019/6020). Build passes. Awaiting devnet UAT.
 - Notes: confirmWebhook instruction; only the registered relayer pubkey can confirm
 
 ### R016 — Compliance Allowlist Management
@@ -256,8 +256,8 @@ This file is the explicit capability and coverage contract for the project.
 | R011 | primary-user-loop | active | M003/S01 | none | unmapped |
 | R012 | primary-user-loop | active | M003/S01 | none | unmapped |
 | R013 | primary-user-loop | active | M003/S01 | none | unmapped |
-| R014 | primary-user-loop | active | M003/S02 | none | unmapped |
-| R015 | primary-user-loop | active | M003/S02 | none | unmapped |
+| R014 | primary-user-loop | active | M003/S02 | none | S02 delivered — awaiting devnet UAT |
+| R015 | primary-user-loop | active | M003/S02 | none | S02 delivered — awaiting devnet UAT |
 | R016 | admin/support | active | M003/S03 | none | unmapped |
 | R017 | admin/support | active | M003/S03 | none | unmapped |
 | R018 | differentiator | deferred | none | none | unmapped |
