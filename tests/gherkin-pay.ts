@@ -22,7 +22,8 @@ describe("GherkinPay", () => {
   anchor.setProvider(provider);
 
   const program = anchor.workspace.GherkinPay as Program<GherkinPay>;
-  const hookProgram = anchor.workspace.GherkinPayHook as Program<GherkinPayHook>;
+  const hookProgram = anchor.workspace
+    .GherkinPayHook as Program<GherkinPayHook>;
 
   const authority = provider.wallet as anchor.Wallet;
   const payer = Keypair.generate();
@@ -342,11 +343,7 @@ describe("GherkinPay", () => {
       await program.methods
         .addCondition({
           multisig: {
-            signers: [
-              signer1.publicKey,
-              signer2.publicKey,
-              signer3.publicKey,
-            ],
+            signers: [signer1.publicKey, signer2.publicKey, signer3.publicKey],
             threshold: 2,
             approvals: [false, false, false],
             met: false,
@@ -1004,10 +1001,7 @@ describe("GherkinPay", () => {
 
       const payment = await program.account.paymentAgreement.fetch(paymentPDA);
       assert.deepEqual(payment.status, { completed: {} });
-      assert.equal(
-        payment.releasedAmount.toNumber(),
-        totalAmount.toNumber()
-      );
+      assert.equal(payment.releasedAmount.toNumber(), totalAmount.toNumber());
     });
   });
 });

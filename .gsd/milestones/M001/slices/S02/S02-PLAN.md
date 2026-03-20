@@ -56,7 +56,7 @@
   - Verify: `ls app/web/src/idl/*.json app/web/src/types/gherkin_pay*.ts` shows all 4 files; `cd app/web && bun install` exits 0; `grep NEXT_PUBLIC_SOLANA_RPC_URL app/web/src/env.js` matches
   - Done when: IDL files, types, constants, and deps are all in place; env schema updated
 
-- [ ] **T02: Wire wallet provider, Anchor hook, and wallet button into layouts** `est:45m`
+- [x] **T02: Wire wallet provider, Anchor hook, and wallet button into layouts** `est:45m`
   - Why: This is the core integration — wallet connectivity and Anchor program access wired into the App Router component tree.
   - Files: `app/web/src/components/wallet-provider.tsx`, `app/web/src/lib/anchor.ts`, `app/web/src/components/wallet-button.tsx`, `app/web/src/app/layout.tsx`, `app/web/src/app/(console)/layout.tsx`, `app/web/next.config.js`
   - Do: (1) Create `wallet-provider.tsx` as `"use client"` component wrapping ConnectionProvider → WalletProvider → WalletModalProvider with `wallets={[]}` for Wallet Standard auto-detection. Import `@solana/wallet-adapter-react-ui/styles.css`. (2) Create `lib/anchor.ts` with `useAnchorProgram()` hook using `useConnection()` + `useAnchorWallet()` → `AnchorProvider` → typed `Program` instances; return null when disconnected. (3) Create `wallet-button.tsx` as a thin `"use client"` wrapper around `WalletMultiButton`. (4) Wire `WalletContextProvider` into root `layout.tsx` wrapping `TRPCReactProvider`. (5) Replace placeholder `<Button>Connect Wallet</Button>` in `(console)/layout.tsx` with the wallet button component. (6) Add webpack externals for `pino-pretty`, `lokijs`, `encoding` to `next.config.js`. (7) Run `bun run build` and `bun run typecheck` — fix any errors.

@@ -5,40 +5,31 @@
  * IDL can be found at `target/idl/gherkin_pay_hook.json`.
  */
 export type GherkinPayHook = {
-  "address": "3pG9tTyExGA3C7sdvw5AcUvfmwydtRCLV22KPb6SfYRc",
-  "metadata": {
-    "name": "gherkinPayHook",
-    "version": "0.1.0",
-    "spec": "0.1.0",
-    "description": "GherkinPay Transfer Hook — Compliance enforcement via Token-2022"
-  },
-  "instructions": [
+  address: "3pG9tTyExGA3C7sdvw5AcUvfmwydtRCLV22KPb6SfYRc";
+  metadata: {
+    name: "gherkinPayHook";
+    version: "0.1.0";
+    spec: "0.1.0";
+    description: "GherkinPay Transfer Hook — Compliance enforcement via Token-2022";
+  };
+  instructions: [
     {
-      "name": "initializeExtraAccountMetaList",
-      "discriminator": [
-        92,
-        197,
-        174,
-        197,
-        41,
-        124,
-        19,
-        3
-      ],
-      "accounts": [
+      name: "initializeExtraAccountMetaList";
+      discriminator: [92, 197, 174, 197, 41, 124, 19, 3];
+      accounts: [
         {
-          "name": "payer",
-          "writable": true,
-          "signer": true
+          name: "payer";
+          writable: true;
+          signer: true;
         },
         {
-          "name": "extraAccountMetaList",
-          "writable": true,
-          "pda": {
-            "seeds": [
+          name: "extraAccountMetaList";
+          writable: true;
+          pda: {
+            seeds: [
               {
-                "kind": "const",
-                "value": [
+                kind: "const";
+                value: [
                   101,
                   120,
                   116,
@@ -58,124 +49,95 @@ export type GherkinPayHook = {
                   116,
                   97,
                   115
-                ]
+                ];
               },
               {
-                "kind": "account",
-                "path": "mint"
+                kind: "account";
+                path: "mint";
               }
-            ]
-          }
+            ];
+          };
         },
         {
-          "name": "mint"
+          name: "mint";
         },
         {
-          "name": "systemProgram",
-          "address": "11111111111111111111111111111111"
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
         }
-      ],
-      "args": []
+      ];
+      args: [];
     },
     {
-      "name": "setCompliance",
-      "discriminator": [
-        46,
-        128,
-        120,
-        26,
-        105,
-        175,
-        165,
-        6
-      ],
-      "accounts": [
+      name: "setCompliance";
+      discriminator: [46, 128, 120, 26, 105, 175, 165, 6];
+      accounts: [
         {
-          "name": "authority",
-          "writable": true,
-          "signer": true
+          name: "authority";
+          writable: true;
+          signer: true;
         },
         {
-          "name": "mint"
+          name: "mint";
         },
         {
-          "name": "wallet"
+          name: "wallet";
         },
         {
-          "name": "complianceEntry",
-          "writable": true,
-          "pda": {
-            "seeds": [
+          name: "complianceEntry";
+          writable: true;
+          pda: {
+            seeds: [
               {
-                "kind": "const",
-                "value": [
-                  99,
-                  111,
-                  109,
-                  112,
-                  108,
-                  105,
-                  97,
-                  110,
-                  99,
-                  101
-                ]
+                kind: "const";
+                value: [99, 111, 109, 112, 108, 105, 97, 110, 99, 101];
               },
               {
-                "kind": "account",
-                "path": "mint"
+                kind: "account";
+                path: "mint";
               },
               {
-                "kind": "account",
-                "path": "wallet"
+                kind: "account";
+                path: "wallet";
               }
-            ]
-          }
+            ];
+          };
         },
         {
-          "name": "systemProgram",
-          "address": "11111111111111111111111111111111"
+          name: "systemProgram";
+          address: "11111111111111111111111111111111";
         }
-      ],
-      "args": [
+      ];
+      args: [
         {
-          "name": "isAllowed",
-          "type": "bool"
+          name: "isAllowed";
+          type: "bool";
         }
-      ]
+      ];
     },
     {
-      "name": "transferHook",
-      "discriminator": [
-        220,
-        57,
-        220,
-        152,
-        126,
-        125,
-        97,
-        168
-      ],
-      "accounts": [
+      name: "transferHook";
+      discriminator: [220, 57, 220, 152, 126, 125, 97, 168];
+      accounts: [
         {
-          "name": "sourceToken"
+          name: "sourceToken";
         },
         {
-          "name": "mint"
+          name: "mint";
         },
         {
-          "name": "destinationToken"
+          name: "destinationToken";
         },
         {
-          "name": "owner"
+          name: "owner";
         },
         {
-          "name": "extraAccountMetaList",
-          "pda": {
-            "seeds": [
+          name: "extraAccountMetaList";
+          pda: {
+            seeds: [
               {
-                "kind": "const",
-                "value": [
+                kind: "const";
+                value: [
                   101,
                   120,
                   116,
@@ -195,73 +157,64 @@ export type GherkinPayHook = {
                   116,
                   97,
                   115
-                ]
+                ];
               },
               {
-                "kind": "account",
-                "path": "mint"
+                kind: "account";
+                path: "mint";
               }
-            ]
-          }
+            ];
+          };
         },
         {
-          "name": "sourceCompliance"
+          name: "sourceCompliance";
         },
         {
-          "name": "destinationCompliance"
+          name: "destinationCompliance";
         }
-      ],
-      "args": [
+      ];
+      args: [
         {
-          "name": "amount",
-          "type": "u64"
+          name: "amount";
+          type: "u64";
         }
-      ]
+      ];
     }
-  ],
-  "accounts": [
+  ];
+  accounts: [
     {
-      "name": "complianceEntry",
-      "discriminator": [
-        3,
-        112,
-        228,
-        41,
-        214,
-        132,
-        1,
-        249
-      ]
+      name: "complianceEntry";
+      discriminator: [3, 112, 228, 41, 214, 132, 1, 249];
     }
-  ],
-  "errors": [
+  ];
+  errors: [
     {
-      "code": 6000,
-      "name": "senderNotCompliant",
-      "msg": "Sender is not on the compliance allowlist"
+      code: 6000;
+      name: "senderNotCompliant";
+      msg: "Sender is not on the compliance allowlist";
     },
     {
-      "code": 6001,
-      "name": "receiverNotCompliant",
-      "msg": "Receiver is not on the compliance allowlist"
+      code: 6001;
+      name: "receiverNotCompliant";
+      msg: "Receiver is not on the compliance allowlist";
     }
-  ],
-  "types": [
+  ];
+  types: [
     {
-      "name": "complianceEntry",
-      "type": {
-        "kind": "struct",
-        "fields": [
+      name: "complianceEntry";
+      type: {
+        kind: "struct";
+        fields: [
           {
-            "name": "isAllowed",
-            "type": "bool"
+            name: "isAllowed";
+            type: "bool";
           },
           {
-            "name": "bump",
-            "type": "u8"
+            name: "bump";
+            type: "u8";
           }
-        ]
-      }
+        ];
+      };
     }
-  ]
+  ];
 };

@@ -16,3 +16,11 @@ macOS sed requires `sed -i ''` (empty string argument after -i flag) for in-plac
 ## Typecheck must run after build in app/web
 
 The `tsconfig.json` includes `.next/types/**/*.ts` which Next.js generates during `bun run build`. Running `bun run typecheck` before build (or on a clean `.next/` dir) fails with TS6053 "File not found" errors for every route type file. Always build first, then typecheck.
+
+## Root lint glob catches .next build artifacts
+
+The root `package.json` lint script uses `prettier */*.js "*/**/*{.js,.ts}" --check` which matches files inside `app/web/.next/`. The `.prettierignore` must include `.next` to avoid formatting failures on generated build output.
+
+## Anchor v0.30+ reads program address from IDL
+
+The `Program` constructor in `@coral-xyz/anchor` v0.30+ reads the program address directly from the IDL JSON's `address` field. No need to pass `PROGRAM_ID` separately — just pass the IDL and provider.

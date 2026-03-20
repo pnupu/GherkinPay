@@ -91,6 +91,13 @@ This is the integration task — after this, the wallet connect flow works end-t
 - [ ] `bun run typecheck` exits 0
 - [ ] All new files use `~/` imports, never `@/`
 
+## Observability Impact
+
+- **Wallet state:** `useWallet()` hook exposes `connected`, `publicKey`, `disconnect` — any downstream component can inspect connection status
+- **Anchor availability:** `useAnchorProgram()` returns `{ program: null, hookProgram: null }` when wallet disconnected, non-null typed `Program` instances when connected — null check is the inspection surface
+- **Build failures:** Webpack externals misconfiguration surfaces as `Module not found` errors in `bun run build` output; missing IDL files surface as TypeScript import errors
+- **Env validation:** Missing or malformed `NEXT_PUBLIC_SOLANA_RPC_URL` triggers T3 Zod validation error at app startup with clear error message
+
 ## Verification
 
 - `cd app/web && bun run build` exits 0
