@@ -1,73 +1,98 @@
 # S04: Milestones — Live Reads — UAT
 
-**Written:** 2026-03-20
-**Slice:** S04
 **Milestone:** M001
-**Non-blocking:** Run this whenever convenient. Report failures as issues.
+**Written:** 2026-03-20
 
----
+## UAT Type
 
-## What You're Testing
+- UAT mode: artifact-driven
+- Why this mode is sufficient: This slice is a read-only data display page — no user mutations, no wallet signing. Build/typecheck + grep verification confirms code correctness. Live runtime verification requires a devnet wallet with existing conditionAccount data, which is covered by milestone-level integration testing.
 
-The Milestones page now fetches real `ConditionAccount` data from Solana devnet, joined to parent payment agreements. Four UI states should work correctly.
+## Preconditions
 
-## Setup
+- `cd app/web && bun run build` exits 0
+- Dev server running: `cd app/web && bun run dev`
+- Browser with Phantom or Solflare extension installed
+- Devnet selected in wallet
 
-```bash
-cd app/web
-bun run dev
-# Open http://localhost:3000/milestones
-# Have Phantom/Solflare installed and configured for devnet
-```
+## Smoke Test
 
-## Test Steps
+Navigate to `http://localhost:3000/milestones` without connecting a wallet. The page should render a "Connect your wallet to view milestone schedules" message. No console errors.
 
-### 1. Disconnected state
+## Test Cases
 
-- [ ] Open http://localhost:3000/milestones with wallet disconnected
-- [ ] Page shows "Connect your wallet to view milestone schedules." prompt
-- [ ] No table, no errors
+### 1. Disconnected state renders connect prompt
 
-### 2. Connected — empty state (if no conditionAccounts on devnet)
+1. Open `http://localhost:3000/milestones` with wallet disconnected
+2. **Expected:** Page shows heading "Milestones" with subtitle "Phase-by-phase release management" and a centered message: "Connect your wallet to view milestone schedules."
 
-- [ ] Connect wallet
-- [ ] If no conditionAccount accounts exist: page shows "No milestones found. Create a milestone-based payment agreement to get started."
-- [ ] Table headers are visible
+### 2. Loading state shows skeleton rows
 
-### 3. Connected — populated state (if conditionAccounts exist)
+1. Connect wallet on devnet
+2. Navigate to milestones page (or refresh)
+3. **Expected:** While data loads, 3 skeleton rows appear in the table with 7 placeholder cells each. Skeleton cells pulse with the standard shadcn animation.
 
-- [ ] Connect wallet
-- [ ] Milestones table appears with columns: Milestone, Agreement, Amount, Status, Conditions, Operator, Finalized
-- [ ] Milestone column shows "#N" index (1-based)
-- [ ] Agreement column shows payment ID number (e.g. "#1") or truncated pubkey (e.g. "9xKj…mR4P")
-- [ ] Amount column shows USDC-formatted value (e.g. "$1,000.00")
-- [ ] Status column shows a Badge: Pending (outline), Active (green/default), Released (grey/secondary)
-- [ ] Conditions column shows a count number
-- [ ] Operator column shows "and" or "or" (lowercase)
-- [ ] Finalized column shows "Yes" or "No"
+### 3. Empty state when no milestones exist
 
-### 4. Loading state
+1. Connect a devnet wallet that has no associated conditionAccount accounts
+2. Navigate to milestones page
+3. **Expected:** Table header renders with columns: Milestone, Agreement, Amount, Status, Conditions, Operator, Finalized. Table body shows a single row spanning all columns: "No milestones found. Create a milestone-based payment agreement to get started."
 
-- [ ] On slow connections or first load, skeleton rows appear before data loads
-- [ ] Skeletons disappear and are replaced by real data (or empty state)
+### 4. Populated state with real conditionAccounts
 
-### 5. Build verification
+1. Connect a devnet wallet that is party to at least one PaymentAgreement with milestones
+2. Navigate to milestones page
+3. **Expected:** Table rows appear with:
+   - Milestone column: `#1`, `#2`, etc. (1-indexed from `milestoneIndex`)
+   - Agreement column: `#<paymentId>` if parent agreement is in scope, or truncated pubkey (`xxxx…xxxx`) if not
+   - Amount column: USD-formatted value (e.g., `$1,000.00`) derived from lamports / 1e6
+   - Status column: Badge with "Pending" (outline), "Active" (default), or "Released" (secondary)
+   - Conditions column: integer count of conditions array length
+   - Operator column: "and" or "or" (lowercase, capitalized via CSS)
+   - Finalized column: "Yes" or "No"
 
-```bash
-cd app/web && bun run build
-```
-- [ ] Build exits with no errors
+### 5. No tRPC or mock data in source
 
-## What a Failure Looks Like
+1. Run: `rg "tRPC|trpc|HydrateClient" app/web/src/app/\(console\)/milestones/`
+2. Run: `rg "M-01|M-02|M-03|Northline|Boreal|PAY-40" app/web/src/app/\(console\)/milestones/`
+3. **Expected:** Both commands return no matches (exit code 1).
 
-| Symptom | Likely Cause |
-|---------|--------------|
-| Page shows nothing / blank after connecting | useMilestones() query not enabled |
-| TypeScript build error mentioning `conditionOperator` | Field name regression — must be `operator` |
-| Mock data IDs (M-01, M-02, PAY-4021) visible | Rewrite incomplete |
-| Amount shows very large number | Missing `/1e6` USDC conversion |
-| Status badge missing / shows raw key | MILESTONE_STATUS_CONFIG missing entry |
+### 6. No @/ import aliases
 
-## Report Failures
+1. Run: `rg "@/" app/web/src/lib/queries/milestones.ts app/web/src/app/\(console\)/milestones/page.tsx`
+2. **Expected:** No matches. All imports use `~/` alias.
 
-If any test fails, note the symptom and which step number failed. A fix task will be created in the current slice or a new fix slice.
+## Edge Cases
+
+### RPC error handling
+
+1. Configure an invalid RPC endpoint (or disconnect network)
+2. Connect wallet and navigate to milestones page
+3. **Expected:** After loading state, an error message appears in destructive (red) styling: "Failed to load milestones: <error.message>"
+
+### Orphaned milestones (parent agreement not in wallet scope)
+
+1. Have a conditionAccount whose `payment` pubkey points to an agreement not owned by the connected wallet
+2. Navigate to milestones page
+3. **Expected:** The Agreement column shows a truncated pubkey (`xxxx…xxxx`) instead of `#<paymentId>`. No crash or missing data.
+
+## Failure Signals
+
+- Build or typecheck failure in `app/web`
+- Console errors related to `useMilestones`, `conditionAccount`, or `useAgreements`
+- Table columns showing `undefined`, `NaN`, or `[object Object]` instead of formatted values
+- Mock data strings appearing in the rendered UI
+- Page crashing when wallet is disconnected
+
+## Not Proven By This UAT
+
+- Write operations (creating/modifying milestones) — those are M002 scope
+- Mainnet-scale performance with many conditionAccounts — devnet only
+- Real-time updates when on-chain data changes — requires manual refresh or React Query refetch
+- Cross-browser compatibility beyond Chrome/Brave with Phantom
+
+## Notes for Tester
+
+- If no conditionAccount data exists on devnet, the empty state is the expected correct behavior — the page is working correctly.
+- The milestones page depends on the agreements query loading first (enabled guard). If agreements fail, milestones will stay in loading state indefinitely — check agreements page first if milestones seem stuck.
+- React Query DevTools (if enabled) can inspect the `["milestones", "<pubkey>"]` cache key to see raw fetched data.

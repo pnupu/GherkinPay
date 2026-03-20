@@ -62,6 +62,12 @@ The page displays: milestone index, parent agreement ID (truncated pubkey), amou
 - `app/web/src/app/(console)/milestones/page.tsx` — current page with mock data to be replaced
 - S03 patterns: status enum extraction via `Object.keys(status)[0]`, BN amount formatting via `/1e6`, pubkey truncation as `first4…last4`
 
+## Observability Impact
+
+- **UI state signals:** Four explicit states (disconnected/loading/empty/populated) plus error state with `error.message` rendering — a future agent can verify which branch renders by checking wallet connection and query cache state.
+- **React Query cache:** Key `["milestones", walletPubkey]` visible in React Query DevTools. Inspect `isLoading`, `isError`, `data.length` to diagnose rendering issues.
+- **Failure visibility:** RPC errors surface in the destructive-styled error message block. Network failures visible in browser devtools Network tab for Solana RPC calls.
+
 ## Expected Output
 
 - `app/web/src/app/(console)/milestones/page.tsx` — fully rewritten with live on-chain data, four UI states, shadcn components, zero mock data
