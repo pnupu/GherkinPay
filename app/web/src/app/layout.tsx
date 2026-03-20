@@ -1,9 +1,12 @@
 import "~/styles/globals.css";
 
 import { type Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
+import { Space_Grotesk, Geist } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import { cn } from "~/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
   title: "GherkinPay",
@@ -19,7 +22,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${spaceGrotesk.variable}`}>
+    <html lang="en" className={cn(spaceGrotesk.variable, "font-sans", geist.variable)}>
       <body>
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>

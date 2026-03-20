@@ -48,3 +48,10 @@ Install the shadcn/ui form components needed by the wizard (Input, Label, Select
 - `app/web/src/components/ui/tabs.tsx` — shadcn Tabs component
 - `app/web/src/components/ui/separator.tsx` — shadcn Separator component
 - `app/web/src/components/transaction-status.tsx` — reusable transaction status display
+
+## Observability Impact
+
+- **New signal:** TransactionStatus component renders `role="status"` with `aria-live="polite"` so screen readers and automated tests can observe transaction state changes.
+- **Inspection surface:** Success state links directly to Solana Explorer (`explorer.solana.com/tx/{sig}?cluster=devnet`) for on-chain verification.
+- **Failure visibility:** Error state renders the Anchor error message in the UI; upstream callers should `console.error` the full error object before passing the message string to this component.
+- **Agent inspection:** The `data-slot="badge"` attribute on Badge variants allows programmatic querying of status (e.g., `[data-slot="badge"]` with text "Confirmed" or "Failed").

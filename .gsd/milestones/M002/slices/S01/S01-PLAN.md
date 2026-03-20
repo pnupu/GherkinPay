@@ -27,6 +27,7 @@
 - `bun run typecheck` passes clean in `app/web`
 - Manual verification: create a simple payment with a TimeBased condition via the wizard on devnet; PaymentAgreement account exists (verify via agreements list refresh or Solana Explorer)
 - Manual verification: create a 2-milestone payment via the wizard; both conditionAccount PDAs exist on-chain
+- Failure diagnostic: submit a payment with invalid parameters (e.g. zero amount or missing payee) → wizard displays an error message from the Anchor program error and logs the full error to console.error
 
 ## Observability / Diagnostics
 
@@ -43,7 +44,7 @@
 
 ## Tasks
 
-- [ ] **T01: Install shadcn form components and create transaction status toast** `est:30m`
+- [x] **T01: Install shadcn form components and create transaction status toast** `est:30m`
   - Why: The wizard needs Input, Label, Select, RadioGroup, Tabs, Separator from shadcn, and all write flows need a shared transaction status component. Installing these first gives downstream tasks their building blocks.
   - Files: `app/web/src/components/ui/input.tsx`, `app/web/src/components/ui/label.tsx`, `app/web/src/components/ui/select.tsx`, `app/web/src/components/ui/radio-group.tsx`, `app/web/src/components/ui/tabs.tsx`, `app/web/src/components/ui/separator.tsx`, `app/web/src/components/transaction-status.tsx`
   - Do: Run `npx shadcn@canary add input label select radio-group tabs separator` in `app/web`. Create a `TransactionStatus` component that shows loading spinner during tx, success with signature link to Solana Explorer, or error with message. Use shadcn Alert or a simple toast pattern. Export from `components/transaction-status.tsx`.
