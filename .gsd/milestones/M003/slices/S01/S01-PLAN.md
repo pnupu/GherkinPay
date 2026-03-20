@@ -55,7 +55,7 @@
   - Verify: `cd app/web && bun run build` exits 0
   - Done when: `bun run build` passes, wallet connect button renders in sidebar, useAnchorProgram returns typed Program instances
 
-- [ ] **T02: Create agreement detail page with useConditions() hook and condition card rendering** `est:1h30m`
+- [x] **T02: Create agreement detail page with useConditions() hook and condition card rendering** `est:1h30m`
   - Why: The agreement detail page at `/agreements/[id]` is the central surface for S01 (and S02). It must fetch ConditionAccount data, render type-specific condition cards, and show payment metadata — all with live on-chain data. Skills: react-best-practices, frontend-design.
   - Files: `app/web/src/lib/queries/conditions.ts`, `app/web/src/lib/queries/agreements.ts`, `app/web/src/components/condition-card.tsx`, `app/web/src/components/agreements-client.tsx`, `app/web/src/app/(console)/agreements/[id]/page.tsx`, `app/web/src/app/(console)/agreements/page.tsx`
   - Do: Create useConditions(paymentPubkey) React Query hook that fetches ConditionAccount(s) for a payment. Create useAgreements() query hook for the list page. Build AgreementsClient with clickable rows (Next.js Link to /agreements/[pubkey]). Build agreement detail page reading [id] param, fetching PaymentAgreement + conditions. Create ConditionCard component rendering all 5 condition types with type badge, metadata (unlock_at, feed_account, threshold, signers, relayer), and met/unmet status badge. Handle loading/error/empty states.

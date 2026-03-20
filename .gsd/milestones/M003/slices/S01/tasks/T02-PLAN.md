@@ -62,7 +62,12 @@ From M001/S03 summary:
 - `test -f app/web/src/components/condition-card.tsx` — card component exists
 - `grep -q "useConditions" app/web/src/lib/queries/conditions.ts` — hook exported
 
-## Inputs
+## Observability Impact
+
+- **Inspection surfaces added:** React Query cache keys `["agreements"]`, `["conditions", paymentPubkey]`, and `["payment", paymentPubkey]` are visible in React Query devtools for debugging data fetch state.
+- **Future agent inspection:** To verify data fetching works, connect a wallet on devnet with existing on-chain agreements, open `/agreements`, and check React Query devtools for populated cache entries. Navigate to `/agreements/[pubkey]` and verify `["conditions", pubkey]` cache key populates.
+- **Failure visibility:** Four explicit UI states (disconnected, loading, error, populated) surface fetch failures visibly. Error state shows `error.message` from RPC failures.
+- **No runtime console logs in this task** — T03 adds `[GherkinPay]` prefixed crank logs.
 
 - `app/web/src/lib/anchor.ts` — useAnchorProgram() hook from T01
 - `app/web/src/lib/pda.ts` — PDA derivation helpers from T01
