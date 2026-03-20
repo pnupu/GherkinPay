@@ -24,7 +24,7 @@
 
 ## Tasks
 
-- [ ] **T01: Wire compliance query hook and rewrite compliance page with live data** `est:25m`
+- [x] **T01: Wire compliance query hook and rewrite compliance page with live data** `est:25m`
   - Why: R004 requires the compliance page to show real ComplianceEntry accounts from the hook program. This creates the query hook and rewrites the page using the same pattern as agreements/milestones.
   - Files: `app/web/src/lib/queries/compliance.ts`, `app/web/src/app/(console)/compliance/page.tsx`
   - Do: Create `useComplianceEntries()` following the `agreements.ts` pattern but using `hookProgram` cast to `Program<GherkinPayHook>`. Fetch all entries with `.all()`. Rewrite compliance page as `"use client"` component consuming the hook, with shadcn Table/Badge/Skeleton, loading/empty/error states, and `truncatePubkey()` for account addresses.
@@ -37,6 +37,13 @@
   - Do: Remove the hardcoded `relayers` array. Replace table with a shadcn-styled empty state message explaining relayer registration is coming soon. Keep existing header structure. Use shadcn Card or simple styled div.
   - Verify: `cd app/web && bun run build` exits 0; `! grep -q "relayers =" src/app/\(console\)/relayers/page.tsx`
   - Done when: Relayers page renders with no mock data and a clean placeholder message.
+
+## Observability / Diagnostics
+
+- **React Query DevTools**: `useComplianceEntries` query key `["compliance"]` visible in React Query devtools when connected; shows fetch status, stale time, and error state.
+- **Browser console**: Failed RPC calls to devnet log errors via React Query's default error handling; `error.message` is surfaced in the compliance page error state.
+- **Network tab**: Devnet RPC calls for `getProgramAccounts` on the hook program ID are visible in the browser network tab — look for JSON-RPC POST requests to the configured devnet URL.
+- **Empty vs error distinction**: An empty `data` array (no entries on-chain) renders "No compliance entries found" text; an RPC failure renders red "Failed to load" text — these are visually distinct states.
 
 ## Files Likely Touched
 
