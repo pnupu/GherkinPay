@@ -58,7 +58,7 @@
   - Verify: `bun run typecheck` passes; hook exports correctly
   - Done when: `useCreatePayment()` hook compiles with correct types matching the IDL instruction signatures from the test file
 
-- [ ] **T03: Condition builder component** `est:1h`
+- [x] **T03: Condition builder component** `est:1h`
   - Why: The condition builder is the most complex form element — it must handle dynamic add/remove of conditions, a Select for condition type that switches the form fields, and per-type validation. This is used in both simple and milestone modes.
   - Files: `app/web/src/components/condition-builder.tsx`
   - Do: Build a `ConditionBuilder` component that renders a list of condition forms with an "Add Condition" button (max 8). Each condition has a Select for type (TimeBased, Multisig, Oracle, Webhook, TokenGated) and type-specific fields: TimeBased (datetime picker → unix timestamp), Multisig (signer pubkeys + threshold), Oracle (feed account pubkey + comparison operator + target value + decimals), Webhook (relayer pubkey + event hash hex), TokenGated (mint pubkey + min amount + holder pubkey). Include AND/OR operator RadioGroup at the top. Use react-hook-form `useFieldArray` for the dynamic conditions list. Validate: MAX_CONDITIONS=8, MAX_SIGNERS=5, required fields per type.

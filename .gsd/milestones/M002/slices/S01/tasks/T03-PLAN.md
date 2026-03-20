@@ -46,3 +46,9 @@ Build the ConditionBuilder component — a dynamic form that lets users add/remo
 ## Expected Output
 
 - `app/web/src/components/condition-builder.tsx` — dynamic condition form builder component
+
+## Observability Impact
+
+- **Signals changed:** ConditionBuilder emits `data-testid="condition-builder"` and `data-testid="condition-row-{index}"` attributes for automated testing and browser inspection. Validation errors are rendered inline as `<p class="text-xs text-destructive">` elements.
+- **Inspection:** Use `data-testid` selectors to query condition count, current type selections, and error state in browser automation. The component exposes `onValidChange` callback for parent forms to track validation state.
+- **Failure visibility:** Zod validation errors for each field (invalid base58 address, future date requirement, threshold > signers, etc.) are surfaced as inline error messages below each field. No console logging from this component — it is a pure form component.
