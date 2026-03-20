@@ -37,17 +37,6 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: S04: useMilestones() hook fetches conditionAccount.all() and joins to parent agreements; milestones page renders live status badges, USDC amounts, condition counts; build+typecheck pass; zero mock data.
 - Notes: Unfiltered fetch acceptable at devnet scale; will need getProgramAccounts filters for mainnet.
 
-### R005 — Activity page shows real on-chain events (PaymentCreated, PaymentFunded, PaymentReleased, etc.) parsed from program logs
-- Class: primary-user-loop
-- Status: active
-- Description: Activity page shows real on-chain events (PaymentCreated, PaymentFunded, PaymentReleased, etc.) parsed from program logs
-- Why it matters: Users need visibility into what happened and when
-- Source: user
-- Primary owning slice: M001/S06
-- Supporting slices: none
-- Validation: unmapped
-- Notes: Use getParsedTransactions or event subscription
-
 ### R006 — All UI elements use shadcn/ui components (Button, Dialog, Table, Form, etc.) on top of Tailwind v4
 - Class: quality-attribute
 - Status: active
@@ -193,6 +182,17 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: S05: useComplianceEntries() hook fetches ComplianceEntry accounts from hook program (gherkin_pay_hook) via .all(); compliance page renders live data with shadcn Table/Badge, loading/empty/error/disconnected states. Build and typecheck pass.
 - Notes: PDA seeds: ["compliance", mint, wallet]
 
+### R005 — Activity page shows real on-chain events (PaymentCreated, PaymentFunded, PaymentReleased, etc.) parsed from program logs
+- Class: primary-user-loop
+- Status: validated
+- Description: Activity page shows real on-chain events (PaymentCreated, PaymentFunded, PaymentReleased, etc.) parsed from program logs
+- Why it matters: Users need visibility into what happened and when
+- Source: user
+- Primary owning slice: M001/S06
+- Supporting slices: none
+- Validation: S06: Activity page parses real on-chain events from gherkin_pay program transactions using Anchor EventParser; events labelled by type with timestamp and affected payment pubkey; bun run build passes; zero hardcoded mock arrays.
+- Notes: Use getParsedTransactions or event subscription
+
 ## Deferred
 
 ### R018 — UI for browsing and selecting Pyth price feeds by symbol when creating oracle conditions
@@ -249,7 +249,7 @@ This file is the explicit capability and coverage contract for the project.
 | R002 | primary-user-loop | active | M001/S03 | none | unmapped |
 | R003 | primary-user-loop | active | M001/S04 | none | S04: useMilestones() hook fetches conditionAccount.all() and joins to parent agreements; milestones page renders live status badges, USDC amounts, condition counts; build+typecheck pass; zero mock data. |
 | R004 | primary-user-loop | validated | M001/S05 | none | S05: useComplianceEntries() hook fetches ComplianceEntry accounts from hook program (gherkin_pay_hook) via .all(); compliance page renders live data with shadcn Table/Badge, loading/empty/error/disconnected states. Build and typecheck pass. |
-| R005 | primary-user-loop | active | M001/S06 | none | unmapped |
+| R005 | primary-user-loop | validated | M001/S06 | none | S06: Activity page parses real on-chain events from gherkin_pay program transactions using Anchor EventParser; events labelled by type with timestamp and affected payment pubkey; bun run build passes; zero hardcoded mock arrays. |
 | R006 | quality-attribute | active | M001/S01 | M001/S02, M001/S03, M001/S04, M001/S05, M001/S06 | S01: shadcn installed, themed to GherkinPay dark green palette, 4 core components (Button/Table/Badge/Dialog) available, bun run build passes. S02: WalletMultiButton uses shadcn Button. S03: Agreements page uses Table/Badge/Skeleton. S04: Milestones page uses Table/Badge/Skeleton. S05: Compliance page uses Table/Badge/Skeleton. Full validation when S06 adopts components. |
 | R007 | primary-user-loop | active | M002/S01 | M002/S02 | unmapped |
 | R008 | primary-user-loop | active | M002/S02 | none | unmapped |
@@ -269,7 +269,7 @@ This file is the explicit capability and coverage contract for the project.
 
 ## Coverage Summary
 
-- Active requirements: 16
-- Mapped to slices: 16
-- Validated: 1 (R004)
+- Active requirements: 15
+- Mapped to slices: 15
+- Validated: 2 (R004, R005)
 - Unmapped active requirements: 0

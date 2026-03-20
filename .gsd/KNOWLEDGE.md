@@ -28,3 +28,11 @@ The `Program` constructor in `@coral-xyz/anchor` v0.30+ reads the program addres
 ## Anchor 0.32 Program<IDL> generic defaults to Idl
 
 `new Program(idl as unknown as GherkinPay, provider)` does NOT make TypeScript infer `Program<GherkinPay>` — the constructor signature takes `idl: any`, so the generic defaults to `Idl`. Accessing `program.account.paymentAgreement` fails with "Property does not exist on AccountNamespace<Idl>". Fix: cast the program to `Program<GherkinPay>` at the usage site, or add an explicit type annotation in `useAnchorProgram()`.
+
+## Build script lives in app/web, not repo root
+
+The root `package.json` has no `build` script — only lint. All build/typecheck/dev commands must run from `app/web/`: `cd app/web && bun run build`. Running `bun run build` at the repo root fails with "Script not found".
+
+## EventParser requires program.coder cast
+
+Anchor's `EventParser` constructor takes a `Coder` from a typed program. When using `useAnchorProgram()` which returns `Program<Idl>`, you must cast to `Program<GherkinPay>` to access the correctly typed coder for event parsing. The EventParser then extracts named events from transaction log messages.
