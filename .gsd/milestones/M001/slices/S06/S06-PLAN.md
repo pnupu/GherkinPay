@@ -42,7 +42,7 @@
   - Verify: `grep -q "useActivityFeed" app/web/src/lib/queries/activity.ts && grep -q "EventParser" app/web/src/lib/queries/activity.ts`
   - Done when: Hook exported, uses EventParser, compiles without type errors
 
-- [ ] **T02: Rewrite Activity page with live event feed and shadcn components** `est:30m`
+- [x] **T02: Rewrite Activity page with live event feed and shadcn components** `est:30m`
   - Why: Replace the hardcoded mock array with a live feed consuming `useActivityFeed()`, following the established page pattern from compliance/agreements/milestones pages (R005, R006)
   - Files: `app/web/src/app/(console)/activity/page.tsx`
   - Do: Rewrite as `"use client"` component consuming `useActivityFeed()`. Use shadcn Table with columns: Time (relative timestamp from blockTime), Event (Badge with event name), Payment (truncated pubkey from event data), Details (signature truncated). Include Skeleton loading rows, empty state, error state, disconnected state. Format blockTime as relative time. Use the same `truncatePubkey` inline helper pattern as other pages. Follow the exact structure of `compliance/page.tsx` for state handling.
