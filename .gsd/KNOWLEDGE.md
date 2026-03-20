@@ -34,3 +34,21 @@
 **Context:** M003/S01/T02
 **Pattern:** Anchor prepends an 8-byte discriminator to all accounts. To filter ConditionAccounts by their `payment` field (first field after discriminator), use `memcmp` at offset 8 with the payment pubkey bytes.
 **Gotcha:** The offset is from the raw account data start, not from the deserialized struct.
+
+## Wallet Identity Gating Pattern
+
+**Context:** M003/S02
+**Pattern:** For permissioned actions (multisig approve, webhook confirm), use `useWallet().publicKey` with `PublicKey.equals()` to check if the connected wallet matches an on-chain identity (signer list entry, relayer pubkey). Never compare `.toString()` strings — `equals()` handles the comparison correctly.
+**UX:** Show contextual messages for three states: wallet disconnected, wrong wallet connected, or eligible wallet connected. Only the eligible state shows the action button.
+
+## Permissioned vs Permissionless Component Isolation
+
+**Context:** M003/S02 (D012)
+**Problem:** Sharing `TransactionStatus` state between permissioned and permissionless actions causes mutation state collision — one action's success/error overwrites another's feedback.
+**Solution:** Extract each permissioned action as its own sub-component (MultisigAction, WebhookAction) with dedicated `useMutation` + `TransactionStatus` state. Permissionless cranks share a single CrankAction component since only one is visible per condition.
+
+## hookProgram Follows Same Mutation Pattern
+
+**Context:** M003/S03/T01
+**Pattern:** The Token-2022 transfer hook program (`gherkin_pay_hook`) uses the exact same mutation pattern as the main program — just swap `program` for `hookProgram` from `useAnchorProgram()`. The eslint-disable header, console logging, error decoding, and cache invalidation are all identical.
+**Gotcha:** The hookProgram authority is different from the main program authority. Non-authority wallets get a decoded error after the on-chain transaction fails — no UI pre-check exists.

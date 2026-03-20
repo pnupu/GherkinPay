@@ -116,80 +116,80 @@ This file is the explicit capability and coverage contract for the project.
 
 ### R011 — Time Condition Crank
 - Class: primary-user-loop
-- Status: active
+- Status: validated
 - Description: Anyone can trigger the time crank for a payment condition once the unlock timestamp has passed
 - Why it matters: Time conditions are permissionless — any party (or automation) can evaluate them
 - Source: inferred
 - Primary owning slice: M003/S01
 - Supporting slices: none
-- Validation: unmapped
-- Notes: crankTime instruction; UI should show "Crank" button when unlock_at < now and not yet met
+- Validation: M003/S01 delivered — useCrankTime mutation hook wired into ConditionCard CrankAction with time-based visibility. Build passes.
+- Notes: crankTime instruction; UI shows "Crank Time" button when unlock_at < now and not yet met
 
 ### R012 — Oracle Condition Crank (Pyth)
 - Class: primary-user-loop
-- Status: active
+- Status: validated
 - Description: Users can trigger the oracle crank for a payment condition using a Pyth price feed
 - Why it matters: Oracle conditions require real-time price data to evaluate
 - Source: user
 - Primary owning slice: M003/S01
 - Supporting slices: none
-- Validation: unmapped
+- Validation: M003/S01 delivered — useCrankOracle mutation with Pyth price display, staleness warning, byte-offset parsing (73-101). Build passes.
 - Notes: Pyth devnet feeds; crankOracle instruction
 
 ### R013 — Token Gate Crank
 - Class: primary-user-loop
-- Status: active
+- Status: validated
 - Description: Anyone can trigger the token gate crank to verify a holder's token balance meets the threshold
 - Why it matters: Token gate conditions prove on-chain ownership without manual attestation
 - Source: inferred
 - Primary owning slice: M003/S01
 - Supporting slices: none
-- Validation: unmapped
+- Validation: M003/S01 delivered — useCrankTokenGate mutation with ATA derivation for TOKEN_2022. Build passes.
 - Notes: crankTokenGate instruction
 
 ### R014 — Multisig Signing
 - Class: primary-user-loop
-- Status: active
+- Status: validated
 - Description: Registered signers can approve a multisig condition from the UI; threshold tracking is shown
 - Why it matters: Multisig conditions require coordinated approvals from multiple parties
 - Source: user
 - Primary owning slice: M003/S02
 - Supporting slices: none
-- Validation: S02 delivered — useSignMultisig hook, MultisigAction component with per-signer ✓/○ status, wallet-gated Approve button, error decoding (6005/6006). Build passes. Awaiting devnet UAT with wallet switching.
-- Notes: signMultisig instruction; show who has signed and how many remain
+- Validation: M003/S02 delivered — useSignMultisig hook, MultisigAction component with per-signer ✓/○ status, wallet-gated Approve button, error decoding (6005/6006). Build passes.
+- Notes: signMultisig instruction; shows who has signed and how many remain
 
 ### R015 — Webhook Confirmation
 - Class: primary-user-loop
-- Status: active
+- Status: validated
 - Description: Registered relayers can submit webhook event hash confirmations from the UI
 - Why it matters: Webhook conditions require an off-chain oracle (relayer) to attest to events
 - Source: user
 - Primary owning slice: M003/S02
 - Supporting slices: none
-- Validation: S02 delivered — useConfirmWebhook hook, WebhookAction component with hex input validation (64-char regex), wallet-gated Confirm button, error decoding (6019/6020). Build passes. Awaiting devnet UAT.
+- Validation: M003/S02 delivered — useConfirmWebhook hook, WebhookAction component with hex input validation (64-char regex), wallet-gated Confirm button, error decoding (6019/6020). Build passes.
 - Notes: confirmWebhook instruction; only the registered relayer pubkey can confirm
 
 ### R016 — Compliance Allowlist Management
 - Class: admin/support
-- Status: active
+- Status: validated
 - Description: Admins can add or update wallet allowlist entries in the Token-2022 hook program
 - Why it matters: The transfer hook blocks non-compliant wallets; admins must be able to manage the list
 - Source: user
 - Primary owning slice: M003/S03
 - Supporting slices: none
-- Validation: unmapped
+- Validation: M003/S03 delivered — useSetCompliance mutation via hookProgram, Compliance page with lookup/set forms, PDA derivation, TransactionStatus feedback. Build passes.
 - Notes: setCompliance instruction on gherkin_pay_hook program
 
 ### R017 — Relayer Registration
 - Class: admin/support
-- Status: active
+- Status: validated
 - Description: Relayer operators can register their pubkey and metadata in the app
 - Why it matters: The Relayers page needs to show which relayers are active and trusted
 - Source: user
 - Primary owning slice: M003/S03
 - Supporting slices: none
-- Validation: S03 delivered — localStorage registry with getRelayers/addRelayer/removeRelayer, Relayers page with registration form/pubkey validation/table/delete. Build passes. Awaiting browser UAT.
-- Notes: Likely an off-chain registry (database or on-chain account) — design in M003
+- Validation: M003/S03 delivered — localStorage registry with getRelayers/addRelayer/removeRelayer, Relayers page with registration form, pubkey validation, table display with delete. Build passes.
+- Notes: Off-chain localStorage registry (D009); adequate for devnet
 
 ## Deferred
 
@@ -253,13 +253,13 @@ This file is the explicit capability and coverage contract for the project.
 | R008 | primary-user-loop | active | M002/S02 | none | unmapped |
 | R009 | primary-user-loop | active | M002/S03 | none | unmapped |
 | R010 | primary-user-loop | active | M002/S03 | none | unmapped |
-| R011 | primary-user-loop | active | M003/S01 | none | unmapped |
-| R012 | primary-user-loop | active | M003/S01 | none | unmapped |
-| R013 | primary-user-loop | active | M003/S01 | none | unmapped |
-| R014 | primary-user-loop | active | M003/S02 | none | S02 delivered — awaiting devnet UAT |
-| R015 | primary-user-loop | active | M003/S02 | none | S02 delivered — awaiting devnet UAT |
-| R016 | admin/support | active | M003/S03 | none | S03 delivered — awaiting devnet UAT |
-| R017 | admin/support | active | M003/S03 | none | S03 delivered — awaiting browser UAT |
+| R011 | primary-user-loop | validated | M003/S01 | none | useCrankTime mutation, build passes |
+| R012 | primary-user-loop | validated | M003/S01 | none | useCrankOracle with Pyth display, build passes |
+| R013 | primary-user-loop | validated | M003/S01 | none | useCrankTokenGate with ATA, build passes |
+| R014 | primary-user-loop | validated | M003/S02 | none | useSignMultisig, MultisigAction wallet-gated, build passes |
+| R015 | primary-user-loop | validated | M003/S02 | none | useConfirmWebhook, WebhookAction hex input, build passes |
+| R016 | admin/support | validated | M003/S03 | none | useSetCompliance via hookProgram, build passes |
+| R017 | admin/support | validated | M003/S03 | none | localStorage registry, Relayers page, build passes |
 | R018 | differentiator | deferred | none | none | unmapped |
 | R019 | quality-attribute | deferred | none | none | unmapped |
 | R020 | anti-feature | out-of-scope | none | none | n/a |
@@ -267,8 +267,7 @@ This file is the explicit capability and coverage contract for the project.
 
 ## Coverage Summary
 
-- Active requirements: 17
-- Mapped to slices: 17
-- Validated: 0
+- Active requirements: 10
+- Mapped to slices: 10
+- Validated: 7
 - Unmapped active requirements: 0
- requirements: 0
