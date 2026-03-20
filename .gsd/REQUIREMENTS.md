@@ -89,7 +89,7 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M002/S02
 - Supporting slices: none
-- Validation: unmapped
+- Validation: UAT: fund a Created payment on devnet via Fund button → sign wallet transaction → payment status changes to Active in agreements list; escrow token account holds USDC amount; payer balance check shown before funding
 - Notes: Requires token account lookup; devnet USDC only
 
 ### R009 — Any party can trigger evaluate-and-release once conditions are met, moving funds from escrow to payee
@@ -250,7 +250,7 @@ This file is the explicit capability and coverage contract for the project.
 | R005 | primary-user-loop | active | M001/S06 | none | unmapped |
 | R006 | quality-attribute | active | M001/S01 | M001/S02, M001/S03, M001/S04, M001/S05, M001/S06 | unmapped |
 | R007 | primary-user-loop | active | M002/S01 | M002/S02 | UAT: create simple payment with TimeBased condition on devnet via wizard; create 2-milestone payment via wizard; both produce on-chain PaymentAgreement accounts visible in agreements list |
-| R008 | primary-user-loop | active | M002/S02 | none | unmapped |
+| R008 | primary-user-loop | active | M002/S02 | none | UAT: fund a Created payment on devnet via Fund button → sign wallet transaction → payment status changes to Active in agreements list; escrow token account holds USDC amount; payer balance check shown before funding |
 | R009 | primary-user-loop | active | M002/S03 | none | unmapped |
 | R010 | primary-user-loop | active | M002/S03 | none | unmapped |
 | R011 | primary-user-loop | active | M003/S01 | none | unmapped |
