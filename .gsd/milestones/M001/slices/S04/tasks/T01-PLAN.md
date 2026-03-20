@@ -55,6 +55,14 @@ The `conditionAccount` on-chain struct has these fields: `payment` (PublicKey ba
 - `app/web/src/types/gherkin_pay.ts` — IDL types including `conditionAccount` fields and `milestoneStatus`/`conditionOperator` enums
 - S03 established: query hooks live in `lib/queries/`, one file per domain; `Program<GherkinPay>` cast required at hook level (D008)
 
+## Observability Impact
+
+- **React Query cache key:** `["milestones", walletPubkey]` — visible in React Query DevTools for cache inspection, refetch triggering, and staleness debugging.
+- **Query state signals:** `useMilestones()` exposes `isLoading`, `isError`, `error`, `data` — consumers render loading/error/empty states from these.
+- **RPC failure visibility:** Solana RPC errors propagate through React Query's `error` field with the original error message intact.
+- **Join diagnostics:** If a conditionAccount references a paymentAgreement not in the agreements list, `parentPaymentId` will be `undefined` — consumers can detect orphaned milestones.
+- **Inspection:** `rg "useMilestones" app/web/src/lib/queries/milestones.ts` confirms the hook export exists.
+
 ## Expected Output
 
 - `app/web/src/lib/queries/milestones.ts` — new file exporting `useMilestones()` React Query hook that fetches conditionAccount data joined to parent agreements

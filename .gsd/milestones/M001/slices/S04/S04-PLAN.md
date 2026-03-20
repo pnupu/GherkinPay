@@ -35,7 +35,7 @@
 
 ## Tasks
 
-- [ ] **T01: Build useMilestones query hook** `est:25m`
+- [x] **T01: Build useMilestones query hook** `est:25m`
   - Why: Data layer must exist before the page can consume it. Fetches all conditionAccount accounts from devnet and joins them to parent agreement data for display context.
   - Files: `app/web/src/lib/queries/milestones.ts`
   - Do: Create `useMilestones()` hook following the `useAgreements()` pattern exactly. Fetch `conditionAccount.all()` with `Program<GherkinPay>` cast. Depend on `useAgreements()` data for parent payment context (paymentId, counterparty). Client-side join via `conditionAccount.payment` pubkey matching. Query enabled only when program is non-null and agreements are loaded. Query key `["milestones", walletPubkey]`. Import BN from `@coral-xyz/anchor`. Use `~/` alias for all imports.
