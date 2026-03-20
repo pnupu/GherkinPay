@@ -54,7 +54,7 @@
   - Verify: `cd app/web && bun run build` exits 0; `grep -q "useSignMultisig" app/web/src/components/condition-card.tsx`; `grep -q "Approve" app/web/src/components/condition-card.tsx`
   - Done when: Multisig condition card shows per-signer approval status and an "Approve" button for connected signers who haven't yet approved, with TransactionStatus feedback
 
-- [ ] **T02: Wire confirmWebhook mutation and webhook confirm UI into condition card** `est:25m`
+- [x] **T02: Wire confirmWebhook mutation and webhook confirm UI into condition card** `est:25m`
   - Why: Delivers R015 — relayers need to submit event hash confirmations from the agreement detail view with hex input validation
   - Files: `app/web/src/lib/mutations/confirm-webhook.ts`, `app/web/src/components/condition-card.tsx`, `app/web/src/components/ui/input.tsx`
   - Do: Add shadcn Input component (`bunx --bun shadcn@canary add input`); create `useConfirmWebhook()` mutation hook following `crank-time.ts` pattern but with extra `eventHash: number[]` arg (32-element u8 array); in CrankAction, replace the webhook placeholder span with wallet-gated confirm form — use `useWallet().publicKey` and `PublicKey.equals()` to check if connected wallet matches `WebhookData.relayer`; render hex input + "Confirm" button; validate 64-char hex string before submission; convert hex to byte array via `Array.from(Buffer.from(hex, 'hex'))`; show "Connect wallet" message when disconnected and "Only the registered relayer can confirm" when wrong wallet

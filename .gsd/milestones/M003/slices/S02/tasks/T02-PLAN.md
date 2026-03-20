@@ -64,7 +64,13 @@ The UI checks if the connected wallet equals `WebhookData.relayer` using `Public
 - `grep -q "useConfirmWebhook" app/web/src/components/condition-card.tsx`
 - `grep -q "eventHash\|event-hash\|Event Hash" app/web/src/components/condition-card.tsx`
 
-## Inputs
+## Observability Impact
+
+- **Console logs:** `[GherkinPay] Confirming webhook condition index=N` before RPC, `[GherkinPay] confirmWebhook tx: <sig>` on success, `[GherkinPay] confirmWebhook failed: <decoded>` on error
+- **Error codes:** 6019 = RelayerMismatch, 6020 = EventHashMismatch — both decoded by `decodeAnchorError` and shown in TransactionStatus
+- **Cache:** After successful confirmation, `["conditions", paymentPubkey]` query is invalidated so condition `met` status refreshes automatically
+- **Explorer:** TransactionStatus includes Solana Explorer link on success for tx inspection
+- **Inspection:** WebhookAction sub-component has its own mutation state isolated from permissionless cranks
 
 - `app/web/src/lib/mutations/sign-multisig.ts` — mutation hook pattern from T01 (same structure)
 - `app/web/src/components/condition-card.tsx` — CrankAction component modified by T01 (webhook branch still has placeholder "Awaiting webhook relay"; `useWallet` already imported)

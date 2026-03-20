@@ -6,6 +6,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import { TransactionStatus } from "~/components/transaction-status";
 import { cn } from "~/lib/utils";
 import { useAnchorProgram } from "~/lib/anchor";
@@ -13,6 +14,7 @@ import { useCrankTime } from "~/lib/mutations/crank-time";
 import { useCrankOracle, parsePythPrice, isPriceStale } from "~/lib/mutations/crank-oracle";
 import { useCrankTokenGate } from "~/lib/mutations/crank-token-gate";
 import { useSignMultisig } from "~/lib/mutations/sign-multisig";
+import { useConfirmWebhook } from "~/lib/mutations/confirm-webhook";
 import { decodeAnchorError } from "~/lib/errors";
 import type {
   ParsedCondition,
@@ -309,6 +311,94 @@ function MultisigAction({
   );
 }
 
+/* ── webhook confirm sub-component ────── */
+
+const HEX_64_REGEX = /^[0-9a-fA-F]{64}$/;
+
+function WebhookAction({
+  data,
+  index,
+  paymentKey,
+  conditionKey,
+}: {
+  data: WebhookData;
+  index: number;
+  paymentKey: PublicKey;
+  conditionKey: PublicKey;
+}) {
+  const { publicKey: walletPubkey } = useWallet();
+  const confirmWebhook = useConfirmWebhook();
+  const [hexValue, setHexValue] = useState("");
+
+  const isRelayer = useMemo(() => {
+    if (!walletPubkey) return false;
+    return new PublicKey(data.relayer).equals(walletPubkey);
+  }, [data.relayer, walletPubkey]);
+
+  const isValidHex = HEX_64_REGEX.test(hexValue);
+
+  const handleConfirm = () => {
+    const eventHash = Array.from(Buffer.from(hexValue, "hex"));
+    confirmWebhook.mutate({
+      paymentPubkey: paymentKey,
+      conditionAccountPubkey: conditionKey,
+      conditionIndex: index,
+      eventHash,
+    });
+  };
+
+  const txStatus =
+    confirmWebhook.status === "pending"
+      ? ("pending" as const)
+      : confirmWebhook.status === "success"
+        ? ("success" as const)
+        : confirmWebhook.status === "error"
+          ? ("error" as const)
+          : ("idle" as const);
+
+  const txSignature =
+    typeof confirmWebhook.data === "string" ? confirmWebhook.data : null;
+  const txError = confirmWebhook.error
+    ? decodeAnchorError(confirmWebhook.error)
+    : null;
+
+  return (
+    <div className="space-y-2">
+      {!walletPubkey ? (
+        <span className="text-xs text-muted-foreground">
+          Connect wallet to confirm
+        </span>
+      ) : !isRelayer ? (
+        <span className="text-xs text-muted-foreground">
+          Only the registered relayer can confirm
+        </span>
+      ) : (
+        <div className="flex gap-2">
+          <Input
+            value={hexValue}
+            onChange={(e) => setHexValue(e.target.value.trim())}
+            placeholder="64-character hex event hash"
+            className="font-mono text-xs h-8"
+          />
+          <Button
+            size="sm"
+            onClick={handleConfirm}
+            disabled={!isValidHex || confirmWebhook.isPending}
+          >
+            Confirm
+          </Button>
+        </div>
+      )}
+
+      <TransactionStatus
+        status={txStatus}
+        signature={txSignature}
+        error={txError}
+      />
+    </div>
+  );
+}
+
 /* ── crank action area ────────────────── */
 
 function CrankAction({
@@ -452,15 +542,18 @@ function CrankAction({
         />
       )}
 
-      {/* Webhook: placeholder for T02 */}
+      {/* Webhook: interactive confirm UI */}
       {condition.type === "webhook" && (
-        <span className="text-xs text-muted-foreground">
-          Awaiting webhook relay
-        </span>
+        <WebhookAction
+          data={condition.data as WebhookData}
+          index={index}
+          paymentKey={paymentKey}
+          conditionKey={conditionKey}
+        />
       )}
 
-      {/* TransactionStatus for permissionless cranks (multisig has its own) */}
-      {condition.type !== "multisig" && (
+      {/* TransactionStatus for permissionless cranks (multisig & webhook have their own) */}
+      {condition.type !== "multisig" && condition.type !== "webhook" && (
         <TransactionStatus
           status={txStatus}
           signature={txSignature}
