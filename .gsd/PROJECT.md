@@ -15,8 +15,10 @@ Trustless structured settlements: funds released only when on-chain conditions a
 - Next.js 15 frontend (`app/web`) has all five console pages (Agreements, Milestones, Compliance, Relayers, Activity) with polished UI — all hardcoded mock data, zero on-chain reads yet
 - shadcn/ui installed and themed to GherkinPay dark green palette (S01 complete)
 - Wallet adapter wired into App Router — WalletContextProvider in root layout, WalletMultiButton in sidebar, Anchor Program hook available (S02 complete)
+- Agreements page fetches live PaymentAgreement accounts from devnet via React Query with shadcn Table/Badge/Skeleton — zero mock data, zero tRPC (S03 complete)
+- PDA derivation helpers and query hook pattern established for remaining pages
 - IDL types and constants in place for both programs; devnet RPC endpoint configured via T3 env schema
-- No on-chain data reads yet — S03–S06 will consume useAnchorProgram() to fetch live data
+- Remaining pages (Milestones, Compliance, Activity) still show hardcoded data — S04–S06 will wire them to live reads
 
 ## Architecture / Key Patterns
 

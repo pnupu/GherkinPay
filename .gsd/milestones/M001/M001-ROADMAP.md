@@ -58,7 +58,7 @@ This milestone is complete only when all are true:
 - [x] **S02: Wallet Connect and Anchor Client** `risk:high` `depends:[S01]`
   > After this: Phantom/Solflare wallet connects from the console header; connected pubkey visible in UI; Anchor program client initialised for both programs pointing at devnet.
 
-- [ ] **S03: Agreements — Live Reads** `risk:medium` `depends:[S02]`
+- [x] **S03: Agreements — Live Reads** `risk:medium` `depends:[S02]`
   > After this: Agreements page fetches and displays real PaymentAgreement accounts from devnet with correct status badges and empty state; zero hardcoded arrays.
 
 - [ ] **S04: Milestones — Live Reads** `risk:low` `depends:[S03]`

@@ -67,7 +67,7 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M001/S01
 - Supporting slices: M001/S02, M001/S03, M001/S04, M001/S05, M001/S06
-- Validation: S01: shadcn installed, themed to GherkinPay dark green palette, 4 core components (Button/Table/Badge/Dialog) available, bun run build passes. Full validation when S02-S06 adopt components.
+- Validation: S01: shadcn installed, themed to GherkinPay dark green palette, 4 core components (Button/Table/Badge/Dialog) available, bun run build passes. S02: WalletMultiButton uses shadcn Button. S03: Agreements page uses Table/Badge/Skeleton. Full validation when S04-S06 adopt components.
 - Notes: shadcn canary path (Tailwind v4 compatible); existing design tokens coexist via --gp-border/--gp-sidebar rename pattern. Foundation complete in S01; adoption tracked across supporting slices.
 
 ### R007 — Users can create a new payment agreement (simple or milestone), define conditions with AND/OR logic, and finalize the setup
@@ -244,7 +244,7 @@ This file is the explicit capability and coverage contract for the project.
 | ID | Class | Status | Primary owner | Supporting | Proof |
 |---|---|---|---|---|---|
 | R001 | primary-user-loop | active | M001/S02 | none | S02: Wallet adapter wired (provider, button, Anchor hook), build+typecheck pass. Awaiting human UAT — connecting a real wallet requires browser extension. |
-| R002 | primary-user-loop | active | M001/S03 | none | unmapped |
+| R002 | primary-user-loop | active | M001/S03 | none | S03: Page rewritten with live on-chain reads, shadcn components, four UI states, zero mock data. Awaiting human UAT. |
 | R003 | primary-user-loop | active | M001/S04 | none | unmapped |
 | R004 | primary-user-loop | active | M001/S05 | none | unmapped |
 | R005 | primary-user-loop | active | M001/S06 | none | unmapped |
@@ -264,6 +264,14 @@ This file is the explicit capability and coverage contract for the project.
 | R019 | quality-attribute | deferred | none | none | unmapped |
 | R020 | anti-feature | out-of-scope | none | none | n/a |
 | R021 | constraint | out-of-scope | none | none | n/a |
+
+## Coverage Summary
+
+- Active requirements: 17
+- Mapped to slices: 17
+- Validated: 0
+- Unmapped active requirements: 0
+ constraint | out-of-scope | none | none | n/a |
 
 ## Coverage Summary
 
