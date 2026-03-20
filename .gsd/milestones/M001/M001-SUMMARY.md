@@ -1,7 +1,7 @@
 # M001: Foundation — Summary
 
-**Last updated:** 2026-03-20
-**Slices complete:** 4 of 6
+**Last updated:** 2026-03-19
+**Slices complete:** 1 of 6
 
 ---
 
@@ -24,25 +24,4 @@ Key patterns:
 
 ---
 
-## S02–S03: Complete (see milestone branch worktree)
-
-S02 wired wallet adapter + Anchor clients; S03 rewrote Agreements page with live PaymentAgreement reads.
-
----
-
-## S04: Milestones — Live Reads ✅
-
-**useMilestones() hook and milestones page rewritten with live conditionAccount data, four UI states, shadcn components, zero hardcoded mock arrays.**
-
-Key outputs:
-- `app/web/src/lib/queries/milestones.ts` — `useMilestones()` React Query hook (client-side join to agreements)
-- `app/web/src/app/(console)/milestones/page.tsx` — four-state live page (disconnected/loading/empty/populated)
-
-Key patterns:
-- `account.operator` (not `account.conditionOperator`) — IDL field naming drops prefix in struct context
-- Enum key lowercasing: `Object.keys(account.someEnum)[0]!.toLowerCase()` for config map lookup
-- Four-state page pattern consistent across agreements + milestones
-
----
-
-## S05–S06: Pending
+## S02–S06: Pending
