@@ -229,6 +229,7 @@ export default function AgreementDetailPage() {
                     condition={cond}
                     index={idx}
                     paymentPubkey={paymentPubkey}
+                    conditionAccountPubkey={ca.pubkey}
                   />
                 ))}
               </div>
