@@ -19,7 +19,9 @@ Trustless structured settlements: funds released only when on-chain conditions a
 - PDA derivation helpers and query hook pattern established for remaining pages
 - IDL types and constants in place for both programs; devnet RPC endpoint configured via T3 env schema
 - Milestones page fetches live conditionAccount data from devnet with parent agreement join, status badges, USDC amounts (S04 complete)
-- Remaining pages (Compliance, Activity) still show hardcoded data — S05–S06 will wire them to live reads
+- Compliance page fetches live ComplianceEntry accounts from hook program via useComplianceEntries() with shadcn components (S05 complete)
+- Relayers page cleaned of mock data with static placeholder for M003 (S05 complete)
+- Remaining page (Activity) still shows hardcoded data — S06 will wire it to live reads
 
 ## Architecture / Key Patterns
 

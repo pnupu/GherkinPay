@@ -64,7 +64,7 @@ This milestone is complete only when all are true:
 - [x] **S04: Milestones — Live Reads** `risk:low` `depends:[S03]`
   > After this: Milestones page fetches real ConditionAccount data joined to their parent PaymentAgreement accounts; milestone status and amounts are live.
 
-- [ ] **S05: Compliance and Relayers — Live Reads** `risk:low` `depends:[S02]`
+- [x] **S05: Compliance and Relayers — Live Reads** `risk:low` `depends:[S02]`
   > After this: Compliance page shows real ComplianceEntry accounts from the hook program; Relayers page is statically clean (registration comes in M003).
 
 - [ ] **S06: Activity Event Feed** `risk:medium` `depends:[S02]`

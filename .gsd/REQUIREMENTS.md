@@ -37,17 +37,6 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: S04: useMilestones() hook fetches conditionAccount.all() and joins to parent agreements; milestones page renders live status badges, USDC amounts, condition counts; build+typecheck pass; zero mock data.
 - Notes: Unfiltered fetch acceptable at devnet scale; will need getProgramAccounts filters for mainnet.
 
-### R004 — Compliance page shows real allowlist entries from the hook program's ComplianceEntry accounts
-- Class: primary-user-loop
-- Status: active
-- Description: Compliance page shows real allowlist entries from the hook program's ComplianceEntry accounts
-- Why it matters: Admins need to see current compliance state before Token-2022 transfers
-- Source: user
-- Primary owning slice: M001/S05
-- Supporting slices: none
-- Validation: unmapped
-- Notes: PDA seeds: ["compliance", mint, wallet]
-
 ### R005 — Activity page shows real on-chain events (PaymentCreated, PaymentFunded, PaymentReleased, etc.) parsed from program logs
 - Class: primary-user-loop
 - Status: active
@@ -67,7 +56,7 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M001/S01
 - Supporting slices: M001/S02, M001/S03, M001/S04, M001/S05, M001/S06
-- Validation: S01: shadcn installed, themed to GherkinPay dark green palette, 4 core components (Button/Table/Badge/Dialog) available, bun run build passes. S02: WalletMultiButton uses shadcn Button. S03: Agreements page uses Table/Badge/Skeleton. S04: Milestones page uses Table/Badge/Skeleton. Full validation when S05-S06 adopt components.
+- Validation: S01: shadcn installed, themed to GherkinPay dark green palette, 4 core components (Button/Table/Badge/Dialog) available, bun run build passes. S02: WalletMultiButton uses shadcn Button. S03: Agreements page uses Table/Badge/Skeleton. S04: Milestones page uses Table/Badge/Skeleton. S05: Compliance page uses Table/Badge/Skeleton. Full validation when S06 adopts components.
 - Notes: shadcn canary path (Tailwind v4 compatible); existing design tokens coexist via --gp-border/--gp-sidebar rename pattern. Foundation complete in S01; adoption tracked across supporting slices.
 
 ### R007 — Users can create a new payment agreement (simple or milestone), define conditions with AND/OR logic, and finalize the setup
@@ -191,6 +180,19 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: unmapped
 - Notes: Likely an off-chain registry (database or on-chain account) — design in M003
 
+## Validated
+
+### R004 — Compliance page shows real allowlist entries from the hook program's ComplianceEntry accounts
+- Class: primary-user-loop
+- Status: validated
+- Description: Compliance page shows real allowlist entries from the hook program's ComplianceEntry accounts
+- Why it matters: Admins need to see current compliance state before Token-2022 transfers
+- Source: user
+- Primary owning slice: M001/S05
+- Supporting slices: none
+- Validation: S05: useComplianceEntries() hook fetches ComplianceEntry accounts from hook program (gherkin_pay_hook) via .all(); compliance page renders live data with shadcn Table/Badge, loading/empty/error/disconnected states. Build and typecheck pass.
+- Notes: PDA seeds: ["compliance", mint, wallet]
+
 ## Deferred
 
 ### R018 — UI for browsing and selecting Pyth price feeds by symbol when creating oracle conditions
@@ -246,9 +248,9 @@ This file is the explicit capability and coverage contract for the project.
 | R001 | primary-user-loop | active | M001/S02 | none | S02: Wallet adapter wired (provider, button, Anchor hook), build+typecheck pass. Awaiting human UAT — connecting a real wallet requires browser extension. |
 | R002 | primary-user-loop | active | M001/S03 | none | unmapped |
 | R003 | primary-user-loop | active | M001/S04 | none | S04: useMilestones() hook fetches conditionAccount.all() and joins to parent agreements; milestones page renders live status badges, USDC amounts, condition counts; build+typecheck pass; zero mock data. |
-| R004 | primary-user-loop | active | M001/S05 | none | unmapped |
+| R004 | primary-user-loop | validated | M001/S05 | none | S05: useComplianceEntries() hook fetches ComplianceEntry accounts from hook program (gherkin_pay_hook) via .all(); compliance page renders live data with shadcn Table/Badge, loading/empty/error/disconnected states. Build and typecheck pass. |
 | R005 | primary-user-loop | active | M001/S06 | none | unmapped |
-| R006 | quality-attribute | active | M001/S01 | M001/S02, M001/S03, M001/S04, M001/S05, M001/S06 | S01: shadcn installed, themed to GherkinPay dark green palette, 4 core components (Button/Table/Badge/Dialog) available, bun run build passes. S02: WalletMultiButton uses shadcn Button. S03: Agreements page uses Table/Badge/Skeleton. S04: Milestones page uses Table/Badge/Skeleton. Full validation when S05-S06 adopt components. |
+| R006 | quality-attribute | active | M001/S01 | M001/S02, M001/S03, M001/S04, M001/S05, M001/S06 | S01: shadcn installed, themed to GherkinPay dark green palette, 4 core components (Button/Table/Badge/Dialog) available, bun run build passes. S02: WalletMultiButton uses shadcn Button. S03: Agreements page uses Table/Badge/Skeleton. S04: Milestones page uses Table/Badge/Skeleton. S05: Compliance page uses Table/Badge/Skeleton. Full validation when S06 adopts components. |
 | R007 | primary-user-loop | active | M002/S01 | M002/S02 | unmapped |
 | R008 | primary-user-loop | active | M002/S02 | none | unmapped |
 | R009 | primary-user-loop | active | M002/S03 | none | unmapped |
@@ -267,7 +269,7 @@ This file is the explicit capability and coverage contract for the project.
 
 ## Coverage Summary
 
-- Active requirements: 17
-- Mapped to slices: 17
-- Validated: 0
+- Active requirements: 16
+- Mapped to slices: 16
+- Validated: 1 (R004)
 - Unmapped active requirements: 0
