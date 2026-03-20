@@ -61,7 +61,7 @@ This milestone is complete only when all are true:
 - [x] **S03: Agreements — Live Reads** `risk:medium` `depends:[S02]`
   > After this: Agreements page fetches and displays real PaymentAgreement accounts from devnet with correct status badges and empty state; zero hardcoded arrays.
 
-- [ ] **S04: Milestones — Live Reads** `risk:low` `depends:[S03]`
+- [x] **S04: Milestones — Live Reads** `risk:low` `depends:[S03]`
   > After this: Milestones page fetches real ConditionAccount data joined to their parent PaymentAgreement accounts; milestone status and amounts are live.
 
 - [ ] **S05: Compliance and Relayers — Live Reads** `risk:low` `depends:[S02]`
