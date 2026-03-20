@@ -9,6 +9,8 @@ import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import { useAnchorProgram } from "~/lib/anchor";
 import { FundPaymentDialog } from "~/components/fund-payment-dialog";
+import { ReleasePaymentDialog } from "~/components/release-payment-dialog";
+import { CancelPaymentDialog } from "~/components/cancel-payment-dialog";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -90,6 +92,8 @@ export function AgreementsClient() {
 
   // Dialog state
   const [fundDialogOpen, setFundDialogOpen] = useState(false);
+  const [releaseDialogOpen, setReleaseDialogOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentRow | null>(
     null
   );
@@ -145,6 +149,16 @@ export function AgreementsClient() {
   const handleFundClick = (payment: PaymentRow) => {
     setSelectedPayment(payment);
     setFundDialogOpen(true);
+  };
+
+  const handleReleaseClick = (payment: PaymentRow) => {
+    setSelectedPayment(payment);
+    setReleaseDialogOpen(true);
+  };
+
+  const handleCancelClick = (payment: PaymentRow) => {
+    setSelectedPayment(payment);
+    setCancelDialogOpen(true);
   };
 
   // ---------------------------------------------------------------------------
@@ -249,15 +263,37 @@ export function AgreementsClient() {
                     </Badge>
                   </td>
                   <td>
-                    {payment.status === "created" && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleFundClick(payment)}
-                      >
-                        Fund
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-1">
+                      {payment.status === "created" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleFundClick(payment)}
+                        >
+                          Fund
+                        </Button>
+                      )}
+                      {payment.status === "active" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleReleaseClick(payment)}
+                        >
+                          Release
+                        </Button>
+                      )}
+                      {(payment.status === "created" ||
+                        payment.status === "active") && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => handleCancelClick(payment)}
+                        >
+                          Cancel
+                        </Button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -279,6 +315,49 @@ export function AgreementsClient() {
             payer: selectedPayment.payer,
             payee: selectedPayment.payee,
             totalAmount: selectedPayment.totalAmount,
+            tokenMint: selectedPayment.tokenMint,
+            isMilestone: selectedPayment.isMilestone,
+            milestoneCount: selectedPayment.milestoneCount,
+          }}
+        />
+      )}
+
+      {/* Release Payment Dialog */}
+      {selectedPayment && (
+        <ReleasePaymentDialog
+          open={releaseDialogOpen}
+          onOpenChange={(open) => {
+            setReleaseDialogOpen(open);
+            if (!open) setSelectedPayment(null);
+          }}
+          paymentPDA={selectedPayment.pda}
+          paymentDetails={{
+            payer: selectedPayment.payer,
+            payee: selectedPayment.payee,
+            totalAmount: selectedPayment.totalAmount,
+            releasedAmount: selectedPayment.releasedAmount,
+            tokenMint: selectedPayment.tokenMint,
+            isMilestone: selectedPayment.isMilestone,
+            milestoneCount: selectedPayment.milestoneCount,
+            currentMilestone: selectedPayment.currentMilestone,
+          }}
+        />
+      )}
+
+      {/* Cancel Payment Dialog */}
+      {selectedPayment && (
+        <CancelPaymentDialog
+          open={cancelDialogOpen}
+          onOpenChange={(open) => {
+            setCancelDialogOpen(open);
+            if (!open) setSelectedPayment(null);
+          }}
+          paymentPDA={selectedPayment.pda}
+          paymentDetails={{
+            payer: selectedPayment.payer,
+            payee: selectedPayment.payee,
+            totalAmount: selectedPayment.totalAmount,
+            releasedAmount: selectedPayment.releasedAmount,
             tokenMint: selectedPayment.tokenMint,
             isMilestone: selectedPayment.isMilestone,
             milestoneCount: selectedPayment.milestoneCount,
