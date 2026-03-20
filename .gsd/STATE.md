@@ -17,4 +17,4 @@
 - None
 
 ## Next Action
-Execute T01 of S04 (Build useMilestones query hook).
+Execute T02: Rewrite milestones page with live data in slice S04.
