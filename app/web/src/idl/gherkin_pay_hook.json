@@ -1,0 +1,80 @@
+{
+  "address": "3pG9tTyExGA3C7sdvw5AcUvfmwydtRCLV22KPb6SfYRc",
+  "metadata": {
+    "name": "gherkin_pay_hook",
+    "version": "0.1.0",
+    "spec": "0.1.0"
+  },
+  "instructions": [
+    {
+      "name": "initialize_extra_account_meta_list",
+      "discriminator": [92, 197, 174, 197, 41, 124, 19, 3],
+      "accounts": [
+        { "name": "payer", "writable": true, "signer": true },
+        { "name": "extra_account_meta_list", "writable": true, "pda": { "seeds": [{ "kind": "const", "value": "extra-account-metas" }, { "kind": "account", "path": "mint" }] } },
+        { "name": "mint", "writable": false },
+        { "name": "system_program", "writable": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "transfer_hook",
+      "discriminator": [105, 37, 101, 197, 75, 251, 102, 26],
+      "accounts": [
+        { "name": "source_token", "writable": false },
+        { "name": "mint", "writable": false },
+        { "name": "destination_token", "writable": false },
+        { "name": "owner", "writable": false },
+        { "name": "extra_account_meta_list", "writable": false },
+        { "name": "source_compliance", "writable": false },
+        { "name": "destination_compliance", "writable": false }
+      ],
+      "args": [
+        { "name": "amount", "type": "u64" }
+      ]
+    },
+    {
+      "name": "set_compliance",
+      "discriminator": [33, 170, 94, 198, 135, 162, 25, 218],
+      "accounts": [
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "mint", "writable": false },
+        { "name": "wallet", "writable": false },
+        { "name": "compliance_entry", "writable": true, "pda": { "seeds": [{ "kind": "const", "value": "compliance" }, { "kind": "account", "path": "mint" }, { "kind": "account", "path": "wallet" }] } },
+        { "name": "system_program", "writable": false }
+      ],
+      "args": [
+        { "name": "is_allowed", "type": "bool" }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "ComplianceEntry",
+      "discriminator": [113, 48, 166, 242, 220, 158, 48, 118]
+    }
+  ],
+  "types": [
+    {
+      "name": "ComplianceEntry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "is_allowed", "type": "bool" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "HookError",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "SenderNotCompliant" },
+          { "name": "ReceiverNotCompliant" }
+        ]
+      }
+    }
+  ],
+  "events": []
+}

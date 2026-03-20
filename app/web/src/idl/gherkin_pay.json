@@ -1,0 +1,384 @@
+{
+  "address": "2wL3PPjoG4UmVrNYZyXvxfTfV738AVCG8LHJPUEtxEeV",
+  "metadata": {
+    "name": "gherkin_pay",
+    "version": "0.1.0",
+    "spec": "0.1.0"
+  },
+  "instructions": [
+    {
+      "name": "create_payment",
+      "discriminator": [32, 174, 109, 10, 118, 120, 49, 41],
+      "accounts": [
+        { "name": "payment", "writable": true, "pda": { "seeds": [{ "kind": "const", "value": "payment" }, { "kind": "arg", "path": "payment_id" }] } },
+        { "name": "escrow_token_account", "writable": true, "pda": { "seeds": [{ "kind": "const", "value": "escrow" }, { "kind": "account", "path": "payment" }] } },
+        { "name": "condition_account", "writable": true, "pda": { "seeds": [{ "kind": "const", "value": "condition" }, { "kind": "account", "path": "payment" }, { "kind": "const", "value": [0] }] } },
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "payer_wallet", "writable": false },
+        { "name": "payee_wallet", "writable": false },
+        { "name": "token_mint", "writable": false },
+        { "name": "token_program", "writable": false },
+        { "name": "system_program", "writable": false }
+      ],
+      "args": [
+        { "name": "payment_id", "type": "u64" },
+        { "name": "total_amount", "type": "u64" },
+        { "name": "operator", "type": { "defined": { "name": "ConditionOperator" } } }
+      ]
+    },
+    {
+      "name": "create_milestone_payment",
+      "discriminator": [120, 186, 10, 211, 192, 26, 24, 130],
+      "accounts": [
+        { "name": "payment", "writable": true },
+        { "name": "escrow_token_account", "writable": true },
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "payer_wallet", "writable": false },
+        { "name": "payee_wallet", "writable": false },
+        { "name": "token_mint", "writable": false },
+        { "name": "token_program", "writable": false },
+        { "name": "system_program", "writable": false }
+      ],
+      "args": [
+        { "name": "payment_id", "type": "u64" },
+        { "name": "total_amount", "type": "u64" },
+        { "name": "milestone_count", "type": "u8" }
+      ]
+    },
+    {
+      "name": "add_milestone",
+      "discriminator": [218, 12, 146, 48, 107, 52, 153, 10],
+      "accounts": [
+        { "name": "payment", "writable": true },
+        { "name": "condition_account", "writable": true },
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "system_program", "writable": false }
+      ],
+      "args": [
+        { "name": "milestone_index", "type": "u8" },
+        { "name": "amount", "type": "u64" },
+        { "name": "operator", "type": { "defined": { "name": "ConditionOperator" } } }
+      ]
+    },
+    {
+      "name": "add_condition",
+      "discriminator": [184, 174, 178, 93, 78, 153, 127, 240],
+      "accounts": [
+        { "name": "payment", "writable": true },
+        { "name": "condition_account", "writable": true },
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "system_program", "writable": false }
+      ],
+      "args": [
+        { "name": "condition", "type": { "defined": { "name": "Condition" } } }
+      ]
+    },
+    {
+      "name": "finalize_conditions",
+      "discriminator": [119, 185, 50, 6, 24, 129, 80, 207],
+      "accounts": [
+        { "name": "payment", "writable": true },
+        { "name": "condition_account", "writable": true },
+        { "name": "authority", "signer": true }
+      ],
+      "args": []
+    },
+    {
+      "name": "fund_payment",
+      "discriminator": [125, 215, 38, 47, 201, 69, 30, 196],
+      "accounts": [
+        { "name": "payment", "writable": true },
+        { "name": "escrow_token_account", "writable": true },
+        { "name": "payer_token_account", "writable": true },
+        { "name": "payer", "writable": true, "signer": true },
+        { "name": "token_mint", "writable": false },
+        { "name": "token_program", "writable": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "sign_multisig",
+      "discriminator": [79, 41, 75, 172, 99, 79, 165, 53],
+      "accounts": [
+        { "name": "payment", "writable": false },
+        { "name": "condition_account", "writable": true },
+        { "name": "signer", "signer": true }
+      ],
+      "args": [
+        { "name": "condition_index", "type": "u8" }
+      ]
+    },
+    {
+      "name": "crank_time",
+      "discriminator": [31, 184, 89, 6, 36, 59, 247, 120],
+      "accounts": [
+        { "name": "payment", "writable": false },
+        { "name": "condition_account", "writable": true },
+        { "name": "cranker", "signer": true }
+      ],
+      "args": [
+        { "name": "condition_index", "type": "u8" }
+      ]
+    },
+    {
+      "name": "crank_oracle",
+      "discriminator": [144, 93, 132, 66, 185, 52, 199, 238],
+      "accounts": [
+        { "name": "payment", "writable": false },
+        { "name": "condition_account", "writable": true },
+        { "name": "oracle_feed", "writable": false },
+        { "name": "cranker", "signer": true }
+      ],
+      "args": [
+        { "name": "condition_index", "type": "u8" }
+      ]
+    },
+    {
+      "name": "confirm_webhook",
+      "discriminator": [200, 169, 12, 112, 90, 209, 26, 10],
+      "accounts": [
+        { "name": "payment", "writable": false },
+        { "name": "condition_account", "writable": true },
+        { "name": "relayer", "signer": true }
+      ],
+      "args": [
+        { "name": "condition_index", "type": "u8" },
+        { "name": "event_hash", "type": { "array": ["u8", 32] } }
+      ]
+    },
+    {
+      "name": "crank_token_gate",
+      "discriminator": [73, 159, 14, 215, 252, 18, 177, 54],
+      "accounts": [
+        { "name": "payment", "writable": false },
+        { "name": "condition_account", "writable": true },
+        { "name": "holder_token_account", "writable": false },
+        { "name": "cranker", "signer": true }
+      ],
+      "args": [
+        { "name": "condition_index", "type": "u8" }
+      ]
+    },
+    {
+      "name": "evaluate_and_release",
+      "discriminator": [54, 217, 133, 20, 31, 232, 205, 153],
+      "accounts": [
+        { "name": "payment", "writable": true },
+        { "name": "condition_account", "writable": true },
+        { "name": "escrow_token_account", "writable": true },
+        { "name": "payee_token_account", "writable": true },
+        { "name": "cranker", "signer": true },
+        { "name": "token_mint", "writable": false },
+        { "name": "token_program", "writable": false }
+      ],
+      "args": []
+    },
+    {
+      "name": "cancel_payment",
+      "discriminator": [32, 84, 186, 247, 129, 227, 131, 93],
+      "accounts": [
+        { "name": "payment", "writable": true },
+        { "name": "escrow_token_account", "writable": true },
+        { "name": "payer_token_account", "writable": true },
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "token_mint", "writable": false },
+        { "name": "token_program", "writable": false }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "PaymentAgreement",
+      "discriminator": [48, 190, 157, 52, 126, 14, 30, 132]
+    },
+    {
+      "name": "ConditionAccount",
+      "discriminator": [183, 157, 46, 187, 88, 218, 110, 7]
+    }
+  ],
+  "types": [
+    {
+      "name": "PaymentAgreement",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "payment_id", "type": "u64" },
+          { "name": "authority", "type": "pubkey" },
+          { "name": "payer", "type": "pubkey" },
+          { "name": "payee", "type": "pubkey" },
+          { "name": "token_mint", "type": "pubkey" },
+          { "name": "escrow_token_account", "type": "pubkey" },
+          { "name": "total_amount", "type": "u64" },
+          { "name": "released_amount", "type": "u64" },
+          { "name": "status", "type": { "defined": { "name": "PaymentStatus" } } },
+          { "name": "is_milestone", "type": "bool" },
+          { "name": "milestone_count", "type": "u8" },
+          { "name": "current_milestone", "type": "u8" },
+          { "name": "created_at", "type": "i64" },
+          { "name": "bump", "type": "u8" },
+          { "name": "escrow_bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "ConditionAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "payment", "type": "pubkey" },
+          { "name": "milestone_index", "type": "u8" },
+          { "name": "amount", "type": "u64" },
+          { "name": "milestone_status", "type": { "defined": { "name": "MilestoneStatus" } } },
+          { "name": "operator", "type": { "defined": { "name": "ConditionOperator" } } },
+          { "name": "conditions", "type": { "vec": { "defined": { "name": "Condition" } } } },
+          { "name": "is_finalized", "type": "bool" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "PaymentStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Created" },
+          { "name": "Active" },
+          { "name": "Completed" },
+          { "name": "Cancelled" }
+        ]
+      }
+    },
+    {
+      "name": "MilestoneStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Pending" },
+          { "name": "Active" },
+          { "name": "Released" }
+        ]
+      }
+    },
+    {
+      "name": "ConditionOperator",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "And" },
+          { "name": "Or" }
+        ]
+      }
+    },
+    {
+      "name": "ComparisonOperator",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Gt" },
+          { "name": "Gte" },
+          { "name": "Lt" },
+          { "name": "Lte" },
+          { "name": "Eq" }
+        ]
+      }
+    },
+    {
+      "name": "Condition",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Multisig",
+            "fields": [
+              { "name": "signers", "type": { "vec": "pubkey" } },
+              { "name": "threshold", "type": "u8" },
+              { "name": "approvals", "type": { "vec": "bool" } },
+              { "name": "met", "type": "bool" }
+            ]
+          },
+          {
+            "name": "TimeBased",
+            "fields": [
+              { "name": "unlock_at", "type": "i64" },
+              { "name": "met", "type": "bool" }
+            ]
+          },
+          {
+            "name": "Oracle",
+            "fields": [
+              { "name": "feed_account", "type": "pubkey" },
+              { "name": "operator", "type": { "defined": { "name": "ComparisonOperator" } } },
+              { "name": "target_value", "type": "i64" },
+              { "name": "decimals", "type": "u8" },
+              { "name": "met", "type": "bool" }
+            ]
+          },
+          {
+            "name": "Webhook",
+            "fields": [
+              { "name": "relayer", "type": "pubkey" },
+              { "name": "event_hash", "type": { "array": ["u8", 32] } },
+              { "name": "met", "type": "bool" }
+            ]
+          },
+          {
+            "name": "TokenGated",
+            "fields": [
+              { "name": "required_mint", "type": "pubkey" },
+              { "name": "min_amount", "type": "u64" },
+              { "name": "holder", "type": "pubkey" },
+              { "name": "met", "type": "bool" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "GherkinPayError",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "InvalidPaymentStatus" },
+          { "name": "ConditionsAlreadyFinalized" },
+          { "name": "ConditionsNotFinalized" },
+          { "name": "MaxConditionsReached" },
+          { "name": "MaxSignersReached" },
+          { "name": "SignerNotInList" },
+          { "name": "AlreadyApproved" },
+          { "name": "ConditionTypeMismatch" },
+          { "name": "ConditionIndexOutOfBounds" },
+          { "name": "ConditionsNotMet" },
+          { "name": "MilestoneNotActive" },
+          { "name": "AllMilestonesReleased" },
+          { "name": "MilestoneIndexMismatch" },
+          { "name": "MilestoneAmountMismatch" },
+          { "name": "NotAllConditionsFinalized" },
+          { "name": "NotMilestonePayment" },
+          { "name": "IsMilestonePayment" },
+          { "name": "OraclePriceStale" },
+          { "name": "OracleConfidenceTooWide" },
+          { "name": "RelayerMismatch" },
+          { "name": "EventHashMismatch" },
+          { "name": "TokenBalanceInsufficient" },
+          { "name": "ArithmeticOverflow" },
+          { "name": "CannotCancelCompleted" },
+          { "name": "NothingToRefund" },
+          { "name": "ZeroMilestones" },
+          { "name": "MaxMilestonesExceeded" }
+        ]
+      }
+    }
+  ],
+  "events": [
+    { "name": "PaymentCreated", "discriminator": [49, 85, 98, 12, 107, 25, 164, 3] },
+    { "name": "PaymentFunded", "discriminator": [187, 101, 39, 202, 42, 11, 58, 176] },
+    { "name": "ConditionAdded", "discriminator": [230, 53, 169, 22, 187, 115, 171, 76] },
+    { "name": "ConditionMet", "discriminator": [91, 26, 251, 212, 138, 68, 17, 100] },
+    { "name": "PaymentReleased", "discriminator": [118, 112, 79, 232, 87, 44, 198, 5] },
+    { "name": "PaymentCompleted", "discriminator": [216, 15, 236, 115, 203, 148, 165, 250] },
+    { "name": "PaymentCancelled", "discriminator": [155, 96, 233, 67, 182, 40, 68, 173] },
+    { "name": "MultisigApproval", "discriminator": [173, 209, 114, 31, 250, 126, 203, 105] },
+    { "name": "MilestoneAdvanced", "discriminator": [78, 39, 126, 199, 123, 31, 91, 245] }
+  ]
+}

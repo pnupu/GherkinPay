@@ -48,7 +48,7 @@
 
 ## Tasks
 
-- [ ] **T01: Install Solana dependencies and scaffold Anchor program client infrastructure** `est:1h30m`
+- [x] **T01: Install Solana dependencies and scaffold Anchor program client infrastructure** `est:1h30m`
   - Why: The M003 worktree has no wallet adapter, Anchor client, IDL, PDA helpers, or shadcn components — all M001/M002 infrastructure must be recreated before any S01 feature work can begin. Skills: react-best-practices.
   - Files: `app/web/package.json`, `app/web/src/idl/gherkin_pay.json`, `app/web/src/types/gherkin_pay.ts`, `app/web/src/lib/anchor.ts`, `app/web/src/lib/pda.ts`, `app/web/src/lib/constants.ts`, `app/web/src/lib/token.ts`, `app/web/src/lib/utils.ts`, `app/web/src/components/wallet-provider.tsx`, `app/web/src/components/wallet-button.tsx`, `app/web/src/app/layout.tsx`, `app/web/next.config.js`, `app/web/src/env.js`
   - Do: Install @solana/web3.js, @coral-xyz/anchor, @solana/wallet-adapter-react/base/wallets, shadcn canary components (Button, Table, Badge, Card, Skeleton, Dialog). Create IDL JSON + TS types from on-chain program. Create useAnchorProgram() hook, PDA derivation helpers (getPaymentPDA, getEscrowPDA, getConditionPDA), constants, token utils. Wire WalletProvider + ConnectionProvider into root layout. Add next.config.js webpack externals for Node.js polyfills. Create T3 env schema for NEXT_PUBLIC_SOLANA_RPC_URL.
