@@ -82,6 +82,13 @@ The mutation calls `hookProgram.methods.setCompliance(isAllowed)` with accounts:
 - `app/web/src/types/gherkin_pay_hook.ts` — `ComplianceEntry` interface
 - `app/web/src/app/(console)/compliance/page.tsx` — existing mock page to rewrite
 
+## Observability Impact
+
+- **New console signals:** `[GherkinPay] setCompliance wallet=… isAllowed=…` logs intent before RPC; `[GherkinPay] setCompliance tx: {sig}` confirms success; `[GherkinPay] setCompliance failed: {decoded}` on error; `[GherkinPay] ComplianceEntry not found for {wallet}` on query miss.
+- **React Query cache:** `["compliance-entry", walletAddress]` key is observable in devtools — shows fetched ComplianceEntry data or null.
+- **Failure visibility:** TransactionStatus component renders decoded Anchor errors inline. Invalid wallet addresses produce validation error before any network call.
+- **Inspection:** To check compliance status for a wallet, call `useComplianceEntry(address)` or inspect the `["compliance-entry", address]` React Query cache key.
+
 ## Expected Output
 
 - `app/web/src/lib/queries/compliance.ts` — new query hook for ComplianceEntry lookup

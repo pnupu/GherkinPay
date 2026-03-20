@@ -22,6 +22,13 @@
 - `grep -q "hookProgram" app/web/src/lib/mutations/set-compliance.ts` — mutation uses hookProgram
 - `grep -q "gherkinpay:relayers" app/web/src/lib/relayer-registry.ts` — localStorage key is correct
 
+## Observability / Diagnostics
+
+- **Console signals:** `[GherkinPay] setCompliance wallet=… isAllowed=…` and `[GherkinPay] setCompliance tx: …` on successful mutation; `[GherkinPay] setCompliance failed: …` on error; `[GherkinPay] ComplianceEntry not found for …` when lookup returns null.
+- **Inspection surfaces:** React Query devtools → `["compliance-entry", walletAddress]` cache key shows fetched ComplianceEntry or null. Relayer data stored at `localStorage.getItem("gherkinpay:relayers")`.
+- **Failure visibility:** TransactionStatus component renders inline error with decoded Anchor error message. Invalid wallet addresses show inline validation error before any on-chain call.
+- **Redaction:** No private keys or sensitive data in console logs — only wallet public keys and transaction signatures.
+
 ## Integration Closure
 
 - Upstream surfaces consumed: `app/web/src/lib/anchor.ts` (useAnchorProgram/hookProgram), `app/web/src/lib/constants.ts` (GHERKIN_PAY_HOOK_PROGRAM_ID), `app/web/src/lib/token.ts` (USDC_MINT), `app/web/src/lib/errors.ts` (decodeAnchorError), `app/web/src/components/transaction-status.tsx`, `app/web/src/types/gherkin_pay_hook.ts`
@@ -30,7 +37,7 @@
 
 ## Tasks
 
-- [ ] **T01: Wire compliance query, mutation, and page with on-chain writes** `est:1h`
+- [x] **T01: Wire compliance query, mutation, and page with on-chain writes** `est:1h`
   - Why: Delivers R016 — admin compliance allowlist management with real devnet transactions via the hookProgram
   - Files: `app/web/src/lib/mutations/set-compliance.ts`, `app/web/src/lib/queries/compliance.ts`, `app/web/src/app/(console)/compliance/page.tsx`
   - Do: Create `useSetCompliance()` mutation hook following `crank-time.ts` pattern but using `hookProgram`. Create `useComplianceEntry(wallet)` query hook fetching ComplianceEntry by PDA. Rewrite compliance page as client component with: (a) lookup section — enter wallet address, see current status, (b) set-compliance form — wallet address + Allow/Block toggle + submit, (c) TransactionStatus feedback. Validate wallet input with try/catch around `new PublicKey()`. PDA seeds: `["compliance", USDC_MINT.toBuffer(), wallet.toBuffer()]` with `GHERKIN_PAY_HOOK_PROGRAM_ID`.
