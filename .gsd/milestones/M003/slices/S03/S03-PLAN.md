@@ -44,7 +44,7 @@
   - Verify: `cd app/web && npx tsc --noEmit && npm run build`
   - Done when: Compliance page builds, uses hookProgram for on-chain writes, validates wallet input, shows TransactionStatus
 
-- [ ] **T02: Wire relayer localStorage registry and page** `est:45m`
+- [x] **T02: Wire relayer localStorage registry and page** `est:45m`
   - Why: Delivers R017 — relayer registration with localStorage persistence per D009
   - Files: `app/web/src/lib/relayer-registry.ts`, `app/web/src/app/(console)/relayers/page.tsx`
   - Do: Create `relayer-registry.ts` with typed CRUD helpers: `getRelayers(): RelayerEntry[]`, `addRelayer(entry: {pubkey: string, label: string})`, `removeRelayer(pubkey: string)`. Store under `"gherkinpay:relayers"` key as JSON array with `createdAt` timestamp. Rewrite relayers page as client component with: (a) registration form — pubkey + label inputs + submit, (b) table showing all registered relayers with delete button per row, (c) validate pubkey as base58 before adding. Use `useState` with initial load from localStorage; no React Query needed since there's no async fetch.
