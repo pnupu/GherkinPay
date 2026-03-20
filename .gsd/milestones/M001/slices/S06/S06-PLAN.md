@@ -35,7 +35,7 @@
 
 ## Tasks
 
-- [ ] **T01: Create useActivityFeed query hook with EventParser log parsing** `est:30m`
+- [x] **T01: Create useActivityFeed query hook with EventParser log parsing** `est:30m`
   - Why: The activity page needs a data source that fetches recent program transactions from devnet and parses their logs into typed events using Anchor's EventParser
   - Files: `app/web/src/lib/queries/activity.ts`
   - Do: Create `useActivityFeed()` React Query hook. Use `connection.getSignaturesForAddress(PROGRAM_ID)` to get last 50 signatures, `connection.getParsedTransactions()` to get parsed txs, then `EventParser` from `@coral-xyz/anchor` with the program's coder to parse `meta.logMessages` from each transaction. Return flat array of `{ signature, slot, blockTime, name, data }` objects sorted by slot descending. Handle null transactions and null logMessages gracefully. Cast program to `Program<GherkinPay>` for typed coder access (per D008 pattern). React Query key: `["activity"]`.
@@ -48,6 +48,13 @@
   - Do: Rewrite as `"use client"` component consuming `useActivityFeed()`. Use shadcn Table with columns: Time (relative timestamp from blockTime), Event (Badge with event name), Payment (truncated pubkey from event data), Details (signature truncated). Include Skeleton loading rows, empty state, error state, disconnected state. Format blockTime as relative time. Use the same `truncatePubkey` inline helper pattern as other pages. Follow the exact structure of `compliance/page.tsx` for state handling.
   - Verify: `cd app/web && bun run build && bun run typecheck`
   - Done when: `bun run build` exits 0, `bun run typecheck` exits 0, no hardcoded mock arrays, page uses shadcn Table/Badge/Skeleton
+
+## Observability / Diagnostics
+
+- **Runtime signals:** `useActivityFeed()` exposes React Query state (`isLoading`, `isError`, `error`, `data`) — the Activity page should surface error messages and loading states visibly.
+- **Inspection surfaces:** Browser DevTools → Network tab shows `getSignaturesForAddress` and `getParsedTransactions` RPC calls. React Query DevTools (if enabled) shows the `["activity"]` cache entry with parsed events.
+- **Failure visibility:** RPC failures surface as React Query error state. Empty transaction list (no program activity on devnet) returns empty array → page shows empty state. Null/malformed transactions are silently skipped (defensive parsing).
+- **Redaction constraints:** No PII or secrets in event data — all data is on-chain public information (signatures, slots, event payloads).
 
 ## Files Likely Touched
 
