@@ -33,7 +33,7 @@
   - Verify: `bun run typecheck` passes
   - Done when: `useFundPayment()` compiles with correct types and `getUsdcAta()` returns correct Token-2022 ATA addresses
 
-- [ ] **T02: Fund button and confirmation dialog on agreements page** `est:30m`
+- [x] **T02: Fund button and confirmation dialog on agreements page** `est:30m`
   - Why: Users need a UI surface to trigger funding — a button on Created payments that opens a confirmation dialog before signing.
   - Files: `app/web/src/components/fund-payment-dialog.tsx`, `app/web/src/app/(console)/agreements/page.tsx`
   - Do: Create `FundPaymentDialog` component: shadcn Dialog with payment summary (amount, payer, payee, escrow), "Fund" confirm button, and TransactionStatus display. On the agreements page, add a "Fund" action button to each row where `status === 'created'`. Clicking opens the FundPaymentDialog. The dialog checks if the payer's USDC token account exists and has sufficient balance — if not, show a clear error instead of the fund button.
