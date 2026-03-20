@@ -63,6 +63,13 @@ Build the data layer for the Agreements page: a shared PDA derivation module and
 - `app/web/src/types/gherkin_pay.ts` — IDL type definitions; `paymentAgreement` account struct defines field order for memcmp offset calculation
 - Account field order (from IDL): discriminator(8) → paymentId(u64, 8) → authority(pubkey, 32) at offset 16
 
+## Observability Impact
+
+- **New query key:** `["agreements", walletPubkey | "disconnected"]` — visible in React Query DevTools when enabled
+- **Runtime inspection:** `useAgreements()` exposes `isLoading`, `isError`, `error` states that downstream components can render; RPC errors from `program.account.paymentAgreement.all()` propagate as the `error` field
+- **Failure state:** When wallet is disconnected, query is disabled (`enabled: false`) — no silent failures. When RPC fails, React Query's `isError` flag surfaces the error object
+- **Agent inspection:** `grep "useAgreements" app/web/src/lib/queries/agreements.ts` confirms export; `bun run build` + `bun run typecheck` verify type-level correctness
+
 ## Expected Output
 
 - `app/web/src/lib/pda.ts` — three PDA derivation functions for payment, escrow, and condition accounts

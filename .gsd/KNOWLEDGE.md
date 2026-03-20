@@ -24,3 +24,7 @@ The root `package.json` lint script uses `prettier */*.js "*/**/*{.js,.ts}" --ch
 ## Anchor v0.30+ reads program address from IDL
 
 The `Program` constructor in `@coral-xyz/anchor` v0.30+ reads the program address directly from the IDL JSON's `address` field. No need to pass `PROGRAM_ID` separately — just pass the IDL and provider.
+
+## Anchor 0.32 Program<IDL> generic defaults to Idl
+
+`new Program(idl as unknown as GherkinPay, provider)` does NOT make TypeScript infer `Program<GherkinPay>` — the constructor signature takes `idl: any`, so the generic defaults to `Idl`. Accessing `program.account.paymentAgreement` fails with "Property does not exist on AccountNamespace<Idl>". Fix: cast the program to `Program<GherkinPay>` at the usage site, or add an explicit type annotation in `useAnchorProgram()`.

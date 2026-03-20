@@ -45,7 +45,7 @@
 
 ## Tasks
 
-- [ ] **T01: Create PDA helpers and agreements query hook** `est:25m`
+- [x] **T01: Create PDA helpers and agreements query hook** `est:25m`
   - Why: The data layer must exist before the page can consume it. PDA helpers are shared with S04. The React Query hook wraps Anchor's account fetch with proper caching, wallet-aware filtering, and typed returns.
   - Files: `app/web/src/lib/pda.ts`, `app/web/src/lib/queries/agreements.ts`
   - Do: Create `pda.ts` with `getPaymentPDA`, `getEscrowPDA`, `getConditionPDA` using seeds from the Anchor program. Create `queries/agreements.ts` with `useAgreements()` hook that uses `useAnchorProgram()` + `useWallet()`, calls `program.account.paymentAgreement.all()` with optional memcmp filter on the authority field (offset 16), and returns typed results. Query is disabled when program is null. Use `~/` import alias throughout.
