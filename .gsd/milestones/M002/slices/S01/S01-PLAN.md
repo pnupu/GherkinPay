@@ -51,7 +51,7 @@
   - Verify: `bun run build` passes; `bun run typecheck` passes; all 6 shadcn components importable
   - Done when: All shadcn form components install cleanly and TransactionStatus renders three states (loading/success/error)
 
-- [ ] **T02: Create payment mutation hook** `est:45m`
+- [x] **T02: Create payment mutation hook** `est:45m`
   - Why: The wizard needs a mutation hook that handles the full multi-instruction sequence: createPayment (or createMilestonePayment) → addMilestone ×N → addCondition ×N → finalizeConditions ×N. This is the core business logic for payment creation.
   - Files: `app/web/src/lib/mutations/create-payment.ts`
   - Do: Create `useCreatePayment()` using `useMutation` from @tanstack/react-query. The mutation function accepts a typed payload (paymentId, totalAmount, payer, payee, tokenMint, operator, conditions[], isMilestone, milestones[]). It derives PDAs using `lib/pda.ts`, builds and sends instructions sequentially (awaiting confirmation between each), and invalidates `["agreements"]` and `["milestones"]` query keys on success. Use `Date.now() * 1000 + Math.floor(Math.random() * 1000)` for payment ID generation as a BN. Handle the multi-tx case: batch instructions into transactions that fit under the ~1232 byte limit, send sequentially with confirmation between each. Use `useAnchorProgram()` for the program instance and `useWallet()` for signing.

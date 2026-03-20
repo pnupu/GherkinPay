@@ -46,3 +46,10 @@ Build the `useCreatePayment()` React Query mutation hook that handles the full m
 ## Expected Output
 
 - `app/web/src/lib/mutations/create-payment.ts` — `useCreatePayment()` mutation hook with full simple + milestone flow
+
+## Observability Impact
+
+- **Runtime signals:** Each transaction signature is logged to `console.log` with `[GherkinPay]` prefix on success; full Anchor error logged to `console.error` on failure.
+- **Inspection:** `useCreatePayment()` returns `{ paymentPDA, signatures }` on success — consumers can link to Solana Explorer. React Query cache keys `["agreements"]` and `["milestones"]` are invalidated on success, triggering list refresh.
+- **Failure visibility:** Mutation error is surfaced via `useMutation.error` — wizard UI should render it. Console shows `[GherkinPay] Payment creation failed:` with full error object.
+- **Diagnostics:** To inspect mid-flow failures, check browser console for the last `[GherkinPay]` log line — it shows which instruction succeeded before the failure.
