@@ -57,7 +57,7 @@ This milestone is complete only when all are true:
   > After this: user clicks an agreement row, sees live conditions, and can crank time/oracle/token gate conditions from the detail view on devnet
 - [x] **S02: Permissioned Actions** `risk:medium` `depends:[S01]`
   > After this: a multisig signer can approve and see approval progress; a relayer wallet can paste an event hash and confirm a webhook condition — both on the agreement detail view
-- [ ] **S03: Admin Flows** `risk:low` `depends:[]`
+- [x] **S03: Admin Flows** `risk:low` `depends:[]`
   > After this: admin can manage compliance allowlist entries on the Compliance page and register relayer pubkeys on the Relayers page — both with live on-chain writes
 
 ## Boundary Map

@@ -58,3 +58,10 @@ All slice-level verification checks pass:
 - **Inspection surface:** Relayer data stored at `localStorage.getItem("gherkinpay:relayers")` — JSON array of `{pubkey, label, createdAt}` objects inspectable in browser devtools Application → Local Storage.
 - **Failure visibility:** Invalid Solana public keys produce inline validation error before any write. Duplicate pubkeys show a specific error message. Corrupt localStorage data is silently discarded (returns empty array) rather than crashing the page.
 - **No console logging:** Since this is pure client-side localStorage CRUD with no async operations, no console signals are emitted. This is intentional — there's nothing to trace.
+
+## Diagnostics
+
+- **Inspect stored data:** Open browser devtools → Application → Local Storage → look for `gherkinpay:relayers` key. Value is a JSON array of `{pubkey, label, createdAt}` objects.
+- **Verify SSR safety:** The page should render without errors during SSR (no `window is not defined`). The `typeof window` guard in `relayer-registry.ts` ensures localStorage is only accessed client-side.
+- **Test corrupt data:** Set `localStorage.setItem("gherkinpay:relayers", "invalid")` in console — the registry returns an empty array and the page renders cleanly.
+- **Duplicate prevention:** Try adding the same pubkey twice — the second attempt shows an inline "already registered" error.

@@ -188,7 +188,7 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M003/S03
 - Supporting slices: none
-- Validation: unmapped
+- Validation: S03 delivered — localStorage registry with getRelayers/addRelayer/removeRelayer, Relayers page with registration form/pubkey validation/table/delete. Build passes. Awaiting browser UAT.
 - Notes: Likely an off-chain registry (database or on-chain account) — design in M003
 
 ## Deferred
@@ -258,8 +258,8 @@ This file is the explicit capability and coverage contract for the project.
 | R013 | primary-user-loop | active | M003/S01 | none | unmapped |
 | R014 | primary-user-loop | active | M003/S02 | none | S02 delivered — awaiting devnet UAT |
 | R015 | primary-user-loop | active | M003/S02 | none | S02 delivered — awaiting devnet UAT |
-| R016 | admin/support | active | M003/S03 | none | unmapped |
-| R017 | admin/support | active | M003/S03 | none | unmapped |
+| R016 | admin/support | active | M003/S03 | none | S03 delivered — awaiting devnet UAT |
+| R017 | admin/support | active | M003/S03 | none | S03 delivered — awaiting browser UAT |
 | R018 | differentiator | deferred | none | none | unmapped |
 | R019 | quality-attribute | deferred | none | none | unmapped |
 | R020 | anti-feature | out-of-scope | none | none | n/a |
@@ -271,3 +271,4 @@ This file is the explicit capability and coverage contract for the project.
 - Mapped to slices: 17
 - Validated: 0
 - Unmapped active requirements: 0
+ requirements: 0
