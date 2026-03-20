@@ -52,7 +52,7 @@
   - Verify: `bun run build` passes; `bun run typecheck` passes; both files export the expected functions
   - Done when: `lib/pda.ts` and `lib/queries/agreements.ts` exist, export correct functions, and build passes with no type errors
 
-- [ ] **T02: Rewrite agreements page with live data and shadcn components** `est:35m`
+- [x] **T02: Rewrite agreements page with live data and shadcn components** `est:35m`
   - Why: The page is the user-facing deliverable — it must show real on-chain data using the hook from T01, replacing all hardcoded mocks and tRPC scaffolding.
   - Files: `app/web/src/app/(console)/agreements/page.tsx`, shadcn Skeleton component (add via CLI)
   - Do: Add shadcn Skeleton component (`bunx --bun shadcn@canary add skeleton`). Rewrite the agreements page: thin server component shell or `"use client"` page rendering an `AgreementsTable` client component. The table uses `useAgreements()`, displays columns for ID, counterparty (truncated pubkey), type (milestone/simple), amount (BN→USDC), status (Badge with variant mapping), and date. Handle three states: disconnected wallet (prompt to connect), loading (Skeleton rows), empty results (informational message). Remove all tRPC imports, HydrateClient, and the hardcoded `agreements` array. Use shadcn Table, Badge, Skeleton components. Map status enum variants: `created`→outline, `active`→default, `completed`→secondary, `cancelled`→destructive.

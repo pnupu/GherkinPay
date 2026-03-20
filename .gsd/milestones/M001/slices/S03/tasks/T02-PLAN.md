@@ -104,6 +104,14 @@ Replace the hardcoded mock agreements page with a client component that consumes
 - `app/web/src/app/(console)/agreements/page.tsx` — current page to rewrite (has hardcoded mock array, tRPC imports)
 - Account fields available: `paymentId` (BN), `authority` (PublicKey), `payer` (PublicKey), `payee` (PublicKey), `totalAmount` (BN), `releasedAmount` (BN), `status` (object like `{ active: {} }`), `isMilestone` (boolean), `milestoneCount` (number), `currentMilestone` (number), `createdAt` (BN — unix seconds)
 
+## Observability Impact
+
+- **React Query cache:** The `["agreements", <pubkey>]` query key is visible in React Query DevTools — shows fetch timing, stale/fresh state, and errors.
+- **Wallet state branching:** Disconnected wallets render the connect prompt; connected wallets with no accounts render empty state. Both paths are visually obvious — no silent failures.
+- **RPC errors:** `isError` + `error.message` are rendered in the error state UI, making RPC failures visible without opening console.
+- **Data formatting:** BN conversion (amounts ÷ 10^6, timestamps × 1000) and status enum extraction (`Object.keys(status)[0]`) are inline — if the on-chain schema changes, the page will render wrong data visibly rather than silently dropping fields.
+- **Future agent inspection:** `grep "useAgreements\|useWallet\|isLoading\|isError" app/web/src/app/\(console\)/agreements/page.tsx` confirms the data-fetching wiring. React DevTools component tree shows the hook state live.
+
 ## Expected Output
 
 - `app/web/src/components/ui/skeleton.tsx` — shadcn Skeleton component (added via CLI)
