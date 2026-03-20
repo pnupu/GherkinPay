@@ -12,8 +12,9 @@ Trustless structured settlements: funds released only when on-chain conditions a
 
 - Anchor smart contract (`gherkin-pay`) is complete with all instructions implemented and tested locally
 - Token-2022 transfer hook (`gherkin-pay-hook`) handles compliance allowlist enforcement
-- Next.js 15 frontend (`app/web`) has all five console pages (Agreements, Milestones, Compliance, Relayers, Activity) with polished UI — all hardcoded mock data, zero blockchain integration
-- No wallet adapter, no on-chain reads, no write transactions anywhere in the frontend
+- Next.js 15 frontend (`app/web`) has all five console pages with polished UI, wallet adapter integration, and live on-chain reads (M001 complete)
+- **M002/S01 complete:** Create Payment Wizard — 3-step Dialog with simple/milestone modes, all 5 condition types, sequential on-chain transaction submission, TransactionStatus feedback, and automatic list refresh. Build/typecheck pass; awaiting UAT for on-chain verification.
+- Fund (S02) and Release/Cancel (S03) flows not yet implemented
 
 ## Architecture / Key Patterns
 

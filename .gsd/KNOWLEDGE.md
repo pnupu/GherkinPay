@@ -17,3 +17,21 @@ RHF's `Controller` `name` prop is strictly typed and doesn't support dynamic pat
 **Context:** M002/S01/T03
 
 In Next.js with ESLint flat config, a `/* eslint-disable */` comment placed after `"use client"` directive DOES work. However, `reportUnusedDisableDirectives: true` will flag them as unused if there are no violations in the comment's scope. Place the comment on line 2 (after "use client") for client components.
+
+## Anchor v0.32 accountsPartial() and enum as-never casts
+
+**Context:** M002/S01/T02
+
+Anchor v0.32's deep generic types reject `Record<string, unknown>` for enum instruction arguments. Use `{ variantName: { ...fields } } as never` to satisfy the type checker. Similarly, use `accountsPartial()` instead of `accounts()` when some accounts are PDA-resolved (Anchor infers them). These patterns apply to all instruction calls in mutation hooks.
+
+## shadcn init overwrites CSS variables
+
+**Context:** M002/S01/T01
+
+Running `npx shadcn@canary init` or adding components overwrites `:root` CSS variables in globals.css with light-theme oklch defaults. If the app uses a dark theme, you must remap all shadcn semantic tokens (--background, --foreground, --card, --popover, --primary, etc.) after every shadcn operation. The remapped values in globals.css are authoritative.
+
+## Nested react-hook-form forms cause context conflicts
+
+**Context:** M002/S01/T04
+
+When a parent component uses react-hook-form and a child component (like ConditionBuilder) also uses its own internal RHF `useForm()`, the nested FormProvider contexts conflict. Solution: use plain useState for the parent wizard state and make the child component controlled via value/onChange/onValidChange props rather than sharing a single RHF instance.

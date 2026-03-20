@@ -53,7 +53,7 @@ This milestone is complete only when all are true:
 
 ## Slices
 
-- [ ] **S01: Create Payment Wizard** `risk:high` `depends:[]`
+- [x] **S01: Create Payment Wizard** `risk:high` `depends:[]`
   > After this: User can open the Create Payment dialog from the Agreements page, fill out a simple or milestone payment with conditions, submit the multi-instruction transaction, and see the new PaymentAgreement appear in the agreements list on devnet.
 
 - [ ] **S02: Fund Payment** `risk:medium` `depends:[S01]`
