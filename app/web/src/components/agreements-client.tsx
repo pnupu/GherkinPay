@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useWallet } from "@solana/wallet-adapter-react";
 import type { PublicKey } from "@solana/web3.js";
+import Link from "next/link";
 
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
@@ -234,9 +235,11 @@ export function AgreementsClient() {
               )}
 
               {sorted.map((payment) => (
-                <tr key={payment.pda.toBase58()}>
+                <tr key={payment.pda.toBase58()} className="cursor-pointer hover:bg-white/5">
                   <td className="font-mono text-xs">
-                    #{payment.paymentId}
+                    <Link href={`/agreements/${payment.pda.toBase58()}`} className="hover:underline">
+                      #{payment.paymentId}
+                    </Link>
                   </td>
                   <td
                     className="font-mono text-xs"

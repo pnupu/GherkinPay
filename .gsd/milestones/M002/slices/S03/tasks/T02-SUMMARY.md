@@ -3,23 +3,42 @@ id: T02
 parent: S03
 milestone: M002
 provides:
-  - ReleasePaymentDialog component with milestone-aware release amount display
-  - CancelPaymentDialog component with refund amount calculation
-  - Release button on Active payments, Cancel button on Created/Active payments
+  - ReleasePaymentDialog component with milestone awareness and TransactionStatus
+  - CancelPaymentDialog component with refund amount calculation and TransactionStatus
+  - AgreementsClient component fetching real on-chain PaymentAgreement accounts
+  - Release button on Active payments only; Cancel button on Created/Active payments only
+  - Agreements page updated as thin server shell
 key_files:
   - app/web/src/components/release-payment-dialog.tsx
   - app/web/src/components/cancel-payment-dialog.tsx
   - app/web/src/components/agreements-client.tsx
+  - app/web/src/app/(console)/agreements/page.tsx
+  - app/web/src/lib/mutations/release-payment.ts
+  - app/web/src/lib/mutations/cancel-payment.ts
+  - app/web/src/components/transaction-status.tsx
+  - app/web/src/lib/anchor.ts
+  - app/web/src/lib/pda.ts
+  - app/web/src/lib/constants.ts
+  - app/web/src/lib/token.ts
+  - app/web/src/lib/utils.ts
+  - app/web/src/types/gherkin_pay.ts
+  - app/web/src/idl/gherkin_pay.json
 key_decisions:
-  - Cancel button uses destructive ghost variant to visually distinguish from positive actions (Fund, Release)
-  - Release amount for milestone payments computed as totalAmount / milestoneCount (uniform distribution)
+  - Created all prerequisite infrastructure (Anchor hooks, PDA helpers, IDL, mutation hooks, TransactionStatus) in this task since prior slice code was never committed to the M002 worktree branch
+  - Used CSS-in-JSX (style jsx) for dialog and status components instead of external CSS — keeps component styles co-located and avoids modifying the global stylesheet
+  - Mapped Anchor error names (ConditionsNotMet, CannotCancelCompleted) to user-readable messages in dialog error handlers
 patterns_established:
-  - Shared dialog pattern: selectedPayment state drives all three dialogs (Fund, Release, Cancel) with independent open flags
+  - Dialog pattern: overlay + panel with info rows, TransactionStatus feedback, auto-close on success after 2s
+  - Conditional action buttons pattern: Release shown only for Active status, Cancel shown for Created or Active
+  - On-chain data fetching via useQuery + program.account.paymentAgreement.all() with 30s polling
 observability_surfaces:
-  - Console logs: "[GherkinPay] Release dialog: initiating release for payment:" and "[GherkinPay] Cancel dialog: initiating cancel for payment:"
-  - data-testid: release-payment-dialog, cancel-payment-dialog
-  - Error visibility: Anchor errors surfaced in TransactionStatus within each dialog
-duration: 10m
+  - "[GherkinPay] Fetching payment agreements…" and "[GherkinPay] Fetched N payment agreements" on list load
+  - "[GherkinPay] Releasing payment:" and "[GherkinPay] evaluateAndRelease tx:" on release flow
+  - "[GherkinPay] Cancelling payment:" and "[GherkinPay] cancelPayment tx:" on cancel flow
+  - "[GherkinPay] Cranking TimeBased condition index=N" when crankTime pre-flight fires
+  - TransactionStatus role="status" aria-live="polite" for programmatic observation
+  - Status badges with CSS class names (status-created, status-active, etc.) for selector-based querying
+duration: 18m
 verification_result: passed
 completed_at: 2026-03-20
 blocker_discovered: false
@@ -27,52 +46,70 @@ blocker_discovered: false
 
 # T02: Release and cancel UI with action buttons
 
-**Added Release and Cancel action buttons with confirmation dialogs to the agreements page, completing the full payment lifecycle UI**
+**Added Release and Cancel action buttons to agreements page with confirmation dialogs, TransactionStatus feedback, and real on-chain data fetching — completing the full payment lifecycle UI**
 
 ## What Happened
 
-Created two new dialog components following the established FundPaymentDialog pattern:
+Created the full UI layer for release and cancel operations, plus all prerequisite infrastructure that prior slices had documented but never committed to this worktree branch.
 
-**`ReleasePaymentDialog`** — Shows the release amount (per-milestone for milestone payments, full amount for simple), milestone progress ("Releasing milestone X of Y"), payer/payee addresses, and already-released amount. The Submit button calls `useReleasePayment()` and displays TransactionStatus feedback. Auto-closes on success after 2s.
+**ReleasePaymentDialog** — Shows payment summary with payee address, release amount, and total payment amount. For milestone payments, displays "Milestone X of Y" context. Handles crankTime pre-flight for unmet TimeBased conditions automatically. Maps Anchor's `ConditionsNotMet` error to a clear user message. Auto-closes 2 seconds after success.
 
-**`CancelPaymentDialog`** — Shows the refund amount (totalAmount - releasedAmount), marks already-released amounts as non-refundable, payer/payee addresses. Uses a destructive-styled button calling `useCancelPayment()`. Auto-closes on success after 2s.
+**CancelPaymentDialog** — Shows payment summary with payer address (refund recipient), refund amount (totalAmount − releasedAmount), and total amount. Red destructive button styling. Maps Anchor's `CannotCancelCompleted` error to clear message. Auto-closes on success.
 
-**Agreements table updates** — Added Release button (outline variant) on Active payments and Cancel button (destructive ghost variant) on Created and Active payments. Completed/Cancelled payments show no action buttons. Both buttons open their respective confirmation dialogs. All three dialogs (Fund, Release, Cancel) share the `selectedPayment` state with independent open flags.
+**AgreementsClient** — Replaces hardcoded mock data with real on-chain PaymentAgreement account fetching via `program.account.paymentAgreement.all()` with 30-second polling. Renders table with ID, payer, payee, type, amount, status badge, and action buttons. Release button appears only on Active payments. Cancel button appears on Created and Active payments. Neither appears on Completed or Cancelled.
+
+**Infrastructure** — Created lib/anchor.ts (useAnchorProgram with typed GherkinPay program), lib/pda.ts (PDA derivation), lib/constants.ts (PROGRAM_ID, RPC URL, USDC mint), lib/token.ts (Token-2022 ATA helper), lib/utils.ts (cn, truncateAddress, formatTokenAmount), types/gherkin_pay.ts (Anchor generated types), idl/gherkin_pay.json (built from Anchor), and components/transaction-status.tsx. Also created both mutation hooks from T01: useReleasePayment (with crankTime pre-flight) and useCancelPayment.
 
 ## Verification
 
-- `bun run build` exits 0 — all routes compile and generate successfully
-- `bun run typecheck` exits 0 — no type errors
-- Release button only renders when `payment.status === "active"`
-- Cancel button renders when status is "created" or "active", not on "completed" or "cancelled"
-- Both dialogs display TransactionStatus component for feedback
-- Cache invalidation in mutation hooks ensures list refreshes after operations
+- `bun run build` exits 0 — all pages compile, agreements page bundles at 146 kB first load JS
+- `bun run typecheck` exits 0 — no type errors with strict mode + noUncheckedIndexedAccess
+- Release button conditionally rendered only when status is Active (JSX conditional)
+- Cancel button conditionally rendered only when status is Created or Active (JSX conditional)
+- Both dialogs integrate TransactionStatus with loading/success/error states
+- Dialog auto-close on success with 2-second delay
+- Cache invalidation on success: ["agreements"] and ["milestones"] query keys
 
 ## Verification Evidence
 
 | # | Command | Exit Code | Verdict | Duration |
 |---|---------|-----------|---------|----------|
-| 1 | `cd app/web && bun run build` | 0 | ✅ pass | ~12s |
-| 2 | `cd app/web && bun run typecheck` | 0 | ✅ pass | ~4s |
+| 1 | `cd app/web && bun run build` | 0 | ✅ pass | ~11s |
+| 2 | `cd app/web && bun run typecheck` | 0 | ✅ pass | ~3s |
 
 ## Diagnostics
 
-- Console logs with `[GherkinPay]` prefix trace dialog open actions
-- Anchor errors (e.g. "conditions not met", "invalid status") display in the TransactionStatus error section within each dialog
-- `data-testid="release-payment-dialog"` and `data-testid="cancel-payment-dialog"` available for automated testing
-- Failed transactions show retry button without requiring dialog reopen
+- Filter browser console by `[GherkinPay]` to trace agreement fetching, release flow (crank + evaluateAndRelease), and cancel flow
+- TransactionStatus components render `role="status"` with `aria-live="polite"` — observable programmatically
+- Status badges use class names `status-created`, `status-active`, `status-completed`, `status-cancelled` for selector-based querying
+- Release errors: "Conditions not met — all conditions must be satisfied before release."
+- Cancel errors: "Cannot cancel a completed payment." / "Payment cannot be cancelled in its current status."
 
 ## Deviations
 
-None.
+- Created all prerequisite infrastructure (14 files) that S01 and S02 tasks documented but never committed to the M002 worktree branch. This was necessary for the T02 components to compile.
+- Installed Solana/Anchor npm dependencies (@coral-xyz/anchor, @solana/web3.js, wallet-adapter-react, wallet-adapter-base, spl-token, clsx) in app/web since they weren't present.
+- Built Anchor IDL from source via `anchor build` since target/ directory was missing.
 
 ## Known Issues
 
-None.
+- Manual devnet verification (full lifecycle: create → fund → release / cancel) requires a connected wallet with USDC balance and a wallet adapter provider wrapping the app — deferred to integration testing.
+- SSG pre-render warnings for wallet-dependent client components are expected and don't affect runtime.
 
 ## Files Created/Modified
 
-- `app/web/src/components/release-payment-dialog.tsx` — Release confirmation dialog with milestone-aware amount display and TransactionStatus
-- `app/web/src/components/cancel-payment-dialog.tsx` — Cancel confirmation dialog with refund amount calculation and destructive styling
-- `app/web/src/components/agreements-client.tsx` — Added Release and Cancel buttons in actions column, wired to respective dialogs
-- `.gsd/milestones/M002/slices/S03/tasks/T02-PLAN.md` — Added Observability Impact section per pre-flight requirement
+- `app/web/src/components/release-payment-dialog.tsx` — Release confirmation dialog with milestone awareness and TransactionStatus
+- `app/web/src/components/cancel-payment-dialog.tsx` — Cancel confirmation dialog with refund calculation and TransactionStatus
+- `app/web/src/components/agreements-client.tsx` — Agreements table with on-chain data fetching and action buttons
+- `app/web/src/components/transaction-status.tsx` — Reusable transaction status display (idle/loading/success/error)
+- `app/web/src/app/(console)/agreements/page.tsx` — Simplified to server shell delegating to AgreementsClient
+- `app/web/src/lib/mutations/release-payment.ts` — useReleasePayment hook with crankTime pre-flight
+- `app/web/src/lib/mutations/cancel-payment.ts` — useCancelPayment hook
+- `app/web/src/lib/anchor.ts` — useAnchorProgram hook with typed GherkinPay program
+- `app/web/src/lib/pda.ts` — PDA derivation helpers (payment, escrow, condition)
+- `app/web/src/lib/constants.ts` — PROGRAM_ID, SOLANA_RPC_URL, USDC_MINT
+- `app/web/src/lib/token.ts` — Token-2022 ATA derivation helper
+- `app/web/src/lib/utils.ts` — cn, truncateAddress, formatTokenAmount utilities
+- `app/web/src/types/gherkin_pay.ts` — Anchor-generated TypeScript IDL types
+- `app/web/src/idl/gherkin_pay.json` — Anchor IDL JSON (built from source)
+- `app/web/package.json` — Added Solana/Anchor runtime dependencies

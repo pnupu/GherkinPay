@@ -59,7 +59,7 @@ This milestone is complete only when all are true:
 - [x] **S02: Fund Payment** `risk:medium` `depends:[S01]`
   > After this: User can click "Fund" on a Created payment, sign the transaction with their wallet, and see the payment status change to Active with funds moved to escrow.
 
-- [ ] **S03: Release and Cancel** `risk:low` `depends:[S01,S02]`
+- [x] **S03: Release and Cancel** `risk:low` `depends:[S01,S02]`
   > After this: User can release a payment where conditions are met (with time-crank for testing) and cancel a payment for refund — completing the full payment lifecycle via the browser.
 
 ## Boundary Map

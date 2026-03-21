@@ -41,6 +41,12 @@ Add Release and Cancel action buttons to the agreements page with confirmation d
 - `app/web/src/components/transaction-status.tsx` — status display (from S01/T01)
 - `app/web/src/app/(console)/agreements/page.tsx` — agreements page with existing Fund actions from S02
 
+## Observability Impact
+
+- **New signals:** Release/Cancel dialog open events and button clicks are traceable via `[GherkinPay]` console prefix. Transaction status transitions (idle→loading→success/error) visible via `role="status"` aria-live regions.
+- **Inspection:** Agreements table shows status badges (Created/Active/Completed/Cancelled) with data attributes for automated querying. Action buttons conditionally rendered based on payment status.
+- **Failure visibility:** Anchor errors like "ConditionsNotMet" and "CannotCancelCompleted" are mapped to user-readable messages in the dialog. Raw errors logged to console with `[GherkinPay]` prefix.
+
 ## Expected Output
 
 - `app/web/src/components/release-payment-dialog.tsx` — release confirmation dialog

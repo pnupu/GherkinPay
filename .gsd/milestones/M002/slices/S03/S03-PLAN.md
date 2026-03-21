@@ -49,7 +49,7 @@
   - Verify: `bun run typecheck` passes
   - Done when: Both hooks compile with correct types; nextConditionAccount logic handles simple, milestone-in-progress, and last-milestone cases
 
-- [ ] **T02: Release and cancel UI with action buttons** `est:45m`
+- [x] **T02: Release and cancel UI with action buttons** `est:45m`
   - Why: Users need buttons on the agreements list/detail to trigger release and cancel, with confirmation dialogs that show relevant details before signing.
   - Files: `app/web/src/components/release-payment-dialog.tsx`, `app/web/src/components/cancel-payment-dialog.tsx`, `app/web/src/app/(console)/agreements/page.tsx`
   - Do: Create `ReleasePaymentDialog`: shows payment summary, payee address, amount to release (milestone amount or total), TransactionStatus. For milestone payments, show which milestone is being released. Create `CancelPaymentDialog`: shows payment summary, refund amount (totalAmount - releasedAmount), payer address, TransactionStatus. On the agreements page, add "Release" action button on Active payments and "Cancel" action button on Created/Active payments (not on Completed/Cancelled). Both open their respective dialogs. After successful release/cancel, the dialog closes and the list refreshes.

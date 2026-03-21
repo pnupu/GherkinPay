@@ -4,7 +4,7 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 
-export type TransactionStatusState = "idle" | "loading" | "success" | "error";
+export type TransactionStatusState = "idle" | "loading" | "pending" | "success" | "error";
 
 export interface TransactionStatusProps {
   status: TransactionStatusState;
@@ -47,7 +47,7 @@ export function TransactionStatus({
     <div
       className={cn(
         "flex items-center gap-3 rounded-lg border px-4 py-3",
-        status === "loading" && "border-input bg-muted/30",
+        (status === "loading" || status === "pending") && "border-input bg-muted/30",
         status === "success" && "border-green-700/40 bg-green-950/20",
         status === "error" && "border-red-700/40 bg-red-950/20",
         className,
@@ -55,7 +55,7 @@ export function TransactionStatus({
       role="status"
       aria-live="polite"
     >
-      {status === "loading" && (
+      {(status === "loading" || status === "pending") && (
         <>
           <LoadingSpinner />
           <span className="text-sm text-muted-foreground">
