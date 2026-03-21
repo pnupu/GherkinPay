@@ -6,7 +6,7 @@ use spl_tlv_account_resolution::{
 };
 use spl_transfer_hook_interface::instruction::{ExecuteInstruction, TransferHookInstruction};
 
-declare_id!("3pG9tTyExGA3C7sdvw5AcUvfmwydtRCLV22KPb6SfYRc");
+declare_id!("5AfrRNNaFgByD3fxxFf6nieeM4B516hTvcK6xvPEVkJC");
 
 #[account]
 #[derive(InitSpace)]

@@ -5,7 +5,7 @@ export const PROGRAM_ID = new PublicKey(
   "2wL3PPjoG4UmVrNYZyXvxfTfV738AVCG8LHJPUEtxEeV"
 );
 export const HOOK_PROGRAM_ID = new PublicKey(
-  "3pG9tTyExGA3C7sdvw5AcUvfmwydtRCLV22KPb6SfYRc"
+  "5AfrRNNaFgByD3fxxFf6nieeM4B516hTvcK6xvPEVkJC"
 );
 export const DEVNET_RPC_ENDPOINT = env.NEXT_PUBLIC_SOLANA_RPC_URL;
 
