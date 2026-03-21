@@ -131,22 +131,25 @@ function operatorArg(op: "and" | "or") {
 // ---------------------------------------------------------------------------
 
 export function useCreatePayment() {
-  const { program } = useAnchorProgram();
+  const { program, provider } = useAnchorProgram();
   const wallet = useWallet();
   const queryClient = useQueryClient();
 
   return useMutation<CreatePaymentResult, Error, CreatePaymentInput>({
     mutationFn: async (input) => {
-      if (!program || !wallet.publicKey) {
+      if (!program || !wallet.publicKey || !provider) {
         throw new Error("Wallet not connected");
       }
 
       const authority = wallet.publicKey;
       const paymentId = generatePaymentId();
-      const signatures: string[] = [];
 
       const [paymentPDA] = getPaymentPDA(authority, paymentId);
       const [escrowPDA] = getEscrowPDA(paymentPDA);
+
+      // Build all instructions, then send as one transaction
+      const { Transaction } = await import("@solana/web3.js");
+      const tx = new Transaction();
 
       if (input.isMilestone) {
         // ------------------------------------------------------------------
@@ -157,17 +160,11 @@ export function useCreatePayment() {
           throw new Error("Milestone payment requires at least one milestone");
         }
 
-        // 1. createMilestonePayment
-        console.log(
-          "[GherkinPay] Creating milestone payment:",
-          paymentId.toString()
-        );
-        const createSig = await (program.methods as any)
-          .createMilestonePayment(
-            paymentId,
-            input.totalAmount,
-            milestones.length
-          )
+        console.log("[GherkinPay] Creating milestone payment:", paymentId.toString());
+
+        // 1. createMilestonePayment instruction
+        const createIx = await (program.methods as any)
+          .createMilestonePayment(paymentId, input.totalAmount, milestones.length)
           .accountsPartial({
             authority,
             payerWallet: input.payerWallet,
@@ -178,17 +175,15 @@ export function useCreatePayment() {
             tokenProgram: TOKEN_2022_PROGRAM_ID,
             systemProgram: SystemProgram.programId,
           })
-          .rpc();
-        signatures.push(createSig);
-        console.log("[GherkinPay] createMilestonePayment tx:", createSig);
+          .instruction();
+        tx.add(createIx);
 
-        // 2. For each milestone: addMilestone → addCondition ×N → finalizeConditions
+        // 2. For each milestone: addMilestone + addCondition ×N + finalizeConditions
         for (let i = 0; i < milestones.length; i++) {
           const milestone = milestones[i]!;
           const [conditionPDA] = getConditionPDA(paymentPDA, i);
 
-          // addMilestone
-          const msSig = await (program.methods as any)
+          const msIx = await (program.methods as any)
             .addMilestone(i, milestone.amount, operatorArg(milestone.operator))
             .accountsPartial({
               authority,
@@ -196,13 +191,11 @@ export function useCreatePayment() {
               conditionAccount: conditionPDA,
               systemProgram: SystemProgram.programId,
             })
-            .rpc();
-          signatures.push(msSig);
-          console.log(`[GherkinPay] addMilestone(${i}) tx:`, msSig);
+            .instruction();
+          tx.add(msIx);
 
-          // addCondition for each condition in this milestone
           for (const condition of milestone.conditions) {
-            const condSig = await (program.methods as any)
+            const condIx = await (program.methods as any)
               .addCondition(toAnchorCondition(condition))
               .accountsPartial({
                 authority,
@@ -210,53 +203,31 @@ export function useCreatePayment() {
                 conditionAccount: conditionPDA,
                 systemProgram: SystemProgram.programId,
               })
-              .rpc();
-            signatures.push(condSig);
-            console.log(
-              `[GherkinPay] addCondition(milestone ${i}, ${condition.type}) tx:`,
-              condSig
-            );
+              .instruction();
+            tx.add(condIx);
           }
 
-          // finalizeConditions for this milestone
-          const finSig = await (program.methods as any)
+          const finIx = await (program.methods as any)
             .finalizeConditions()
             .accountsPartial({
               authority,
               payment: paymentPDA,
               conditionAccount: conditionPDA,
             })
-            .rpc();
-          signatures.push(finSig);
-          console.log(
-            `[GherkinPay] finalizeConditions(milestone ${i}) tx:`,
-            finSig
-          );
+            .instruction();
+          tx.add(finIx);
         }
-
-        console.log("[GherkinPay] Milestone payment created:", {
-          paymentPDA: paymentPDA.toBase58(),
-          totalTxs: signatures.length,
-        });
-
-        return { paymentPDA, signatures };
       } else {
         // ------------------------------------------------------------------
         // SIMPLE PAYMENT FLOW
         // ------------------------------------------------------------------
         const [conditionPDA] = getConditionPDA(paymentPDA, 0);
 
-        // 1. createPayment
-        console.log(
-          "[GherkinPay] Creating simple payment:",
-          paymentId.toString()
-        );
-        const createSig = await (program.methods as any)
-          .createPayment(
-            paymentId,
-            input.totalAmount,
-            operatorArg(input.operator)
-          )
+        console.log("[GherkinPay] Creating simple payment:", paymentId.toString());
+
+        // 1. createPayment instruction
+        const createIx = await (program.methods as any)
+          .createPayment(paymentId, input.totalAmount, operatorArg(input.operator))
           .accountsPartial({
             authority,
             payerWallet: input.payerWallet,
@@ -268,13 +239,12 @@ export function useCreatePayment() {
             tokenProgram: TOKEN_2022_PROGRAM_ID,
             systemProgram: SystemProgram.programId,
           })
-          .rpc();
-        signatures.push(createSig);
-        console.log("[GherkinPay] createPayment tx:", createSig);
+          .instruction();
+        tx.add(createIx);
 
         // 2. addCondition for each condition
         for (const condition of input.conditions) {
-          const condSig = await (program.methods as any)
+          const condIx = await (program.methods as any)
             .addCondition(toAnchorCondition(condition))
             .accountsPartial({
               authority,
@@ -282,33 +252,28 @@ export function useCreatePayment() {
               conditionAccount: conditionPDA,
               systemProgram: SystemProgram.programId,
             })
-            .rpc();
-          signatures.push(condSig);
-          console.log(
-            `[GherkinPay] addCondition(${condition.type}) tx:`,
-            condSig
-          );
+            .instruction();
+          tx.add(condIx);
         }
 
         // 3. finalizeConditions
-        const finSig = await (program.methods as any)
+        const finIx = await (program.methods as any)
           .finalizeConditions()
           .accountsPartial({
             authority,
             payment: paymentPDA,
             conditionAccount: conditionPDA,
           })
-          .rpc();
-        signatures.push(finSig);
-        console.log("[GherkinPay] finalizeConditions tx:", finSig);
-
-        console.log("[GherkinPay] Simple payment created:", {
-          paymentPDA: paymentPDA.toBase58(),
-          totalTxs: signatures.length,
-        });
-
-        return { paymentPDA, signatures };
+          .instruction();
+        tx.add(finIx);
       }
+
+      // Send the batched transaction — single Phantom confirmation
+      console.log(`[GherkinPay] Sending batched tx with ${tx.instructions.length} instructions`);
+      const signature = await provider.sendAndConfirm(tx);
+      console.log("[GherkinPay] Payment created in single tx:", signature);
+
+      return { paymentPDA, signatures: [signature] };
     },
 
     onSuccess: (_data) => {
