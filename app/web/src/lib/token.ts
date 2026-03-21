@@ -12,9 +12,8 @@ import {
  * program migrates to a different test token.
  */
 export const USDC_MINT = new PublicKey(
-  // Devnet USDC-dev mint — same address used in create-payment-wizard.tsx.
-  // Replace with mainnet USDC when deploying to mainnet.
-  "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
+  // Localnet Token-2022 mint — replace with devnet/mainnet USDC when deploying.
+  "5bxpqGSh66XMcSKWVipLr9pKUpBHjVdmC7W3zscCX8DJ"
 );
 
 /**

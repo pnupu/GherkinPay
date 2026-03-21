@@ -10,9 +10,6 @@ export default function AgreementsPage() {
           <p className="page-subtitle">Condition engine settlement workspace</p>
         </div>
         <div className="topbar-actions">
-          <button className="btn btn-secondary" type="button">
-            Add condition
-          </button>
           <CreatePaymentWizard />
         </div>
       </header>

@@ -37,7 +37,7 @@ import {
 // ---------------------------------------------------------------------------
 
 /** USDC devnet mint address */
-const USDC_DEVNET_MINT = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
+const USDC_DEVNET_MINT = "5bxpqGSh66XMcSKWVipLr9pKUpBHjVdmC7W3zscCX8DJ";
 
 const DEFAULT_CONDITION_VALUE: ConditionBuilderValue = {
   operator: "and",

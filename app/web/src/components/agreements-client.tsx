@@ -238,9 +238,9 @@ export function AgreementsClient() {
               )}
 
               {sorted.map((payment) => (
-                <tr key={payment.pda.toBase58()} className="cursor-pointer hover:bg-white/5">
+                <tr key={String(payment.pda)} className="cursor-pointer hover:bg-white/5">
                   <td className="font-mono text-xs">
-                    <Link href={`/agreements/${payment.pda.toBase58()}`} className="hover:underline">
+                    <Link href={`/agreements/${String(payment.pda)}`} className="hover:underline">
                       #{payment.paymentId}
                     </Link>
                   </td>
