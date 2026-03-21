@@ -6,6 +6,13 @@
  */
 
 const GHERKIN_PAY_ERRORS: Record<number, string> = {
+  // Anchor framework errors
+  2001: "Authority mismatch — connected wallet is not the authority for this account",
+  2003: "Constraint violated — the account state does not satisfy the required condition",
+  2006: "Account not initialized — required on-chain account does not exist",
+  2012: "Account not found",
+  3012: "Account not initialized — the token mint or account has not been created",
+  // GherkinPay custom errors
   6000: "Payment is not in the expected status",
   6001: "Conditions are already finalized",
   6002: "Conditions are not yet finalized",
@@ -77,8 +84,20 @@ export function decodeAnchorError(error: unknown): string {
     return GHERKIN_PAY_ERRORS[code];
   }
 
-  // Fallback: extract message from error
-  if (error instanceof Error) return error.message;
+  // Handle wallet rejection/sign errors
+  if (error instanceof Error) {
+    if (error.name === "WalletSignTransactionError") {
+      // Phantom rejected — try to extract simulation error from message
+      const simMatch = /Error Code:\s*(\w+)\.\s*Error Number:\s*(\d+)\.\s*Error Message:\s*([^.]+)/.exec(error.message);
+      if (simMatch) {
+        const num = parseInt(simMatch[2]!, 10);
+        return GHERKIN_PAY_ERRORS[num] ?? simMatch[3]!;
+      }
+      if (error.message.includes("User rejected")) return "Transaction rejected by wallet";
+      return "Transaction rejected — simulation may have failed. Check that the connected wallet has the required authority.";
+    }
+    return error.message;
+  }
   if (typeof error === "string") return error;
   return "Transaction failed — unknown error";
 }
