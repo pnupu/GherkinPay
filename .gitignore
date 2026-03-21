@@ -18,6 +18,9 @@ test-ledger
 .gsd/STATE.md
 .gsd/gsd.db
 .gsd/DISCUSSION-MANIFEST.json
+
+# Infrastructure docs (contains credential references)
+infra/
 .gsd/milestones/**/*-CONTINUE.md
 .gsd/milestones/**/continue.md
 Thumbs.db
