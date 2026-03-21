@@ -12,8 +12,8 @@ import {
  * program migrates to a different test token.
  */
 export const USDC_MINT = new PublicKey(
-  // Localnet Token-2022 mint — replace with devnet/mainnet USDC when deploying.
-  "5bxpqGSh66XMcSKWVipLr9pKUpBHjVdmC7W3zscCX8DJ"
+  // Devnet Token-2022 USDC-test mint — replace with devnet/mainnet USDC when deploying.
+  "5xUUritQPSGaLS1ggMzmii746xGbbeN2NSPyxqA5U5df"
 );
 
 /**

@@ -237,13 +237,28 @@ export function ConditionBuilder({
     mode: "onChange",
   });
 
-  const { control, formState, setValue, getValues } = form;
+  const { control, formState, setValue, getValues, trigger } = form;
   const { errors } = formState;
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "conditions",
   });
+
+  // Expose form helpers for E2E testing (test wallet adapter must be active)
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.__TEST_WALLET) {
+      (window as unknown as Record<string, unknown>).__TEST_CONDITION_FORM = {
+        setValue: (name: string, value: unknown) => {
+          setValue(name as never, value as never, { shouldValidate: true });
+        },
+        trigger: (field?: string) => field ? trigger(field as never) : trigger(),
+      };
+      return () => {
+        delete (window as unknown as Record<string, unknown>).__TEST_CONDITION_FORM;
+      };
+    }
+  }, [setValue, trigger]);
 
   // Watch the whole form for changes and sync to parent
   const watched = useWatch({ control });
@@ -536,7 +551,7 @@ function TimeBasedFields({ index, control, errors }: FieldProps) {
             id={`condition-${index}-unlockAt`}
             type="datetime-local"
             value={(field.value as string) ?? ""}
-            onChange={field.onChange}
+            onChange={(e) => field.onChange(e.target.value)}
             onBlur={field.onBlur}
             ref={field.ref}
             className="w-full [color-scheme:dark]"

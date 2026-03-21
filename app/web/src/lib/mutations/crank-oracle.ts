@@ -75,7 +75,7 @@ export function useCrankOracle() {
         .accounts({
           payment: paymentPubkey,
           conditionAccount: conditionAccountPubkey,
-          oracleFeed: priceFeedPubkey,
+          priceFeed: priceFeedPubkey,
         })
         .rpc();
 

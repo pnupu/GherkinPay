@@ -47,3 +47,8 @@ vendor/
 coverage/
 .cache/
 tmp/
+
+# Playwright
+app/web/test-results/
+app/web/playwright-report/
+app/web/blob-report/

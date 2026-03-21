@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
@@ -37,7 +37,7 @@ import {
 // ---------------------------------------------------------------------------
 
 /** USDC devnet mint address */
-const USDC_DEVNET_MINT = "5bxpqGSh66XMcSKWVipLr9pKUpBHjVdmC7W3zscCX8DJ";
+const USDC_DEVNET_MINT = "5xUUritQPSGaLS1ggMzmii746xGbbeN2NSPyxqA5U5df";
 
 const DEFAULT_CONDITION_VALUE: ConditionBuilderValue = {
   operator: "and",
@@ -130,6 +130,16 @@ export function CreatePaymentWizard() {
   const [simpleConditions, setSimpleConditions] =
     useState<ConditionBuilderValue>(DEFAULT_CONDITION_VALUE);
   const [simpleConditionsValid, setSimpleConditionsValid] = useState(false);
+
+  // Expose condition validity setter for E2E testing (always expose in dev)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as unknown as Record<string, unknown>).__TEST_WIZARD = {
+        setConditionsValid: (valid: boolean) => setSimpleConditionsValid(valid),
+      };
+      return () => { delete (window as unknown as Record<string, unknown>).__TEST_WIZARD; };
+    }
+  }, []);
 
   const [milestoneConditions, setMilestoneConditions] = useState<
     ConditionBuilderValue[]

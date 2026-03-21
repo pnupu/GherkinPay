@@ -17,3 +17,9 @@ wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+
+[test.validator]
+# Mock Pyth SOL/USD price feed for oracle condition E2E tests
+[[test.validator.account]]
+address = "JBc8woEgPzyXwLEmZJpnSiNhneGBcectQrQpzm52fvCj"
+filename = "fixtures/mock-pyth-feed.json"

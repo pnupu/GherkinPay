@@ -1,15 +1,75 @@
-# GherkinPay Manual Testing Plan
+# GherkinPay Testing Plan
 
 > **Environment:** localnet (solana-test-validator) + localhost:3000
-> **Wallet:** Phantom configured with custom RPC `http://127.0.0.1:8899`
-> **Payer wallet:** `nnAH8phxSRgVSez4hFonzQh5ZC4LeWsTTz5koSsqv5U` (CLI default keypair, import into Phantom)
-> **Token:** USDC-test mint `5bxpqGSh66XMcSKWVipLr9pKUpBHjVdmC7W3zscCX8DJ` (Token-2022, 6 decimals)
+> **Token:** USDC-test mint `ANX1FSJ2R5fN6dNY6YrzgUkA6UFP7HMAwnMf655FDn8Y` (Token-2022, 6 decimals)
 
 ---
 
-## Prerequisites
+## Automated E2E Tests (Playwright)
 
-Before testing, ensure:
+The test suite uses a **headless test wallet adapter** that signs all transactions
+without browser extensions. No Phantom needed — Playwright drives the dApp
+directly while a real keypair signs real transactions on localnet.
+
+### Setup
+
+```bash
+# 1. Generate a test keypair and fund it
+node scripts/generate-test-keypair.mjs --fund
+
+# 2. Add the output to app/web/.env
+#    NEXT_PUBLIC_TEST_WALLET="<base64 secret key>"
+#    NEXT_PUBLIC_SOLANA_RPC_URL="http://127.0.0.1:8899"
+
+# 3. Ensure validator is running with programs deployed
+solana-test-validator --limit-ledger-size 50000000
+anchor deploy --provider.cluster localnet
+
+# 4. Run the tests (auto-starts dev server if needed)
+cd app/web && bun run test:e2e
+
+# Or with visible browser:
+bun run test:e2e:headed
+
+# Or with Playwright UI mode:
+bun run test:e2e:ui
+```
+
+### How the test wallet works
+
+The `TestWalletAdapter` (`src/lib/test-wallet-adapter.ts`) implements the full
+`SignerWalletAdapter` interface using an in-memory `Keypair`. When the env var
+`NEXT_PUBLIC_TEST_WALLET` is set, the wallet provider injects this adapter
+instead of relying on browser extension detection.
+
+- **Auto-connects** on page load (no wallet selection popup)
+- **Signs silently** — all `signTransaction` calls succeed without user interaction
+- **Wallet switching** — exposes `window.__TEST_WALLET.switchKeypair(base64)` so
+  Playwright can swap the active keypair mid-test (for multisig / compliance tests)
+
+### Test files
+
+| File | TESTING.md Coverage |
+|------|-------------------|
+| `e2e/01-connection-navigation.spec.ts` | Tests 1, 3 |
+| `e2e/02-payment-lifecycle.spec.ts` | Tests 4, 5, 6, 7, 8 |
+| `e2e/03-multi-signer.spec.ts` | Tests 9, 13 |
+| `e2e/04-conditions-admin.spec.ts` | Tests 10, 12, 14, 16, 17, 18 |
+
+Test 11 (Oracle Price Feed) requires a Pyth price account on localnet — skipped
+until a mock Pyth program is deployed.
+
+---
+
+## Manual Testing
+
+For manual verification or testing wallet UX (Phantom popup rendering, etc.),
+use the original manual plan below.
+
+> **Wallet:** Phantom configured with custom RPC `http://127.0.0.1:8899`
+> **Payer wallet:** `nnAH8phxSRgVSez4hFonzQh5ZC4LeWsTTz5koSsqv5U` (CLI default keypair, import into Phantom)
+
+### Prerequisites
 
 ```bash
 # 1. Validator running with programs deployed
@@ -17,7 +77,7 @@ solana-test-validator --limit-ledger-size 50000000
 anchor deploy --provider.cluster localnet
 
 # 2. USDC-test mint exists with tokens minted
-spl-token display 5bxpqGSh66XMcSKWVipLr9pKUpBHjVdmC7W3zscCX8DJ --url localhost
+spl-token display ANX1FSJ2R5fN6dNY6YrzgUkA6UFP7HMAwnMf655FDn8Y --url localhost
 
 # 3. Dev server running pointed at localnet
 # app/web/.env → NEXT_PUBLIC_SOLANA_RPC_URL="http://127.0.0.1:8899"
