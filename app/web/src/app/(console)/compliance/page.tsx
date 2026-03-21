@@ -57,10 +57,10 @@ export default function CompliancePage() {
         ? "error" as const
         : "idle" as const;
 
-  const txSignature = mutation.isSuccess ? (mutation.data ?? null) : null;
+  const txSignature = mutation.isSuccess ? (mutation.data ?? undefined) : undefined;
   const txError = mutation.isError
     ? decodeAnchorError(mutation.error)
-    : null;
+    : undefined;
 
   const handleSetCompliance = useCallback(() => {
     setSetError(null);

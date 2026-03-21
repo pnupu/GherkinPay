@@ -1,7 +1,6 @@
 "use client";
 
 import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 
 export type TransactionStatusState = "idle" | "loading" | "pending" | "success" | "error";
@@ -72,20 +71,14 @@ export function TransactionStatus({
               Confirmed
             </Badge>
             {signature && (
-              <Button
-                variant="link"
-                size="sm"
-                className="h-auto p-0 text-green-400 hover:text-green-300"
-                render={
-                  <a
-                    href={explorerUrl(signature)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  />
-                }
+              <a
+                href={explorerUrl(signature)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-green-400 hover:text-green-300 hover:underline"
               >
                 {truncateSignature(signature)}
-              </Button>
+              </a>
             )}
           </div>
         </>

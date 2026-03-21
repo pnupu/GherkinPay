@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument */
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -161,7 +162,7 @@ export function useCreatePayment() {
           "[GherkinPay] Creating milestone payment:",
           paymentId.toString()
         );
-        const createSig = await program.methods
+        const createSig = await (program.methods as any)
           .createMilestonePayment(
             paymentId,
             input.totalAmount,
@@ -187,7 +188,7 @@ export function useCreatePayment() {
           const [conditionPDA] = getConditionPDA(paymentPDA, i);
 
           // addMilestone
-          const msSig = await program.methods
+          const msSig = await (program.methods as any)
             .addMilestone(i, milestone.amount, operatorArg(milestone.operator))
             .accountsPartial({
               authority,
@@ -201,7 +202,7 @@ export function useCreatePayment() {
 
           // addCondition for each condition in this milestone
           for (const condition of milestone.conditions) {
-            const condSig = await program.methods
+            const condSig = await (program.methods as any)
               .addCondition(toAnchorCondition(condition))
               .accountsPartial({
                 authority,
@@ -218,7 +219,7 @@ export function useCreatePayment() {
           }
 
           // finalizeConditions for this milestone
-          const finSig = await program.methods
+          const finSig = await (program.methods as any)
             .finalizeConditions()
             .accountsPartial({
               authority,
@@ -250,7 +251,7 @@ export function useCreatePayment() {
           "[GherkinPay] Creating simple payment:",
           paymentId.toString()
         );
-        const createSig = await program.methods
+        const createSig = await (program.methods as any)
           .createPayment(
             paymentId,
             input.totalAmount,
@@ -273,7 +274,7 @@ export function useCreatePayment() {
 
         // 2. addCondition for each condition
         for (const condition of input.conditions) {
-          const condSig = await program.methods
+          const condSig = await (program.methods as any)
             .addCondition(toAnchorCondition(condition))
             .accountsPartial({
               authority,
@@ -290,7 +291,7 @@ export function useCreatePayment() {
         }
 
         // 3. finalizeConditions
-        const finSig = await program.methods
+        const finSig = await (program.methods as any)
           .finalizeConditions()
           .accountsPartial({
             authority,

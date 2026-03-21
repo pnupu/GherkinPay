@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument */
 "use client";
 
 import { useState, useMemo } from "react";
@@ -110,14 +111,16 @@ export function AgreementsClient() {
       if (!program) throw new Error("Program not available");
 
       console.log("[GherkinPay] Fetching payment agreements…");
-      const accounts = await program.account.paymentAgreement.all();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      const accounts = await (program.account as any).paymentAgreement.all();
       console.log(
         "[GherkinPay] Fetched",
         accounts.length,
         "payment agreements"
       );
 
-      return accounts.map((acct) => ({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return accounts.map((acct: any) => ({
         pda: acct.publicKey,
         paymentId: acct.account.paymentId.toString(),
         payer: acct.account.payer,

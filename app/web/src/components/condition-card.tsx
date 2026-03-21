@@ -241,10 +241,10 @@ function MultisigAction({
           : ("idle" as const);
 
   const txSignature =
-    typeof signMultisig.data === "string" ? signMultisig.data : null;
+    typeof signMultisig.data === "string" ? signMultisig.data : undefined;
   const txError = signMultisig.error
     ? decodeAnchorError(signMultisig.error)
-    : null;
+    : undefined;
 
   return (
     <div className="space-y-2">
@@ -357,10 +357,10 @@ function WebhookAction({
           : ("idle" as const);
 
   const txSignature =
-    typeof confirmWebhook.data === "string" ? confirmWebhook.data : null;
+    typeof confirmWebhook.data === "string" ? confirmWebhook.data : undefined;
   const txError = confirmWebhook.error
     ? decodeAnchorError(confirmWebhook.error)
-    : null;
+    : undefined;
 
   return (
     <div className="space-y-2">
@@ -433,7 +433,7 @@ function CrankAction({
         ? crankOracle
         : condition.type === "tokenGated"
           ? crankTokenGate
-          : null;
+          : undefined;
 
   const txStatus =
     activeMutation?.status === "pending"
@@ -445,10 +445,10 @@ function CrankAction({
           : ("idle" as const);
 
   const txSignature =
-    typeof activeMutation?.data === "string" ? activeMutation.data : null;
+    typeof activeMutation?.data === "string" ? activeMutation.data : undefined;
   const txError = activeMutation?.error
     ? decodeAnchorError(activeMutation.error)
-    : null;
+    : undefined;
 
   // Already met — show badge, no action button
   if (condition.met) {

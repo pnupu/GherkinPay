@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument */
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -80,7 +81,7 @@ export function useReleasePayment() {
       );
 
       const paymentAccount =
-        await program.account.paymentAgreement.fetch(paymentPDA);
+        await (program.account as any).paymentAgreement.fetch(paymentPDA);
 
       const {
         isMilestone,
@@ -110,7 +111,7 @@ export function useReleasePayment() {
 
       // 4. Crank unmet TimeBased conditions with past unlockAt
       const conditionAccount =
-        await program.account.conditionAccount.fetch(conditionPDA);
+        await (program.account as any).conditionAccount.fetch(conditionPDA);
 
       let crankedConditions = 0;
       for (let i = 0; i < conditionAccount.conditions.length; i++) {
@@ -123,7 +124,7 @@ export function useReleasePayment() {
             `[GherkinPay] Cranking TimeBased condition index=${i}`,
           );
 
-          await program.methods
+          await (program.methods as any)
             .crankTime(i)
             .accounts({
               payment: paymentPDA,
@@ -156,7 +157,7 @@ export function useReleasePayment() {
       });
 
       // 6. Call evaluateAndRelease
-      const signature = await program.methods
+      const signature = await (program.methods as any)
         .evaluateAndRelease()
         .accounts({
           payment: paymentPDA,

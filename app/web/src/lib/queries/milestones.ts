@@ -28,7 +28,7 @@ export function useMilestones() {
 
       // Build a lookup map: agreement pubkey → agreement data
       const agreementMap = new Map(
-        (agreements ?? []).map((a) => [a.publicKey.toBase58(), a])
+        (agreements ?? []).map((a) => [a.pubkey, a])
       );
 
       return conditionAccounts.map((ca) => {
@@ -39,8 +39,7 @@ export function useMilestones() {
         return {
           publicKey: ca.publicKey,
           account: ca.account,
-          // Parent agreement context for display
-          parentPaymentId: parentAgreement?.account.paymentId,
+          parentPaymentId: parentAgreement?.pubkey,
           parentPubkey: ca.account.payment,
         };
       });

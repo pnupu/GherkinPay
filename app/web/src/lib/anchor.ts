@@ -15,7 +15,7 @@ export function useAnchorProgram() {
 
   const result = useMemo(() => {
     if (!wallet) {
-      return { program: null, hookProgram: null } as const;
+      return { program: null, hookProgram: null, connection } as const;
     }
 
     const provider = new AnchorProvider(connection, wallet, {
@@ -32,7 +32,7 @@ export function useAnchorProgram() {
       provider
     );
 
-    return { program, hookProgram } as const;
+    return { program, hookProgram, connection, provider } as const;
   }, [connection, wallet]);
 
   return result;

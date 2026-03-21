@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument */
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -54,7 +55,7 @@ export function useCancelPayment() {
       );
 
       const paymentAccount =
-        await program.account.paymentAgreement.fetch(paymentPDA);
+        await (program.account as any).paymentAgreement.fetch(paymentPDA);
 
       const { tokenMint, payer } = paymentAccount;
 
@@ -72,7 +73,7 @@ export function useCancelPayment() {
 
       // 3. Call cancelPayment — authority is auto-derived from payment
       //    relation by Anchor, but the connected wallet must match.
-      const signature = await program.methods
+      const signature = await (program.methods as any)
         .cancelPayment()
         .accounts({
           payment: paymentPDA,

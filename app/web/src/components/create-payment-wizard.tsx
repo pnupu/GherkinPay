@@ -292,10 +292,10 @@ export function CreatePaymentWizard() {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger
-        render={<Button className="btn btn-primary" />}
-      >
-        Create payment
+      <DialogTrigger asChild>
+        <Button className="btn btn-primary">
+          Create payment
+        </Button>
       </DialogTrigger>
 
       <DialogContent

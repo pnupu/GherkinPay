@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument */
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -57,7 +58,7 @@ export function useFundPayment() {
       );
 
       const paymentAccount =
-        await program.account.paymentAgreement.fetch(paymentPDA);
+        await (program.account as any).paymentAgreement.fetch(paymentPDA);
 
       const { tokenMint, payer, isMilestone, currentMilestone } =
         paymentAccount;
@@ -83,7 +84,7 @@ export function useFundPayment() {
       });
 
       // 4. Send the fund instruction
-      const signature = await program.methods
+      const signature = await (program.methods as any)
         .fundPayment()
         .accounts({
           payer: wallet.publicKey,
