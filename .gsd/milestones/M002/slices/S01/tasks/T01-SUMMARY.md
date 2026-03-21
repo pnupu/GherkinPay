@@ -1,0 +1,86 @@
+---
+id: T01
+parent: S01
+milestone: M002
+provides:
+  - shadcn form components (Input, Label, Select, RadioGroup, Tabs, Separator)
+  - TransactionStatus reusable component for on-chain write feedback
+  - Badge component for status display
+key_files:
+  - app/web/src/components/transaction-status.tsx
+  - app/web/src/components/ui/input.tsx
+  - app/web/src/components/ui/label.tsx
+  - app/web/src/components/ui/select.tsx
+  - app/web/src/components/ui/radio-group.tsx
+  - app/web/src/components/ui/tabs.tsx
+  - app/web/src/components/ui/separator.tsx
+  - app/web/src/components/ui/badge.tsx
+key_decisions:
+  - Initialized shadcn with base-nova style on Tailwind v4; remapped all shadcn CSS variables to dark theme matching the app's existing green-on-dark design tokens
+patterns_established:
+  - TransactionStatus accepts status/signature/error props and renders idle/loading/success/error states with Solana Explorer links
+  - shadcn components live in src/components/ui/, utils in src/lib/utils.ts, aliases use ~/
+observability_surfaces:
+  - TransactionStatus renders role="status" aria-live="polite" for programmatic observation of tx state changes
+  - Success state links to explorer.solana.com/tx/{sig}?cluster=devnet
+  - Badge data-slot="badge" enables selector-based status querying
+duration: 15m
+verification_result: passed
+completed_at: 2026-03-20T14:55:00+02:00
+blocker_discovered: false
+---
+
+# T01: Install shadcn form components and create transaction status toast
+
+**Installed 7 shadcn/ui components (Input, Label, Select, RadioGroup, Tabs, Separator, Badge), initialized shadcn with dark theme CSS variables, and created TransactionStatus component with loading/success/error states and Solana Explorer links.**
+
+## What Happened
+
+Initialized shadcn/ui (canary, base-nova style) on the existing T3+Next.js+Tailwind v4 app. The init overwrote several custom CSS variables (--sidebar, --border) with light-theme oklch values, so I remapped all shadcn semantic tokens (--background, --foreground, --card, --popover, --primary, --secondary, --muted, --accent, --destructive, --input, --ring, --sidebar-*) to hex values matching the app's dark green-on-black design. Installed all 6 required form components plus Badge for the TransactionStatus component. Created TransactionStatus with four states: idle (renders nothing), loading (spinner + "Confirming transaction…"), success (green check + truncated signature linking to Solana Explorer devnet), and error (red X + error message). Added observability impact section to T01-PLAN and failure diagnostic verification step to S01-PLAN per pre-flight requirements.
+
+## Verification
+
+- `bun run typecheck` — exits 0, no type errors
+- `bun run build` — exits 0, all pages compile successfully
+- `ls src/components/ui/{input,label,select,radio-group,tabs,separator}.tsx` — all 6 files present
+- `ls src/components/transaction-status.tsx` — exists
+
+## Verification Evidence
+
+| # | Command | Exit Code | Verdict | Duration |
+|---|---------|-----------|---------|----------|
+| 1 | `cd app/web && bun run typecheck` | 0 | ✅ pass | 3.1s |
+| 2 | `cd app/web && bun run build` | 0 | ✅ pass | 16.7s |
+| 3 | `ls app/web/src/components/ui/{input,label,select,radio-group,tabs,separator}.tsx` | 0 | ✅ pass | <1s |
+
+## Diagnostics
+
+- TransactionStatus: render with `status="loading"` to see spinner, `status="success" signature="abc123"` to see Explorer link, `status="error" error="msg"` to see error. The component uses `role="status"` and `aria-live="polite"` for accessibility and automated testing.
+- shadcn components: all in `src/components/ui/`, import via `~/components/ui/component-name`.
+- CSS variables: all shadcn tokens mapped to dark theme in `src/styles/globals.css` `:root` block.
+
+## Deviations
+
+- Added Badge component installation (not in original plan) because the task plan Step 4 says "Use shadcn Badge for status display" but Badge wasn't in the install list.
+- Remapped shadcn CSS variables from default light oklch values to dark hex values matching the app's existing design system — shadcn init overwrote custom app tokens (--sidebar, --border).
+
+## Known Issues
+
+None.
+
+## Files Created/Modified
+
+- `app/web/src/components/transaction-status.tsx` — new TransactionStatus component with 4 states (idle/loading/success/error)
+- `app/web/src/components/ui/input.tsx` — shadcn Input component (generated)
+- `app/web/src/components/ui/label.tsx` — shadcn Label component (generated)
+- `app/web/src/components/ui/select.tsx` — shadcn Select component (generated)
+- `app/web/src/components/ui/radio-group.tsx` — shadcn RadioGroup component (generated)
+- `app/web/src/components/ui/tabs.tsx` — shadcn Tabs component (generated)
+- `app/web/src/components/ui/separator.tsx` — shadcn Separator component (generated)
+- `app/web/src/components/ui/badge.tsx` — shadcn Badge component (generated)
+- `app/web/src/components/ui/button.tsx` — shadcn Button component (generated by init)
+- `app/web/src/lib/utils.ts` — cn() utility (generated by init)
+- `app/web/src/styles/globals.css` — remapped shadcn CSS variables to dark theme
+- `app/web/components.json` — shadcn configuration (generated by init)
+- `.gsd/milestones/M002/slices/S01/S01-PLAN.md` — added failure diagnostic verification step
+- `.gsd/milestones/M002/slices/S01/tasks/T01-PLAN.md` — added Observability Impact section
