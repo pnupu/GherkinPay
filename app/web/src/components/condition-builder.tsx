@@ -248,6 +248,9 @@ export function ConditionBuilder({
   // Watch the whole form for changes and sync to parent
   const watched = useWatch({ control });
 
+  const onChangeRef = React.useRef(onChange);
+  onChangeRef.current = onChange;
+
   useEffect(() => {
     if (suppressSync.current) {
       suppressSync.current = false;
@@ -256,14 +259,16 @@ export function ConditionBuilder({
     const current = JSON.stringify(watched);
     const prev = JSON.stringify(value);
     if (current !== prev) {
-      onChange(watched as ConditionBuilderValue);
+      onChangeRef.current(watched as ConditionBuilderValue);
     }
-  }, [watched, onChange, value]);
+  }, [watched, value]);
 
   // Report validation state
+  const onValidChangeRef = React.useRef(onValidChange);
+  onValidChangeRef.current = onValidChange;
   useEffect(() => {
-    onValidChange?.(formState.isValid);
-  }, [formState.isValid, onValidChange]);
+    onValidChangeRef.current?.(formState.isValid);
+  }, [formState.isValid]);
 
   // Sync incoming value when parent changes it (e.g., reset)
   useEffect(() => {
