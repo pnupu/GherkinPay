@@ -246,15 +246,15 @@ export function AgreementsClient() {
                   </td>
                   <td
                     className="font-mono text-xs"
-                    title={payment.payer.toBase58()}
+                    title={String(payment.payer)}
                   >
-                    {truncateAddress(payment.payer.toBase58())}
+                    {truncateAddress(String(payment.payer))}
                   </td>
                   <td
                     className="font-mono text-xs"
-                    title={payment.payee.toBase58()}
+                    title={String(payment.payee)}
                   >
-                    {truncateAddress(payment.payee.toBase58())}
+                    {truncateAddress(String(payment.payee))}
                   </td>
                   <td>
                     {payment.isMilestone
