@@ -248,7 +248,7 @@ export function ConditionBuilder({
   // Watch the whole form for changes and sync to parent
   const watched = useWatch({ control });
 
-  const onChangeRef = React.useRef(onChange);
+  const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
   useEffect(() => {
@@ -264,7 +264,7 @@ export function ConditionBuilder({
   }, [watched, value]);
 
   // Report validation state
-  const onValidChangeRef = React.useRef(onValidChange);
+  const onValidChangeRef = useRef(onValidChange);
   onValidChangeRef.current = onValidChange;
   useEffect(() => {
     onValidChangeRef.current?.(formState.isValid);
