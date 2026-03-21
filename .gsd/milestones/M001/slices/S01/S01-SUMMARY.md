@@ -1,14 +1,20 @@
 ---
 id: S01
+parent: M001
 milestone: M001
 provides:
-  - shadcn/ui (canary) installed with Tailwind v4 CSS config path
-  - components.json configured with ~/  path aliases
-  - cn() utility at src/lib/utils.ts (importable as ~/lib/utils)
-  - CSS namespace collision resolved: --border → --gp-border (16 refs), --sidebar → --gp-sidebar (2 refs)
-  - shadcn CSS variables block with GherkinPay dark green oklch palette merged into globals.css
-  - Button, Table, Badge, Dialog components in src/components/ui/ with ~/lib/utils imports
-  - smoke-test Button rendered in console layout sidebar
+  - shadcn/ui component library (Button, Table, Badge, Dialog) in src/components/ui/
+  - cn() utility in src/lib/utils.ts
+  - components.json with ~/ alias configuration
+  - Merged CSS namespace — GherkinPay tokens coexist with shadcn tokens in globals.css
+  - GherkinPay dark green oklch palette mapped into shadcn CSS variables
+requires: []
+affects:
+  - S02
+  - S03
+  - S04
+  - S05
+  - S06
 key_files:
   - app/web/components.json
   - app/web/src/lib/utils.ts
@@ -19,61 +25,109 @@ key_files:
   - app/web/src/components/ui/dialog.tsx
   - app/web/src/app/(console)/layout.tsx
 key_decisions:
-  - Manual components.json creation (not interactive shadcn init) to avoid globals.css overwrite
-  - GherkinPay custom properties prefixed gp- when colliding with shadcn tokens (--border, --sidebar)
-  - All shadcn aliases use ~/  prefix matching tsconfig paths, never @/
-  - tw-animate-css imported after tailwindcss; @theme inline block registers all shadcn tokens as Tailwind utilities
+  - Manual components.json creation instead of interactive shadcn init to avoid globals.css overwrite
+  - Renamed --border to --gp-border and --sidebar to --gp-sidebar to avoid shadcn namespace collision
+  - shadcn canary path for Tailwind v4 CSS-based config compatibility
 patterns_established:
+  - All shadcn aliases use ~/ prefix (matching tsconfig paths), never @/
+  - GherkinPay custom properties prefixed gp- when they collide with shadcn tokens
   - shadcn components live in src/components/ui/ with ~/lib/utils imports
-  - Colliding CSS custom properties get a gp- prefix rather than aliasing — allows shadcn to own its namespace cleanly
+  - Typecheck must run after build (tsconfig includes .next/types/**)
+observability_surfaces:
+  - "grep -c 'gp-border' app/web/src/styles/globals.css" — must return ≥16, confirms no CSS rename regression
+  - "grep 'var(--border)' app/web/src/styles/globals.css" — only @theme inline mapping, no stale refs in CSS rules
+  - "ls app/web/src/components/ui/" — lists installed shadcn components
+  - "cd app/web && bun run build" — non-zero exit means broken integration
+  - "cd app/web && bun run typecheck" — catches import alias mismatches and type errors
 drill_down_paths:
   - .gsd/milestones/M001/slices/S01/tasks/T01-SUMMARY.md
   - .gsd/milestones/M001/slices/S01/tasks/T02-SUMMARY.md
 duration: 13m
-verification_result: pass
+verification_result: passed
 completed_at: 2026-03-19
 ---
 
 # S01: shadcn Setup and Design System
 
-**shadcn/ui canary installed and themed with GherkinPay dark green oklch palette; CSS namespace collision resolved via gp- prefix; Button/Table/Badge/Dialog components wired; bun run build and typecheck pass clean.**
+**shadcn/ui installed, themed to GherkinPay dark green palette, and building clean alongside existing CSS — Button, Table, Badge, Dialog available; CSS namespace collision resolved; `bun run build` and `bun run typecheck` pass.**
 
 ## What Happened
 
-### T01 — Foundation
+T01 established the shadcn foundation. Copied `app/web` into the worktree (untracked by git), installed dependencies, then created `components.json` manually to avoid the interactive `shadcn init` overwriting `globals.css`. Created `src/lib/utils.ts` with the `cn()` utility (clsx + tailwind-merge). Installed five shadcn peer deps: class-variance-authority, clsx, tailwind-merge, lucide-react, tw-animate-css.
 
-Created `components.json` manually with `~/` aliases (new-york style, Tailwind v4 CSS path). Created `src/lib/utils.ts` with the standard `cn()` combining clsx + tailwind-merge. Added 5 shadcn peer dependencies via bun.
+The critical work was the CSS namespace migration: renamed `--border` to `--gp-border` (16 occurrences — 1 definition + 15 var() references) and `--sidebar` to `--gp-sidebar` (2 occurrences) throughout `globals.css`. This prevents shadcn's own `--border` and `--sidebar` tokens from colliding with GherkinPay's existing design system. Added the shadcn CSS variable block to `:root` with oklch values mapped from the GherkinPay dark green palette, plus an `@theme inline` block registering all shadcn tokens as Tailwind utilities.
 
-The critical work was CSS namespace migration: shadcn uses `--border` and `--sidebar` which collided with existing GherkinPay custom properties. The resolution was to rename the GherkinPay properties to `--gp-border` and `--gp-sidebar` throughout `globals.css` (16 + 2 occurrences), then let shadcn own `--border` and `--sidebar` cleanly in its own block. This is cleaner than aliasing and means shadcn components inherit their own token semantics correctly.
+T02 added the four core shadcn components via `npx shadcn@latest add button table badge dialog --yes`. The CLI correctly resolved `~/lib/utils` imports from `components.json` — no manual fixup needed. Imported Button into the console layout sidebar as a "Connect Wallet" smoke test. Build and typecheck both pass clean.
 
-Added the shadcn `:root` CSS variable block with GherkinPay dark green oklch values (`--background: oklch(0.07 0.016 158)` etc.) and an `@theme inline` block registering all tokens as Tailwind utilities.
+## Verification
 
-### T02 — Components
+- All four component files exist in `src/components/ui/` ✅
+- `grep -c "gp-border"` returns 16 — all renames intact ✅
+- `var(--border)` only appears in `@theme inline` mapping — no stale refs in CSS rules ✅
+- No `@/lib/utils` imports found in any component — all use `~/lib/utils` ✅
+- Button imported and rendered in `(console)/layout.tsx` ✅
+- `bun run build` exits 0 — all 9 routes build successfully ✅
+- `bun run typecheck` exits 0 ✅
 
-Ran `npx shadcn@latest add button table badge dialog --yes`. The CLI correctly used `~/lib/utils` imports thanks to `components.json` configured in T01 — no fixup needed. Added a "Connect Wallet" outline Button to the console layout sidebar as a smoke test. Both `bun run build` and `bun run typecheck` passed clean (13s each).
+## Requirements Advanced
 
-**Note:** `bun run typecheck` must run after `bun run build` because tsconfig includes `.next/types/**/*.ts` which is only generated during build. This is a pre-existing project characteristic.
+- R006 (shadcn/ui Component System) — Foundation established: shadcn installed, themed, four core components available, build passes. Remaining: S02–S06 adopt these components in page-level UI.
 
-## Verification Results
+## Requirements Validated
 
-| Check | Command | Result |
-|-------|---------|--------|
-| gp-border refs | `grep -c "gp-border" globals.css` | 16 ✅ |
-| gp-sidebar refs | `grep -c "gp-sidebar" globals.css` | 2 ✅ |
-| no stale --border in CSS rules | `grep "var(--border)" globals.css` | 1 (only @theme inline) ✅ |
-| components exist | `ls src/components/ui/{button,table,badge,dialog}.tsx` | all present ✅ |
-| no @/ imports | `grep -r '@/lib/utils' src/components/ui/` | 0 matches ✅ |
-| Button in layout | `grep "Button" src/app/(console)/layout.tsx` | present ✅ |
-| build | `bun run build` | exit 0 ✅ |
-| typecheck | `bun run typecheck` | exit 0 ✅ |
+- None — R006 is partially fulfilled by S01 but requires supporting slices to complete adoption.
 
-## Deviations from Plan
+## New Requirements Surfaced
 
-- The S01-CONTEXT.md from the discuss phase specified "rename old tokens to shadcn names, update all references" (full consolidation). During execution, only `--border` and `--sidebar` were renamed because those are the only tokens that directly collide with shadcn's namespace. The remaining GherkinPay tokens (`--bg`, `--green`, `--surface`, `--text`, etc.) have no shadcn collision — they were left in place and shadcn's palette was mapped to new oklch equivalents alongside them. This is actually the better outcome: existing CSS classes continue to work unchanged while shadcn components get their own properly-scoped tokens.
+- None
 
-## What S02 Should Know
+## Requirements Invalidated or Re-scoped
 
-- Import shadcn Button from `~/components/ui/button` — it renders with `--primary` (GherkinPay green) on dark background
-- The `cn()` utility is at `~/lib/utils` — use it for conditional class composition
-- CSS custom property collision pattern: if any future token collides with shadcn, prefix with `gp-` and update all references
-- The "Connect Wallet" smoke-test Button in the layout sidebar is a placeholder for the real wallet connect button S02 will wire — it can be replaced or repurposed
+- None
+
+## Deviations
+
+None.
+
+## Known Limitations
+
+- Only four shadcn components installed (Button, Table, Badge, Dialog). Additional components (Form, Select, Input, etc.) will need `npx shadcn add` as S02–S06 require them.
+- The Button in the console layout is a smoke test placeholder — S02 will replace it with a real wallet connect button.
+- Visual runtime verification was not performed (build pass is the proof level for this slice). CSS variable collisions would manifest as wrong colors at runtime.
+
+## Follow-ups
+
+- None — all planned work completed as specified.
+
+## Files Created/Modified
+
+- `app/web/components.json` — new: shadcn config with new-york style, ~/ aliases, Tailwind v4 CSS path
+- `app/web/src/lib/utils.ts` — new: cn() utility (clsx + tailwind-merge)
+- `app/web/src/styles/globals.css` — modified: --border→--gp-border (16), --sidebar→--gp-sidebar (2), added tw-animate-css import, shadcn :root variables with oklch values, @theme inline block
+- `app/web/package.json` — modified: added 5 shadcn dependencies
+- `app/web/bun.lock` — modified: updated lockfile
+- `app/web/src/components/ui/button.tsx` — new: shadcn Button component
+- `app/web/src/components/ui/table.tsx` — new: shadcn Table component family
+- `app/web/src/components/ui/badge.tsx` — new: shadcn Badge component
+- `app/web/src/components/ui/dialog.tsx` — new: shadcn Dialog component
+- `app/web/src/app/(console)/layout.tsx` — modified: added Button import and "Connect Wallet" smoke test
+
+## Forward Intelligence
+
+### What the next slice should know
+- shadcn components import from `~/components/ui/<name>`. The `cn()` utility imports from `~/lib/utils`. These paths are set by `components.json` and must not change.
+- To add more shadcn components: `cd app/web && npx shadcn@latest add <component> --yes`. The CLI reads `components.json` and generates correct `~/` imports automatically.
+- The "Connect Wallet" Button in the sidebar footer (`layout.tsx`) is a placeholder for S02 to replace with the real wallet connect button.
+
+### What's fragile
+- CSS variable namespace — if anyone adds a raw `--border` or `--sidebar` custom property in a non-shadcn context, it will collide with shadcn's tokens. Always use `--gp-border` / `--gp-sidebar` for GherkinPay-specific properties.
+- `@theme inline` block in `globals.css` must stay in sync with shadcn's expected token names. Adding new shadcn components that reference new tokens (e.g., `--chart-*`) may require extending this block.
+
+### Authoritative diagnostics
+- `grep -c "gp-border" app/web/src/styles/globals.css` — returns 16; any lower means a CSS rename was reverted or a new collision was introduced
+- `grep "var(--border)" app/web/src/styles/globals.css` — must return only the `@theme inline` mapping line; matches in CSS rule selectors indicate a missed rename
+- `cd app/web && bun run build` — exit 0 is the definitive integration health check; captures CSS parse errors, missing imports, and type errors in one pass
+- `ls app/web/src/components/ui/` — quick component inventory check
+
+### What assumptions changed
+- No assumptions changed. shadcn canary + Tailwind v4 + Next.js 15 worked without issues. The CSS namespace collision pattern (--border, --sidebar) was anticipated and resolved as planned.

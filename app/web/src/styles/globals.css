@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @theme {
   --font-sans: var(--font-space-grotesk), "Manrope", "Satoshi", sans-serif;
@@ -6,14 +7,74 @@
 
 :root {
   --bg: #080b09;
-  --sidebar: #0d130f;
+  --gp-sidebar: #0d130f;
   --surface: #131b16;
   --surface-hover: #1b281f;
-  --border: #2a3b30;
+  --gp-border: #2a3b30;
   --text: #edf4ee;
   --text-muted: #98af9e;
   --green: #23c55e;
   --green-strong: #36e06f;
+
+  /* shadcn/ui design tokens — GherkinPay dark green palette */
+  --background: oklch(0.07 0.01 155);
+  --foreground: oklch(0.96 0.01 155);
+  --card: oklch(0.13 0.02 155);
+  --card-foreground: oklch(0.96 0.01 155);
+  --popover: oklch(0.13 0.02 155);
+  --popover-foreground: oklch(0.96 0.01 155);
+  --primary: oklch(0.72 0.19 155);
+  --primary-foreground: oklch(0.16 0.03 155);
+  --secondary: oklch(0.19 0.02 155);
+  --secondary-foreground: oklch(0.96 0.01 155);
+  --muted: oklch(0.13 0.02 155);
+  --muted-foreground: oklch(0.72 0.03 155);
+  --accent: oklch(0.19 0.02 155);
+  --accent-foreground: oklch(0.96 0.01 155);
+  --destructive: oklch(0.55 0.2 25);
+  --border: oklch(0.28 0.03 155);
+  --input: oklch(0.28 0.03 155);
+  --ring: oklch(0.72 0.19 155);
+  --radius: 0.5rem;
+
+  --sidebar-background: oklch(0.07 0.01 155);
+  --sidebar-foreground: oklch(0.96 0.01 155);
+  --sidebar-primary: oklch(0.72 0.19 155);
+  --sidebar-primary-foreground: oklch(0.16 0.03 155);
+  --sidebar-accent: oklch(0.19 0.02 155);
+  --sidebar-accent-foreground: oklch(0.96 0.01 155);
+  --sidebar-border: oklch(0.28 0.03 155);
+  --sidebar-ring: oklch(0.72 0.19 155);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius: var(--radius);
+  --color-sidebar-background: var(--sidebar-background);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
 *,
@@ -41,8 +102,8 @@ body {
 }
 
 .sidebar {
-  border-right: 1px solid var(--border);
-  background: var(--sidebar);
+  border-right: 1px solid var(--gp-border);
+  background: var(--gp-sidebar);
   padding: 20px 16px;
 }
 
@@ -69,13 +130,13 @@ body {
 }
 
 .nav-link:hover {
-  border-color: var(--border);
+  border-color: var(--gp-border);
   background: var(--surface);
   color: var(--text);
 }
 
 .nav-link-active {
-  border-color: var(--border);
+  border-color: var(--gp-border);
   background: var(--surface);
   color: var(--text);
 }
@@ -112,7 +173,7 @@ body {
 
 .btn {
   border-radius: 8px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--gp-border);
   padding: 8px 12px;
   font-size: 0.87rem;
   font-weight: 500;
@@ -131,7 +192,7 @@ body {
 }
 
 .panel {
-  border: 1px solid var(--border);
+  border: 1px solid var(--gp-border);
   border-radius: 10px;
   background: var(--surface);
   padding: 14px;
@@ -168,7 +229,7 @@ body {
 
 .table th,
 .table td {
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--gp-border);
   padding: 10px 8px;
   text-align: left;
 }
@@ -218,7 +279,7 @@ body {
 
   .sidebar {
     border-right: 0;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--gp-border);
   }
 
   .topbar {
@@ -276,7 +337,7 @@ body {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+  background-image: radial-gradient(circle, var(--gp-border) 1px, transparent 1px);
   background-size: 32px 32px;
   opacity: 0.35;
   mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 100%);
@@ -334,7 +395,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--gp-border);
   border-radius: 100px;
   padding: 6px 16px;
   font-size: 0.78rem;
@@ -389,7 +450,7 @@ body {
 .btn-outline {
   background: transparent;
   color: var(--text);
-  border-color: var(--border);
+  border-color: var(--gp-border);
   transition: background 140ms ease, border-color 140ms ease;
 }
 
@@ -409,7 +470,7 @@ body {
   gap: 28px;
   margin-top: 48px;
   padding: 18px 32px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--gp-border);
   border-radius: 12px;
   background: var(--surface);
 }
@@ -438,7 +499,7 @@ body {
 .landing-stat-divider {
   width: 1px;
   height: 32px;
-  background: var(--border);
+  background: var(--gp-border);
 }
 
 /* Sections */
@@ -468,7 +529,7 @@ body {
 }
 
 .feature-card {
-  border: 1px solid var(--border);
+  border: 1px solid var(--gp-border);
   border-radius: 12px;
   background: var(--surface);
   padding: 20px 18px;
@@ -518,7 +579,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--gp-border);
   border-radius: 10px;
   background: var(--surface);
   padding: 16px 14px;
@@ -568,7 +629,7 @@ body {
   justify-content: space-between;
   padding: 48px 32px 32px;
   margin-top: 80px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--gp-border);
 }
 
 .landing-footer-brand {

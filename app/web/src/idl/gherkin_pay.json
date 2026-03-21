@@ -1,0 +1,1458 @@
+{
+  "address": "2wL3PPjoG4UmVrNYZyXvxfTfV738AVCG8LHJPUEtxEeV",
+  "metadata": {
+    "name": "gherkin_pay",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "GherkinPay — Condition-Based Payment Engine on Solana"
+  },
+  "instructions": [
+    {
+      "name": "add_condition",
+      "discriminator": [
+        92,
+        223,
+        119,
+        30,
+        151,
+        178,
+        173,
+        245
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "payment"
+          ]
+        },
+        {
+          "name": "payment"
+        },
+        {
+          "name": "condition_account",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "condition",
+          "type": {
+            "defined": {
+              "name": "Condition"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "add_milestone",
+      "discriminator": [
+        165,
+        18,
+        177,
+        128,
+        204,
+        172,
+        23,
+        249
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "payment"
+          ]
+        },
+        {
+          "name": "payment",
+          "writable": true
+        },
+        {
+          "name": "condition_account",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "milestone_index",
+          "type": "u8"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "operator",
+          "type": {
+            "defined": {
+              "name": "ConditionOperator"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "cancel_payment",
+      "discriminator": [
+        217,
+        129,
+        71,
+        37,
+        216,
+        193,
+        38,
+        33
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "payment"
+          ]
+        },
+        {
+          "name": "payment",
+          "writable": true
+        },
+        {
+          "name": "token_mint"
+        },
+        {
+          "name": "escrow_token_account",
+          "writable": true
+        },
+        {
+          "name": "payer_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "confirm_webhook",
+      "discriminator": [
+        38,
+        142,
+        134,
+        35,
+        231,
+        3,
+        81,
+        95
+      ],
+      "accounts": [
+        {
+          "name": "relayer",
+          "signer": true
+        },
+        {
+          "name": "payment"
+        },
+        {
+          "name": "condition_account",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "condition_index",
+          "type": "u8"
+        },
+        {
+          "name": "event_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "crank_oracle",
+      "discriminator": [
+        133,
+        135,
+        250,
+        161,
+        77,
+        193,
+        0,
+        6
+      ],
+      "accounts": [
+        {
+          "name": "payment"
+        },
+        {
+          "name": "condition_account",
+          "writable": true
+        },
+        {
+          "name": "price_feed"
+        }
+      ],
+      "args": [
+        {
+          "name": "condition_index",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "crank_time",
+      "discriminator": [
+        157,
+        161,
+        245,
+        201,
+        225,
+        117,
+        55,
+        95
+      ],
+      "accounts": [
+        {
+          "name": "payment"
+        },
+        {
+          "name": "condition_account",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "condition_index",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "crank_token_gate",
+      "discriminator": [
+        118,
+        228,
+        203,
+        129,
+        119,
+        185,
+        132,
+        194
+      ],
+      "accounts": [
+        {
+          "name": "payment"
+        },
+        {
+          "name": "condition_account",
+          "writable": true
+        },
+        {
+          "name": "holder_token_account"
+        }
+      ],
+      "args": [
+        {
+          "name": "condition_index",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "create_milestone_payment",
+      "discriminator": [
+        76,
+        242,
+        210,
+        200,
+        142,
+        165,
+        57,
+        98
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "payer_wallet"
+        },
+        {
+          "name": "payee"
+        },
+        {
+          "name": "token_mint"
+        },
+        {
+          "name": "payment",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  97,
+                  121,
+                  109,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "authority"
+              },
+              {
+                "kind": "arg",
+                "path": "payment_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "escrow_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "payment"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "payment_id",
+          "type": "u64"
+        },
+        {
+          "name": "total_amount",
+          "type": "u64"
+        },
+        {
+          "name": "milestone_count",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "create_payment",
+      "discriminator": [
+        28,
+        81,
+        85,
+        253,
+        7,
+        223,
+        154,
+        42
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "payer_wallet"
+        },
+        {
+          "name": "payee"
+        },
+        {
+          "name": "token_mint"
+        },
+        {
+          "name": "payment",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  97,
+                  121,
+                  109,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "authority"
+              },
+              {
+                "kind": "arg",
+                "path": "payment_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "escrow_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  115,
+                  99,
+                  114,
+                  111,
+                  119
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "payment"
+              }
+            ]
+          }
+        },
+        {
+          "name": "condition_account",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "payment_id",
+          "type": "u64"
+        },
+        {
+          "name": "total_amount",
+          "type": "u64"
+        },
+        {
+          "name": "operator",
+          "type": {
+            "defined": {
+              "name": "ConditionOperator"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "evaluate_and_release",
+      "discriminator": [
+        244,
+        110,
+        2,
+        100,
+        161,
+        246,
+        68,
+        174
+      ],
+      "accounts": [
+        {
+          "name": "payment",
+          "writable": true
+        },
+        {
+          "name": "condition_account",
+          "writable": true
+        },
+        {
+          "name": "next_condition_account",
+          "docs": [
+            "The next milestone's ConditionAccount (only required for milestone payments",
+            "that have a subsequent milestone). Pass the same account as condition_account",
+            "if this is a simple payment or the last milestone."
+          ],
+          "writable": true
+        },
+        {
+          "name": "token_mint"
+        },
+        {
+          "name": "escrow_token_account",
+          "writable": true
+        },
+        {
+          "name": "payee_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "finalize_conditions",
+      "discriminator": [
+        102,
+        228,
+        30,
+        207,
+        135,
+        86,
+        24,
+        181
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "payment"
+          ]
+        },
+        {
+          "name": "payment"
+        },
+        {
+          "name": "condition_account",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "fund_payment",
+      "discriminator": [
+        253,
+        134,
+        49,
+        76,
+        62,
+        0,
+        242,
+        82
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "payment",
+          "writable": true
+        },
+        {
+          "name": "condition_account",
+          "writable": true
+        },
+        {
+          "name": "token_mint"
+        },
+        {
+          "name": "payer_token_account",
+          "writable": true
+        },
+        {
+          "name": "escrow_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "sign_multisig",
+      "discriminator": [
+        115,
+        62,
+        45,
+        2,
+        49,
+        18,
+        137,
+        212
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "payment"
+        },
+        {
+          "name": "condition_account",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "condition_index",
+          "type": "u8"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "ConditionAccount",
+      "discriminator": [
+        237,
+        200,
+        74,
+        27,
+        169,
+        73,
+        95,
+        187
+      ]
+    },
+    {
+      "name": "PaymentAgreement",
+      "discriminator": [
+        55,
+        21,
+        232,
+        136,
+        243,
+        133,
+        124,
+        251
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "ConditionAdded",
+      "discriminator": [
+        192,
+        142,
+        9,
+        230,
+        169,
+        81,
+        165,
+        64
+      ]
+    },
+    {
+      "name": "ConditionMet",
+      "discriminator": [
+        162,
+        157,
+        80,
+        222,
+        211,
+        200,
+        90,
+        236
+      ]
+    },
+    {
+      "name": "MilestoneAdvanced",
+      "discriminator": [
+        77,
+        149,
+        170,
+        109,
+        217,
+        217,
+        16,
+        119
+      ]
+    },
+    {
+      "name": "MultisigApproval",
+      "discriminator": [
+        248,
+        224,
+        205,
+        32,
+        153,
+        235,
+        176,
+        35
+      ]
+    },
+    {
+      "name": "PaymentCancelled",
+      "discriminator": [
+        137,
+        140,
+        226,
+        59,
+        55,
+        152,
+        253,
+        179
+      ]
+    },
+    {
+      "name": "PaymentCompleted",
+      "discriminator": [
+        157,
+        184,
+        146,
+        198,
+        243,
+        50,
+        113,
+        174
+      ]
+    },
+    {
+      "name": "PaymentCreated",
+      "discriminator": [
+        174,
+        8,
+        230,
+        213,
+        220,
+        35,
+        198,
+        204
+      ]
+    },
+    {
+      "name": "PaymentFunded",
+      "discriminator": [
+        81,
+        134,
+        131,
+        50,
+        156,
+        141,
+        224,
+        70
+      ]
+    },
+    {
+      "name": "PaymentReleased",
+      "discriminator": [
+        160,
+        132,
+        155,
+        232,
+        46,
+        254,
+        69,
+        219
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidPaymentStatus",
+      "msg": "Payment is not in the expected status"
+    },
+    {
+      "code": 6001,
+      "name": "ConditionsAlreadyFinalized",
+      "msg": "Conditions are already finalized"
+    },
+    {
+      "code": 6002,
+      "name": "ConditionsNotFinalized",
+      "msg": "Conditions are not yet finalized"
+    },
+    {
+      "code": 6003,
+      "name": "MaxConditionsReached",
+      "msg": "Maximum number of conditions reached"
+    },
+    {
+      "code": 6004,
+      "name": "MaxSignersReached",
+      "msg": "Maximum number of signers reached"
+    },
+    {
+      "code": 6005,
+      "name": "SignerNotInList",
+      "msg": "Signer is not in the multisig signer list"
+    },
+    {
+      "code": 6006,
+      "name": "AlreadyApproved",
+      "msg": "Signer has already approved"
+    },
+    {
+      "code": 6007,
+      "name": "ConditionTypeMismatch",
+      "msg": "Condition at the given index is not the expected type"
+    },
+    {
+      "code": 6008,
+      "name": "ConditionIndexOutOfBounds",
+      "msg": "Condition index out of bounds"
+    },
+    {
+      "code": 6009,
+      "name": "ConditionsNotMet",
+      "msg": "Conditions are not met for release"
+    },
+    {
+      "code": 6010,
+      "name": "MilestoneNotActive",
+      "msg": "Milestone is not in active status"
+    },
+    {
+      "code": 6011,
+      "name": "AllMilestonesReleased",
+      "msg": "All milestones already released"
+    },
+    {
+      "code": 6012,
+      "name": "MilestoneIndexMismatch",
+      "msg": "Milestone index mismatch"
+    },
+    {
+      "code": 6013,
+      "name": "MilestoneAmountMismatch",
+      "msg": "Milestone amounts do not sum to total amount"
+    },
+    {
+      "code": 6014,
+      "name": "NotAllConditionsFinalized",
+      "msg": "Not all condition accounts are finalized"
+    },
+    {
+      "code": 6015,
+      "name": "NotMilestonePayment",
+      "msg": "Payment is not a milestone payment"
+    },
+    {
+      "code": 6016,
+      "name": "IsMilestonePayment",
+      "msg": "Payment is a milestone payment; use milestone-specific instructions"
+    },
+    {
+      "code": 6017,
+      "name": "OraclePriceStale",
+      "msg": "Oracle price is stale"
+    },
+    {
+      "code": 6018,
+      "name": "OracleConfidenceTooWide",
+      "msg": "Oracle price confidence too wide"
+    },
+    {
+      "code": 6019,
+      "name": "RelayerMismatch",
+      "msg": "Relayer does not match condition"
+    },
+    {
+      "code": 6020,
+      "name": "EventHashMismatch",
+      "msg": "Event hash does not match condition"
+    },
+    {
+      "code": 6021,
+      "name": "TokenBalanceInsufficient",
+      "msg": "Token balance insufficient for gate"
+    },
+    {
+      "code": 6022,
+      "name": "ArithmeticOverflow",
+      "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6023,
+      "name": "CannotCancelCompleted",
+      "msg": "Cannot cancel a completed payment"
+    },
+    {
+      "code": 6024,
+      "name": "NothingToRefund",
+      "msg": "Nothing to refund"
+    },
+    {
+      "code": 6025,
+      "name": "ZeroMilestones",
+      "msg": "Milestone count cannot be zero"
+    },
+    {
+      "code": 6026,
+      "name": "MaxMilestonesExceeded",
+      "msg": "Exceeded maximum milestone count"
+    }
+  ],
+  "types": [
+    {
+      "name": "ComparisonOperator",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Gt"
+          },
+          {
+            "name": "Gte"
+          },
+          {
+            "name": "Lt"
+          },
+          {
+            "name": "Lte"
+          },
+          {
+            "name": "Eq"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Condition",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Multisig",
+            "fields": [
+              {
+                "name": "signers",
+                "type": {
+                  "vec": "pubkey"
+                }
+              },
+              {
+                "name": "threshold",
+                "type": "u8"
+              },
+              {
+                "name": "approvals",
+                "type": {
+                  "vec": "bool"
+                }
+              },
+              {
+                "name": "met",
+                "type": "bool"
+              }
+            ]
+          },
+          {
+            "name": "TimeBased",
+            "fields": [
+              {
+                "name": "unlock_at",
+                "type": "i64"
+              },
+              {
+                "name": "met",
+                "type": "bool"
+              }
+            ]
+          },
+          {
+            "name": "Oracle",
+            "fields": [
+              {
+                "name": "feed_account",
+                "type": "pubkey"
+              },
+              {
+                "name": "operator",
+                "type": {
+                  "defined": {
+                    "name": "ComparisonOperator"
+                  }
+                }
+              },
+              {
+                "name": "target_value",
+                "type": "i64"
+              },
+              {
+                "name": "decimals",
+                "type": "u8"
+              },
+              {
+                "name": "met",
+                "type": "bool"
+              }
+            ]
+          },
+          {
+            "name": "Webhook",
+            "fields": [
+              {
+                "name": "relayer",
+                "type": "pubkey"
+              },
+              {
+                "name": "event_hash",
+                "type": {
+                  "array": [
+                    "u8",
+                    32
+                  ]
+                }
+              },
+              {
+                "name": "met",
+                "type": "bool"
+              }
+            ]
+          },
+          {
+            "name": "TokenGated",
+            "fields": [
+              {
+                "name": "required_mint",
+                "type": "pubkey"
+              },
+              {
+                "name": "min_amount",
+                "type": "u64"
+              },
+              {
+                "name": "holder",
+                "type": "pubkey"
+              },
+              {
+                "name": "met",
+                "type": "bool"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConditionAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "payment",
+            "type": "pubkey"
+          },
+          {
+            "name": "milestone_index",
+            "type": "u8"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "milestone_status",
+            "type": {
+              "defined": {
+                "name": "MilestoneStatus"
+              }
+            }
+          },
+          {
+            "name": "operator",
+            "type": {
+              "defined": {
+                "name": "ConditionOperator"
+              }
+            }
+          },
+          {
+            "name": "conditions",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Condition"
+                }
+              }
+            }
+          },
+          {
+            "name": "is_finalized",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConditionAdded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "payment",
+            "type": "pubkey"
+          },
+          {
+            "name": "milestone_index",
+            "type": "u8"
+          },
+          {
+            "name": "condition_index",
+            "type": "u8"
+          },
+          {
+            "name": "condition_type",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConditionMet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "payment",
+            "type": "pubkey"
+          },
+          {
+            "name": "milestone_index",
+            "type": "u8"
+          },
+          {
+            "name": "condition_index",
+            "type": "u8"
+          },
+          {
+            "name": "condition_type",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConditionOperator",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "And"
+          },
+          {
+            "name": "Or"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MilestoneAdvanced",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "payment",
+            "type": "pubkey"
+          },
+          {
+            "name": "completed_index",
+            "type": "u8"
+          },
+          {
+            "name": "next_index",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MilestoneStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Pending"
+          },
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Released"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MultisigApproval",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "payment",
+            "type": "pubkey"
+          },
+          {
+            "name": "signer",
+            "type": "pubkey"
+          },
+          {
+            "name": "milestone_index",
+            "type": "u8"
+          },
+          {
+            "name": "condition_index",
+            "type": "u8"
+          },
+          {
+            "name": "approvals_count",
+            "type": "u8"
+          },
+          {
+            "name": "threshold",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PaymentAgreement",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "payment_id",
+            "type": "u64"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "payer",
+            "type": "pubkey"
+          },
+          {
+            "name": "payee",
+            "type": "pubkey"
+          },
+          {
+            "name": "token_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "escrow_token_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_amount",
+            "type": "u64"
+          },
+          {
+            "name": "released_amount",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "PaymentStatus"
+              }
+            }
+          },
+          {
+            "name": "is_milestone",
+            "type": "bool"
+          },
+          {
+            "name": "milestone_count",
+            "type": "u8"
+          },
+          {
+            "name": "current_milestone",
+            "type": "u8"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "escrow_bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PaymentCancelled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "payment",
+            "type": "pubkey"
+          },
+          {
+            "name": "refund_amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PaymentCompleted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "payment",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PaymentCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "payment",
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "payer",
+            "type": "pubkey"
+          },
+          {
+            "name": "payee",
+            "type": "pubkey"
+          },
+          {
+            "name": "token_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_amount",
+            "type": "u64"
+          },
+          {
+            "name": "is_milestone",
+            "type": "bool"
+          },
+          {
+            "name": "milestone_count",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PaymentFunded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "payment",
+            "type": "pubkey"
+          },
+          {
+            "name": "payer",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PaymentReleased",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "payment",
+            "type": "pubkey"
+          },
+          {
+            "name": "payee",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "milestone_index",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PaymentStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Created"
+          },
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Completed"
+          },
+          {
+            "name": "Cancelled"
+          }
+        ]
+      }
+    }
+  ]
+}

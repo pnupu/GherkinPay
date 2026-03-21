@@ -4,6 +4,7 @@ import { type Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import { WalletContextProvider } from "~/components/wallet-provider";
 
 export const metadata: Metadata = {
   title: "GherkinPay",
@@ -21,7 +22,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${spaceGrotesk.variable}`}>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <WalletContextProvider>
+          <TRPCReactProvider>{children}</TRPCReactProvider>
+        </WalletContextProvider>
       </body>
     </html>
   );

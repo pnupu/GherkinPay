@@ -12,8 +12,18 @@ Trustless structured settlements: funds released only when on-chain conditions a
 
 - Anchor smart contract (`gherkin-pay`) is complete with all instructions implemented and tested locally
 - Token-2022 transfer hook (`gherkin-pay-hook`) handles compliance allowlist enforcement
-- Next.js 15 frontend (`app/web`) has all five console pages (Agreements, Milestones, Compliance, Relayers, Activity) with polished UI — all hardcoded mock data, zero blockchain integration
-- No wallet adapter, no on-chain reads, no write transactions anywhere in the frontend
+- Next.js 15 frontend (`app/web`) has all five console pages (Agreements, Milestones, Compliance, Relayers, Activity) with polished UI — all hardcoded mock data, zero on-chain reads yet
+- shadcn/ui installed and themed to GherkinPay dark green palette (S01 complete)
+- Wallet adapter wired into App Router — WalletContextProvider in root layout, WalletMultiButton in sidebar, Anchor Program hook available (S02 complete)
+- Agreements page fetches live PaymentAgreement accounts from devnet via React Query with shadcn Table/Badge/Skeleton — zero mock data, zero tRPC (S03 complete)
+- PDA derivation helpers and query hook pattern established for remaining pages
+- IDL types and constants in place for both programs; devnet RPC endpoint configured via T3 env schema
+- Milestones page fetches live conditionAccount data from devnet with parent agreement join, status badges, USDC amounts (S04 complete)
+- Compliance page fetches live ComplianceEntry accounts from hook program via useComplianceEntries() with shadcn components (S05 complete)
+- Relayers page cleaned of mock data with static placeholder for M003 (S05 complete)
+- Activity page parses live on-chain events from program transaction logs via Anchor EventParser (S06 complete)
+- All five console pages wired to live on-chain data — zero hardcoded mock arrays remain
+- M001 milestone definition of done is fully met
 
 ## Architecture / Key Patterns
 
