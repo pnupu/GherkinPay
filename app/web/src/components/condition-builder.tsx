@@ -539,7 +539,7 @@ function TimeBasedFields({ index, control, errors }: FieldProps) {
             onChange={field.onChange}
             onBlur={field.onBlur}
             ref={field.ref}
-            className="w-full"
+            className="w-full [color-scheme:dark]"
           />
         )}
       />
