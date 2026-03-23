@@ -13,6 +13,7 @@ import {
 } from "~/components/ui/table";
 import { Badge } from "~/components/ui/badge";
 import { Skeleton } from "~/components/ui/skeleton";
+import { Pagination, usePagination } from "~/components/pagination";
 
 function truncatePubkey(pubkey: PublicKey): string {
   const str = pubkey.toBase58();
@@ -65,6 +66,7 @@ function SkeletonRows() {
 export default function MilestonesPage() {
   const { connected } = useWallet();
   const { data, isLoading, isError, error } = useMilestones();
+  const { page, setPage, totalPages, paginatedItems } = usePagination(data ?? [], 10);
 
   return (
     <>
@@ -107,7 +109,7 @@ export default function MilestonesPage() {
                 {isLoading ? (
                   <SkeletonRows />
                 ) : data && data.length > 0 ? (
-                  data.map(
+                  paginatedItems.map(
                     ({ publicKey: accountKey, account, parentPaymentId, parentPubkey }) => {
                       const statusKey =
                         Object.keys(account.milestoneStatus)[0]!.toLowerCase();
@@ -158,6 +160,7 @@ export default function MilestonesPage() {
                 )}
               </TableBody>
             </Table>
+            <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
           </div>
         )}
       </section>

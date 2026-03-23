@@ -8,6 +8,7 @@ import {
   addRelayer,
   removeRelayer,
 } from "~/lib/relayer-registry";
+import { Pagination, usePagination } from "~/components/pagination";
 
 /** Validate a string as a valid Solana base58 public key. */
 function isValidPubkey(value: string): boolean {
@@ -24,6 +25,8 @@ export default function RelayersPage() {
   const [pubkey, setPubkey] = useState("");
   const [label, setLabel] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  const { page: relayerPage, setPage: setRelayerPage, totalPages: relayerTotalPages, paginatedItems: paginatedRelayers } = usePagination(relayers, 10);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -161,7 +164,7 @@ export default function RelayersPage() {
                 </tr>
               </thead>
               <tbody>
-                {relayers.map((r) => (
+                {paginatedRelayers.map((r) => (
                   <tr key={r.pubkey}>
                     <td className="font-mono text-xs">{r.pubkey}</td>
                     <td>{r.label}</td>
@@ -181,6 +184,7 @@ export default function RelayersPage() {
                 ))}
               </tbody>
             </table>
+            <Pagination currentPage={relayerPage} totalPages={relayerTotalPages} onPageChange={setRelayerPage} />
           </div>
         )}
       </section>

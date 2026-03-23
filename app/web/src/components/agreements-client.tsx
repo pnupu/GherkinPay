@@ -10,6 +10,7 @@ import Link from "next/link";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import { useAnchorProgram } from "~/lib/anchor";
+import { Pagination, usePagination } from "~/components/pagination";
 import { FundPaymentDialog } from "~/components/fund-payment-dialog";
 import { ReleasePaymentDialog } from "~/components/release-payment-dialog";
 import { CancelPaymentDialog } from "~/components/cancel-payment-dialog";
@@ -150,6 +151,8 @@ export function AgreementsClient() {
     [agreements]
   );
 
+  const { page, setPage, totalPages, paginatedItems } = usePagination(sorted, 10);
+
   const handleFundClick = (payment: PaymentRow) => {
     setSelectedPayment(payment);
     setFundDialogOpen(true);
@@ -237,7 +240,7 @@ export function AgreementsClient() {
                 </tr>
               )}
 
-              {sorted.map((payment) => (
+              {paginatedItems.map((payment) => (
                 <tr key={String(payment.pda)} className="cursor-pointer hover:bg-white/5">
                   <td className="font-mono text-xs">
                     <Link href={`/agreements/${String(payment.pda)}`} className="hover:underline">
@@ -305,6 +308,7 @@ export function AgreementsClient() {
               ))}
             </tbody>
           </table>
+          <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       </section>
 
