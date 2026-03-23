@@ -3,22 +3,22 @@ import Link from "next/link";
 const features = [
   {
     title: "Condition Engine",
-    desc: "Composable AND/OR rule trees evaluated on-chain before any funds move.",
+    desc: "Composable AND/OR rule trees — time-locks, oracles, multisig, webhooks, token gates — evaluated on-chain before any funds move.",
     icon: "⧫",
   },
   {
     title: "Token-2022 Compliance",
-    desc: "Transfer-hook and mint-authority checks enforced at settlement time.",
+    desc: "Transfer-hook allowlists and mint-authority checks enforced at the protocol level, every settlement.",
     icon: "◈",
   },
   {
     title: "Milestone Releases",
-    desc: "Phased fund disbursement tied to verifiable deliverables and deadlines.",
+    desc: "Phased fund disbursement tied to verifiable deliverables, each gated by its own condition set.",
     icon: "▣",
   },
   {
     title: "Permissionless Cranks",
-    desc: "Anyone can trigger oracle, time-lock, and token-gate evaluations.",
+    desc: "Anyone can trigger oracle, time-lock, and token-gate evaluations — no privileged operators required.",
     icon: "⟐",
   },
 ];
@@ -53,14 +53,13 @@ export default function Home() {
       <section className="landing-hero">
         <div className="landing-badge">Solana-native escrow protocol</div>
         <h1 className="landing-title">
-          Structured settlements,
+          Programmable settlements,
           <br />
           <span className="landing-title-accent">verified on-chain.</span>
         </h1>
         <p className="landing-subtitle">
-          Condition-driven escrow payments with composable rule engines,
-          milestone-based releases, and Token-2022 compliance — all settled on
-          Solana.
+          Condition-gated escrow with composable rule engines, milestone-based
+          releases, and Token-2022 compliance — trustless settlement on Solana.
         </p>
         <div className="landing-actions">
           <Link className="btn btn-primary btn-lg" href="/agreements">
@@ -72,7 +71,7 @@ export default function Home() {
         </div>
         <div className="landing-stats">
           <div className="landing-stat">
-            <span className="landing-stat-value">4</span>
+            <span className="landing-stat-value">5</span>
             <span className="landing-stat-label">Condition types</span>
           </div>
           <div className="landing-stat-divider" />

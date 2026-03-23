@@ -121,7 +121,7 @@ export function AgreementsClient() {
       );
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return accounts.map((acct: any) => ({
+      const rows = accounts.map((acct: any) => ({
         pda: acct.publicKey,
         paymentId: acct.account.paymentId.toString(),
         payer: acct.account.payer,
@@ -137,6 +137,15 @@ export function AgreementsClient() {
         currentMilestone: acct.account.currentMilestone,
         createdAt: acct.account.createdAt.toNumber(),
       }));
+
+      // Deduplicate by PDA — some RPC providers return duplicate accounts
+      const seen = new Set<string>();
+      return rows.filter((r: PaymentRow) => {
+        const key = r.pda?.toBase58?.() ?? String(r.pda);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
     },
     enabled: !!program,
     refetchInterval: 30_000, // poll every 30s for on-chain updates
@@ -283,8 +292,8 @@ export function AgreementsClient() {
                 </tr>
               )}
 
-              {paginatedItems.map((payment) => (
-                <tr key={String(payment.pda)} className="cursor-pointer hover:bg-white/5">
+              {paginatedItems.map((payment, i) => (
+                <tr key={payment.pda?.toBase58?.() ?? `row-${i}`} className="cursor-pointer hover:bg-white/5">
                   <td className="font-mono text-xs">
                     <Link href={`/agreements/${String(payment.pda)}`} className="hover:underline">
                       #{payment.paymentId}
