@@ -9,6 +9,7 @@ import {
   removeRelayer,
 } from "~/lib/relayer-registry";
 import { Pagination, usePagination } from "~/components/pagination";
+import { TableToolbar } from "~/components/table-toolbar";
 
 /** Validate a string as a valid Solana base58 public key. */
 function isValidPubkey(value: string): boolean {
@@ -157,15 +158,6 @@ export default function RelayersPage() {
       <section className="panel mt-4">
         <div className="panel-title-row">
           <h2 className="panel-title">Registered relayers</h2>
-          {relayers.length > 0 && (
-            <input
-              type="text"
-              placeholder="Search by key or label…"
-              value={relayerSearch}
-              onChange={(e) => { setRelayerSearch(e.target.value); setRelayerPage(1); }}
-              className="rounded-md bg-[var(--surface-container)] px-3 py-1.5 text-xs text-[var(--text)] placeholder:text-[var(--text-muted)] outline-none w-56 [color-scheme:dark]"
-            />
-          )}
         </div>
         {relayers.length === 0 ? (
           <p className="text-sm text-muted-foreground">
@@ -173,6 +165,16 @@ export default function RelayersPage() {
           </p>
         ) : (
           <div className="table-wrap">
+            <TableToolbar
+              totalFiltered={filteredRelayers.length}
+              totalAll={relayers.length}
+              unit="relayer"
+              search={{
+                value: relayerSearch,
+                onChange: (v) => { setRelayerSearch(v); setRelayerPage(1); },
+                placeholder: "Search by key or label…",
+              }}
+            />
             <table className="table">
               <thead>
                 <tr>

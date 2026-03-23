@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { type PublicKey } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useMilestones } from "~/lib/queries/milestones";
@@ -14,6 +15,7 @@ import {
 import { Badge } from "~/components/ui/badge";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Pagination, usePagination } from "~/components/pagination";
+import { TableToolbar, type FilterOption } from "~/components/table-toolbar";
 
 function truncatePubkey(pubkey: PublicKey): string {
   const str = pubkey.toBase58();
@@ -66,7 +68,42 @@ function SkeletonRows() {
 export default function MilestonesPage() {
   const { connected } = useWallet();
   const { data, isLoading, isError, error } = useMilestones();
-  const { page, setPage, totalPages, paginatedItems } = usePagination(data ?? [], 10);
+
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filtered = useMemo(() => {
+    if (!data) return [];
+    let items = [...data];
+    if (statusFilter !== "all") {
+      items = items.filter((m) => {
+        const key = Object.keys(m.account.milestoneStatus)[0]!.toLowerCase();
+        return key === statusFilter;
+      });
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      items = items.filter(
+        (m) =>
+          `#${m.account.milestoneIndex + 1}`.includes(q) ||
+          (m.parentPaymentId !== undefined && `#${m.parentPaymentId}`.includes(q)) ||
+          m.parentPubkey.toBase58().toLowerCase().includes(q),
+      );
+    }
+    return items;
+  }, [data, statusFilter, searchQuery]);
+
+  const statusCounts = useMemo(() => {
+    if (!data) return { all: 0, pending: 0, active: 0, released: 0 };
+    const counts = { all: data.length, pending: 0, active: 0, released: 0 };
+    for (const m of data) {
+      const key = Object.keys(m.account.milestoneStatus)[0]!.toLowerCase() as keyof typeof counts;
+      if (key in counts) counts[key]++;
+    }
+    return counts;
+  }, [data]);
+
+  const { page, setPage, totalPages, paginatedItems } = usePagination(filtered, 10);
 
   return (
     <>
@@ -81,6 +118,30 @@ export default function MilestonesPage() {
         <div className="panel-title-row">
           <h2 className="panel-title">Milestone schedule</h2>
         </div>
+
+        {connected && !isLoading && !isError && data && data.length > 0 && (
+          <TableToolbar
+            totalFiltered={filtered.length}
+            totalAll={data.length}
+            unit="milestone"
+            search={{
+              value: searchQuery,
+              onChange: (v) => { setSearchQuery(v); setPage(1); },
+              placeholder: "Search by index or agreement…",
+            }}
+            filters={{
+              options: (["all", "pending", "active", "released"] as const).map(
+                (s): FilterOption => ({
+                  value: s,
+                  label: s === "all" ? "All" : s,
+                  count: statusCounts[s],
+                }),
+              ),
+              value: statusFilter,
+              onChange: (v) => { setStatusFilter(v); setPage(1); },
+            }}
+          />
+        )}
 
         {!connected ? (
           <div className="flex flex-col items-center justify-center gap-2 py-12 text-center text-muted-foreground">

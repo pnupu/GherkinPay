@@ -11,6 +11,7 @@ import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import { useAnchorProgram } from "~/lib/anchor";
 import { Pagination, usePagination } from "~/components/pagination";
+import { TableToolbar, type FilterOption } from "~/components/table-toolbar";
 import { FundPaymentDialog } from "~/components/fund-payment-dialog";
 import { ReleasePaymentDialog } from "~/components/release-payment-dialog";
 import { CancelPaymentDialog } from "~/components/cancel-payment-dialog";
@@ -153,6 +154,7 @@ export function AgreementsClient() {
 
   // Filter + sort
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const sorted = useMemo(
     () => {
@@ -161,9 +163,18 @@ export function AgreementsClient() {
       if (statusFilter !== "all") {
         filtered = filtered.filter((a) => a.status === statusFilter);
       }
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        filtered = filtered.filter(
+          (a) =>
+            a.paymentId.toLowerCase().includes(q) ||
+            a.payer.toBase58().toLowerCase().includes(q) ||
+            a.payee.toBase58().toLowerCase().includes(q),
+        );
+      }
       return filtered.sort((a, b) => b.createdAt - a.createdAt);
     },
-    [agreements, statusFilter]
+    [agreements, statusFilter, searchQuery]
   );
 
   const { page, setPage, totalPages, paginatedItems } = usePagination(sorted, 10);
@@ -227,41 +238,31 @@ export function AgreementsClient() {
       <section className="panel">
         <div className="panel-title-row">
           <h2 className="panel-title">Open agreements</h2>
-          <span className="panel-note">
-            {isLoading
-              ? "Loading…"
-              : error
-                ? "Error loading agreements"
-                : `${sorted.length} agreement${sorted.length !== 1 ? "s" : ""}`}
-          </span>
         </div>
 
-        {/* Status filter tabs */}
+        {/* Toolbar: search + status filter */}
         {!isLoading && !error && agreements && agreements.length > 0 && (
-          <div className="flex gap-1 mt-3 mb-1">
-            {(["all", "created", "active", "completed", "cancelled"] as const).map((status) => {
-              const count = statusCounts[status];
-              const isActive = statusFilter === status;
-              return (
-                <button
-                  key={status}
-                  onClick={() => { setStatusFilter(status); setPage(1); }}
-                  className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition-colors ${
-                    isActive
-                      ? "bg-primary/15 text-primary"
-                      : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
-                  }`}
-                >
-                  {status === "all" ? "All" : status}
-                  {count > 0 && (
-                    <span className={`ml-1.5 tabular-nums ${isActive ? "text-primary/70" : "text-muted-foreground/60"}`}>
-                      {count}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+          <TableToolbar
+            totalFiltered={sorted.length}
+            totalAll={agreements.length}
+            unit="agreement"
+            search={{
+              value: searchQuery,
+              onChange: (v) => { setSearchQuery(v); setPage(1); },
+              placeholder: "Search by ID, payer, or payee…",
+            }}
+            filters={{
+              options: (["all", "created", "active", "completed", "cancelled"] as const).map(
+                (s): FilterOption => ({
+                  value: s,
+                  label: s === "all" ? "All" : s,
+                  count: statusCounts[s],
+                }),
+              ),
+              value: statusFilter,
+              onChange: (v) => { setStatusFilter(v); setPage(1); },
+            }}
+          />
         )}
 
         {error && (

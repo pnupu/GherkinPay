@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { type PublicKey } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useActivityFeed } from "~/lib/queries/activity";
@@ -15,6 +15,7 @@ import {
 import { Badge } from "~/components/ui/badge";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Pagination, usePagination } from "~/components/pagination";
+import { TableToolbar, type FilterOption } from "~/components/table-toolbar";
 
 function truncatePubkey(pubkey: PublicKey): string {
   const str = pubkey.toBase58();
@@ -56,11 +57,42 @@ function SkeletonRows() {
 export default function ActivityPage() {
   const { connected } = useWallet();
   const { data, isLoading, isError, error } = useActivityFeed();
-  const [eventFilter, setEventFilter] = useState("");
+  const [eventFilter, setEventFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredData = (data ?? []).filter(
-    (e) => eventFilter === "" || e.name.toLowerCase().includes(eventFilter.toLowerCase())
-  );
+  // Derive unique event names for filter pills
+  const eventNames = useMemo(() => {
+    if (!data) return [] as string[];
+    const names = new Set<string>();
+    for (const e of data) names.add(e.name);
+    return Array.from(names).sort();
+  }, [data]);
+
+  const eventCounts = useMemo(() => {
+    if (!data) return { all: 0 } as Record<string, number>;
+    const counts: Record<string, number> = { all: data.length };
+    for (const e of data) {
+      counts[e.name] = (counts[e.name] ?? 0) + 1;
+    }
+    return counts;
+  }, [data]);
+
+  const filteredData = useMemo(() => {
+    let items = data ?? [];
+    if (eventFilter !== "all") {
+      items = items.filter((e) => e.name === eventFilter);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      items = items.filter(
+        (e) =>
+          e.name.toLowerCase().includes(q) ||
+          e.signature.toLowerCase().includes(q),
+      );
+    }
+    return items;
+  }, [data, eventFilter, searchQuery]);
+
   const { page, setPage, totalPages, paginatedItems } = usePagination(filteredData, 10);
 
   return (
@@ -72,21 +104,37 @@ export default function ActivityPage() {
             Recent settlement and condition evaluation events
           </p>
         </div>
-        {connected && data && data.length > 0 && (
-          <input
-            type="text"
-            placeholder="Filter by event name…"
-            value={eventFilter}
-            onChange={(e) => { setEventFilter(e.target.value); setPage(1); }}
-            className="rounded-md bg-[var(--surface-container)] px-3 py-1.5 text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] outline-none w-56 [color-scheme:dark]"
-          />
-        )}
       </header>
 
       <section className="panel">
         <div className="panel-title-row">
           <h2 className="panel-title">Recent events</h2>
         </div>
+
+        {connected && !isLoading && !isError && data && data.length > 0 && (
+          <TableToolbar
+            totalFiltered={filteredData.length}
+            totalAll={data.length}
+            unit="event"
+            search={{
+              value: searchQuery,
+              onChange: (v) => { setSearchQuery(v); setPage(1); },
+              placeholder: "Search by event or signature…",
+            }}
+            filters={eventNames.length > 1 ? {
+              options: [
+                { value: "all", label: "All", count: eventCounts.all },
+                ...eventNames.map((n): FilterOption => ({
+                  value: n,
+                  label: n.replace(/([A-Z])/g, " $1").trim(),
+                  count: eventCounts[n] ?? 0,
+                })),
+              ],
+              value: eventFilter,
+              onChange: (v) => { setEventFilter(v); setPage(1); },
+            } : undefined}
+          />
+        )}
 
         {!connected ? (
           <div className="flex flex-col items-center justify-center gap-2 py-12 text-center text-muted-foreground">
