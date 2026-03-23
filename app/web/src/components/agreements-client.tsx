@@ -113,7 +113,6 @@ export function AgreementsClient() {
       if (!program) throw new Error("Program not available");
 
       console.log("[GherkinPay] Fetching payment agreements…");
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
       const accounts = await (program.account as any).paymentAgreement.all();
       console.log(
         "[GherkinPay] Fetched",
@@ -121,7 +120,6 @@ export function AgreementsClient() {
         "payment agreements"
       );
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const rows = accounts.map((acct: any) => ({
         pda: acct.publicKey,
         paymentId: acct.account.paymentId.toString(),
