@@ -167,7 +167,7 @@ export function AgreementsClient() {
         const q = searchQuery.toLowerCase();
         filtered = filtered.filter(
           (a) =>
-            a.paymentId.toLowerCase().includes(q) ||
+            (a.paymentId ?? "").toLowerCase().includes(q) ||
             a.payer.toBase58().toLowerCase().includes(q) ||
             a.payee.toBase58().toLowerCase().includes(q),
         );
