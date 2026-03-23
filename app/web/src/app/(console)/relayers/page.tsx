@@ -25,8 +25,16 @@ export default function RelayersPage() {
   const [pubkey, setPubkey] = useState("");
   const [label, setLabel] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [relayerSearch, setRelayerSearch] = useState("");
 
-  const { page: relayerPage, setPage: setRelayerPage, totalPages: relayerTotalPages, paginatedItems: paginatedRelayers } = usePagination(relayers, 10);
+  const filteredRelayers = relayers.filter(
+    (r) =>
+      relayerSearch === "" ||
+      r.pubkey.toLowerCase().includes(relayerSearch.toLowerCase()) ||
+      r.label.toLowerCase().includes(relayerSearch.toLowerCase())
+  );
+
+  const { page: relayerPage, setPage: setRelayerPage, totalPages: relayerTotalPages, paginatedItems: paginatedRelayers } = usePagination(filteredRelayers, 10);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -147,7 +155,18 @@ export default function RelayersPage() {
 
       {/* Registered relayers table */}
       <section className="panel mt-4">
-        <h2 className="panel-title">Registered relayers</h2>
+        <div className="panel-title-row">
+          <h2 className="panel-title">Registered relayers</h2>
+          {relayers.length > 0 && (
+            <input
+              type="text"
+              placeholder="Search by key or label…"
+              value={relayerSearch}
+              onChange={(e) => { setRelayerSearch(e.target.value); setRelayerPage(1); }}
+              className="rounded-md bg-[var(--surface-container)] px-3 py-1.5 text-xs text-[var(--text)] placeholder:text-[var(--text-muted)] outline-none w-56 [color-scheme:dark]"
+            />
+          )}
+        </div>
         {relayers.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             No relayers registered yet. Use the form above to add one.

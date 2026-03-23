@@ -142,16 +142,31 @@ export function AgreementsClient() {
     refetchInterval: 30_000, // poll every 30s for on-chain updates
   });
 
-  // Sort by newest first
+  // Filter + sort
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+
   const sorted = useMemo(
-    () =>
-      agreements
-        ? [...agreements].sort((a, b) => b.createdAt - a.createdAt)
-        : [],
-    [agreements]
+    () => {
+      if (!agreements) return [];
+      let filtered = [...agreements];
+      if (statusFilter !== "all") {
+        filtered = filtered.filter((a) => a.status === statusFilter);
+      }
+      return filtered.sort((a, b) => b.createdAt - a.createdAt);
+    },
+    [agreements, statusFilter]
   );
 
   const { page, setPage, totalPages, paginatedItems } = usePagination(sorted, 10);
+
+  const statusCounts = useMemo(() => {
+    if (!agreements) return { all: 0, created: 0, active: 0, completed: 0, cancelled: 0 };
+    const counts = { all: agreements.length, created: 0, active: 0, completed: 0, cancelled: 0 };
+    for (const a of agreements) {
+      if (a.status in counts) counts[a.status as keyof typeof counts]++;
+    }
+    return counts;
+  }, [agreements]);
 
   const handleFundClick = (payment: PaymentRow) => {
     setSelectedPayment(payment);
@@ -211,6 +226,34 @@ export function AgreementsClient() {
                 : `${sorted.length} agreement${sorted.length !== 1 ? "s" : ""}`}
           </span>
         </div>
+
+        {/* Status filter tabs */}
+        {!isLoading && !error && agreements && agreements.length > 0 && (
+          <div className="flex gap-1 mt-3 mb-1">
+            {(["all", "created", "active", "completed", "cancelled"] as const).map((status) => {
+              const count = statusCounts[status];
+              const isActive = statusFilter === status;
+              return (
+                <button
+                  key={status}
+                  onClick={() => { setStatusFilter(status); setPage(1); }}
+                  className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition-colors ${
+                    isActive
+                      ? "bg-primary/15 text-primary"
+                      : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                  }`}
+                >
+                  {status === "all" ? "All" : status}
+                  {count > 0 && (
+                    <span className={`ml-1.5 tabular-nums ${isActive ? "text-primary/70" : "text-muted-foreground/60"}`}>
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {error && (
           <p className="text-sm text-red-400 px-4 py-2">

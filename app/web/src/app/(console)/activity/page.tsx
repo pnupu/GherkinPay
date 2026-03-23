@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { type PublicKey } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useActivityFeed } from "~/lib/queries/activity";
@@ -55,7 +56,12 @@ function SkeletonRows() {
 export default function ActivityPage() {
   const { connected } = useWallet();
   const { data, isLoading, isError, error } = useActivityFeed();
-  const { page, setPage, totalPages, paginatedItems } = usePagination(data ?? [], 10);
+  const [eventFilter, setEventFilter] = useState("");
+
+  const filteredData = (data ?? []).filter(
+    (e) => eventFilter === "" || e.name.toLowerCase().includes(eventFilter.toLowerCase())
+  );
+  const { page, setPage, totalPages, paginatedItems } = usePagination(filteredData, 10);
 
   return (
     <>
@@ -66,6 +72,15 @@ export default function ActivityPage() {
             Recent settlement and condition evaluation events
           </p>
         </div>
+        {connected && data && data.length > 0 && (
+          <input
+            type="text"
+            placeholder="Filter by event name…"
+            value={eventFilter}
+            onChange={(e) => { setEventFilter(e.target.value); setPage(1); }}
+            className="rounded-md bg-[var(--surface-container)] px-3 py-1.5 text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] outline-none w-56 [color-scheme:dark]"
+          />
+        )}
       </header>
 
       <section className="panel">

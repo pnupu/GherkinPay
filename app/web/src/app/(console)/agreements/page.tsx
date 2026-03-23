@@ -7,7 +7,9 @@ export default function AgreementsPage() {
       <header className="topbar">
         <div>
           <h1 className="page-title">Agreements</h1>
-          <p className="page-subtitle">Condition engine settlement workspace</p>
+          <p className="page-subtitle">
+            Condition engine settlement workspace
+          </p>
         </div>
         <div className="topbar-actions">
           <CreatePaymentWizard />
