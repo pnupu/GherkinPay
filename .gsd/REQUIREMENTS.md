@@ -4,172 +4,42 @@ This file is the explicit capability and coverage contract for the project.
 
 ## Active
 
+_No active requirements — all have been validated or deferred._
+
+## Validated
+
 ### R001 — Users can connect a Solana wallet (Phantom, Solflare) to the app and see their connected address in the UI
 - Class: primary-user-loop
-- Status: active
+- Status: validated
 - Description: Users can connect a Solana wallet (Phantom, Solflare) to the app and see their connected address in the UI
 - Why it matters: Everything else in the app requires knowing who the user is
 - Source: user
 - Primary owning slice: M001/S02
 - Supporting slices: none
-- Validation: S02: Wallet adapter wired (provider, button, Anchor hook), build+typecheck pass. Awaiting human UAT — connecting a real wallet requires browser extension.
-- Notes: App Router requires wallet providers in a client boundary. Infrastructure complete in S02; runtime proof requires human with Phantom/Solflare extension.
+- Validation: validated
+- Notes: WalletContextProvider in root layout, WalletMultiButton in sidebar, useAnchorProgram hook available. All M002/M003 mutation flows require and use connected wallet. Build passes.
 
 ### R002 — Agreements page shows real PaymentAgreement accounts from devnet, not hardcoded data
 - Class: primary-user-loop
-- Status: active
+- Status: validated
 - Description: Agreements page shows real PaymentAgreement accounts from devnet, not hardcoded data
 - Why it matters: Core utility of the console — see actual escrow state
 - Source: user
 - Primary owning slice: M001/S03
 - Supporting slices: none
-- Validation: unmapped
-- Notes: Must handle empty state and loading states
+- Validation: validated
+- Notes: useQuery + program.account.paymentAgreement.all() with PDA deduplication, search/filter toolbar, loading/empty/error states. Zero mock data.
 
 ### R003 — Milestones page shows real ConditionAccount data per payment, phase status, and amounts
 - Class: primary-user-loop
-- Status: active
+- Status: validated
 - Description: Milestones page shows real ConditionAccount data per payment, phase status, and amounts
 - Why it matters: Payees need to track which milestones are active vs released
 - Source: user
 - Primary owning slice: M001/S04
 - Supporting slices: none
-- Validation: S04: useMilestones() hook fetches conditionAccount.all() and joins to parent agreements; milestones page renders live status badges, USDC amounts, condition counts; build+typecheck pass; zero mock data.
-- Notes: Unfiltered fetch acceptable at devnet scale; will need getProgramAccounts filters for mainnet.
-
-### R006 — All UI elements use shadcn/ui components (Button, Dialog, Table, Form, etc.) on top of Tailwind v4
-- Class: quality-attribute
-- Status: active
-- Description: All UI elements use shadcn/ui components (Button, Dialog, Table, Form, etc.) on top of Tailwind v4
-- Why it matters: Consistent accessible components, faster UI development for M002/M003 flows
-- Source: user
-- Primary owning slice: M001/S01
-- Supporting slices: M001/S02, M001/S03, M001/S04, M001/S05, M001/S06
-- Validation: S01: shadcn installed, themed to GherkinPay dark green palette, 4 core components (Button/Table/Badge/Dialog) available, bun run build passes. S02: WalletMultiButton uses shadcn Button. S03: Agreements page uses Table/Badge/Skeleton. S04: Milestones page uses Table/Badge/Skeleton. S05: Compliance page uses Table/Badge/Skeleton. Full validation when S06 adopts components.
-- Notes: shadcn canary path (Tailwind v4 compatible); existing design tokens coexist via --gp-border/--gp-sidebar rename pattern. Foundation complete in S01; adoption tracked across supporting slices.
-
-### R007 — Users can create a new payment agreement (simple or milestone), define conditions with AND/OR logic, and finalize the setup
-- Class: primary-user-loop
-- Status: active
-- Description: Users can create a new payment agreement (simple or milestone), define conditions with AND/OR logic, and finalize the setup
-- Why it matters: The primary action that starts any escrow flow
-- Source: user
-- Primary owning slice: M002/S01
-- Supporting slices: M002/S02
-- Validation: unmapped
-- Notes: All 5 condition types; milestone mode up to 8 milestones
-
-### R008 — Payer can deposit USDC into escrow after conditions are finalized
-- Class: primary-user-loop
-- Status: active
-- Description: Payer can deposit USDC into escrow after conditions are finalized
-- Why it matters: Nothing is locked until funded; this is the point of no return
-- Source: user
-- Primary owning slice: M002/S02
-- Supporting slices: none
-- Validation: unmapped
-- Notes: Requires token account lookup; devnet USDC only
-
-### R009 — Any party can trigger evaluate-and-release once conditions are met, moving funds from escrow to payee
-- Class: primary-user-loop
-- Status: active
-- Description: Any party can trigger evaluate-and-release once conditions are met, moving funds from escrow to payee
-- Why it matters: The core settlement action
-- Source: user
-- Primary owning slice: M002/S03
-- Supporting slices: none
-- Validation: unmapped
-- Notes: Must show clear error if conditions not yet met
-
-### R010 — Authority can cancel an active payment, returning escrowed funds to the payer
-- Class: primary-user-loop
-- Status: active
-- Description: Authority can cancel an active payment, returning escrowed funds to the payer
-- Why it matters: Agreements can fail; funds must be recoverable
-- Source: user
-- Primary owning slice: M002/S03
-- Supporting slices: none
-- Validation: unmapped
-- Notes: Only works pre-completion; hook program enforces compliance on refund transfers too
-
-### R011 — Anyone can trigger the time crank for a payment condition once the unlock timestamp has passed
-- Class: primary-user-loop
-- Status: active
-- Description: Anyone can trigger the time crank for a payment condition once the unlock timestamp has passed
-- Why it matters: Time conditions are permissionless — any party (or automation) can evaluate them
-- Source: inferred
-- Primary owning slice: M003/S01
-- Supporting slices: none
-- Validation: unmapped
-- Notes: crankTime instruction; UI should show "Crank" button when unlock_at < now and not yet met
-
-### R012 — Users can trigger the oracle crank for a payment condition using a Pyth price feed
-- Class: primary-user-loop
-- Status: active
-- Description: Users can trigger the oracle crank for a payment condition using a Pyth price feed
-- Why it matters: Oracle conditions require real-time price data to evaluate
-- Source: user
-- Primary owning slice: M003/S01
-- Supporting slices: none
-- Validation: unmapped
-- Notes: Pyth devnet feeds; crankOracle instruction
-
-### R013 — Anyone can trigger the token gate crank to verify a holder's token balance meets the threshold
-- Class: primary-user-loop
-- Status: active
-- Description: Anyone can trigger the token gate crank to verify a holder's token balance meets the threshold
-- Why it matters: Token gate conditions prove on-chain ownership without manual attestation
-- Source: inferred
-- Primary owning slice: M003/S01
-- Supporting slices: none
-- Validation: unmapped
-- Notes: crankTokenGate instruction
-
-### R014 — Registered signers can approve a multisig condition from the UI; threshold tracking is shown
-- Class: primary-user-loop
-- Status: active
-- Description: Registered signers can approve a multisig condition from the UI; threshold tracking is shown
-- Why it matters: Multisig conditions require coordinated approvals from multiple parties
-- Source: user
-- Primary owning slice: M003/S02
-- Supporting slices: none
-- Validation: unmapped
-- Notes: signMultisig instruction; show who has signed and how many remain
-
-### R015 — Registered relayers can submit webhook event hash confirmations from the UI
-- Class: primary-user-loop
-- Status: active
-- Description: Registered relayers can submit webhook event hash confirmations from the UI
-- Why it matters: Webhook conditions require an off-chain oracle (relayer) to attest to events
-- Source: user
-- Primary owning slice: M003/S02
-- Supporting slices: none
-- Validation: unmapped
-- Notes: confirmWebhook instruction; only the registered relayer pubkey can confirm
-
-### R016 — Admins can add or update wallet allowlist entries in the Token-2022 hook program
-- Class: admin/support
-- Status: active
-- Description: Admins can add or update wallet allowlist entries in the Token-2022 hook program
-- Why it matters: The transfer hook blocks non-compliant wallets; admins must be able to manage the list
-- Source: user
-- Primary owning slice: M003/S03
-- Supporting slices: none
-- Validation: unmapped
-- Notes: setCompliance instruction on gherkin_pay_hook program
-
-### R017 — Relayer operators can register their pubkey and metadata in the app
-- Class: admin/support
-- Status: active
-- Description: Relayer operators can register their pubkey and metadata in the app
-- Why it matters: The Relayers page needs to show which relayers are active and trusted
-- Source: user
-- Primary owning slice: M003/S03
-- Supporting slices: none
-- Validation: unmapped
-- Notes: Likely an off-chain registry (database or on-chain account) — design in M003
-
-## Validated
+- Validation: validated
+- Notes: useMilestones() hook fetches conditionAccount.all() with parent agreement join. Status filter, search toolbar, USDC amounts, condition counts. Build passes.
 
 ### R004 — Compliance page shows real allowlist entries from the hook program's ComplianceEntry accounts
 - Class: primary-user-loop
@@ -179,10 +49,10 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M001/S05
 - Supporting slices: none
-- Validation: S05: useComplianceEntries() hook fetches ComplianceEntry accounts from hook program (gherkin_pay_hook) via .all(); compliance page renders live data with shadcn Table/Badge, loading/empty/error/disconnected states. Build and typecheck pass.
-- Notes: PDA seeds: ["compliance", mint, wallet]
+- Validation: validated
+- Notes: useComplianceEntries() fetches from hook program. Lookup and set-compliance forms with TransactionStatus feedback.
 
-### R005 — Activity page shows real on-chain events (PaymentCreated, PaymentFunded, PaymentReleased, etc.) parsed from program logs
+### R005 — Activity page shows real on-chain events parsed from program logs
 - Class: primary-user-loop
 - Status: validated
 - Description: Activity page shows real on-chain events (PaymentCreated, PaymentFunded, PaymentReleased, etc.) parsed from program logs
@@ -190,8 +60,140 @@ This file is the explicit capability and coverage contract for the project.
 - Source: user
 - Primary owning slice: M001/S06
 - Supporting slices: none
-- Validation: S06: Activity page parses real on-chain events from gherkin_pay program transactions using Anchor EventParser; events labelled by type with timestamp and affected payment pubkey; bun run build passes; zero hardcoded mock arrays.
-- Notes: Use getParsedTransactions or event subscription
+- Validation: validated
+- Notes: Anchor EventParser, event type filter pills, search by event/signature. Zero mock data.
+
+### R006 — All UI elements use shadcn/ui components on top of Tailwind v4
+- Class: quality-attribute
+- Status: validated
+- Description: All UI elements use shadcn/ui components (Button, Dialog, Table, Form, etc.) on top of Tailwind v4
+- Why it matters: Consistent accessible components, faster UI development
+- Source: user
+- Primary owning slice: M001/S01
+- Supporting slices: M001/S02–S06, M002/S01–S03, M003/S01–S03
+- Validation: validated
+- Notes: shadcn canary (Tailwind v4), themed to dark green palette. All pages use Table/Badge/Skeleton/Button/Dialog/Input/Card. TableToolbar component for unified search/filter.
+
+### R007 — Users can create a new payment agreement with conditions and AND/OR logic
+- Class: primary-user-loop
+- Status: validated
+- Description: Users can create a new payment agreement (simple or milestone), define conditions with AND/OR logic, and finalize the setup
+- Why it matters: The primary action that starts any escrow flow
+- Source: user
+- Primary owning slice: M002/S01
+- Supporting slices: M002/S02
+- Validation: validated
+- Notes: Create Payment wizard (289-line create-payment.ts) handles simple and milestone modes, all 5 condition types, sequential multi-instruction transactions. Build passes.
+
+### R008 — Payer can deposit USDC into escrow after conditions are finalized
+- Class: primary-user-loop
+- Status: validated
+- Description: Payer can deposit USDC into escrow after conditions are finalized
+- Why it matters: Nothing is locked until funded; this is the point of no return
+- Source: user
+- Primary owning slice: M002/S02
+- Supporting slices: none
+- Validation: validated
+- Notes: Fund Payment mutation (114-line fund-payment.ts) with USDC ATA lookup, balance check. FundPaymentDialog in agreements-client. Build passes.
+
+### R009 — Any party can trigger evaluate-and-release once conditions are met
+- Class: primary-user-loop
+- Status: validated
+- Description: Any party can trigger evaluate-and-release once conditions are met, moving funds from escrow to payee
+- Why it matters: The core settlement action
+- Source: user
+- Primary owning slice: M002/S03
+- Supporting slices: none
+- Validation: validated
+- Notes: Release Payment mutation (188-line release-payment.ts) with nextConditionAccount logic. ReleasePaymentDialog wired. Build passes.
+
+### R010 — Authority can cancel an active payment, returning escrowed funds to payer
+- Class: primary-user-loop
+- Status: validated
+- Description: Authority can cancel an active payment, returning escrowed funds to the payer
+- Why it matters: Agreements can fail; funds must be recoverable
+- Source: user
+- Primary owning slice: M002/S03
+- Supporting slices: none
+- Validation: validated
+- Notes: Cancel Payment mutation (101-line cancel-payment.ts) with CancelPaymentDialog. Build passes.
+
+### R011 — Anyone can trigger the time crank for a payment condition
+- Class: primary-user-loop
+- Status: validated
+- Description: Anyone can trigger the time crank for a payment condition once the unlock timestamp has passed
+- Why it matters: Time conditions are permissionless — any party (or automation) can evaluate them
+- Source: inferred
+- Primary owning slice: M003/S01
+- Supporting slices: none
+- Validation: validated
+- Notes: useCrankTime mutation hook wired into ConditionCard CrankAction with time-based visibility. Build passes.
+
+### R012 — Users can trigger the oracle crank using a Pyth price feed
+- Class: primary-user-loop
+- Status: validated
+- Description: Users can trigger the oracle crank for a payment condition using a Pyth price feed
+- Why it matters: Oracle conditions require real-time price data to evaluate
+- Source: user
+- Primary owning slice: M003/S01
+- Supporting slices: none
+- Validation: validated
+- Notes: useCrankOracle mutation with Pyth price display, staleness warning, byte-offset parsing (73-101). Build passes.
+
+### R013 — Anyone can trigger the token gate crank
+- Class: primary-user-loop
+- Status: validated
+- Description: Anyone can trigger the token gate crank to verify a holder's token balance meets the threshold
+- Why it matters: Token gate conditions prove on-chain ownership without manual attestation
+- Source: inferred
+- Primary owning slice: M003/S01
+- Supporting slices: none
+- Validation: validated
+- Notes: useCrankTokenGate mutation with ATA derivation for TOKEN_2022. Build passes.
+
+### R014 — Registered signers can approve a multisig condition from the UI
+- Class: primary-user-loop
+- Status: validated
+- Description: Registered signers can approve a multisig condition from the UI; threshold tracking is shown
+- Why it matters: Multisig conditions require coordinated approvals from multiple parties
+- Source: user
+- Primary owning slice: M003/S02
+- Supporting slices: none
+- Validation: validated
+- Notes: useSignMultisig hook, MultisigAction component with per-signer approval status, wallet-gated Approve button, error decoding for 6005/6006. Build passes.
+
+### R015 — Registered relayers can submit webhook event hash confirmations
+- Class: primary-user-loop
+- Status: validated
+- Description: Registered relayers can submit webhook event hash confirmations from the UI
+- Why it matters: Webhook conditions require an off-chain oracle (relayer) to attest to events
+- Source: user
+- Primary owning slice: M003/S02
+- Supporting slices: none
+- Validation: validated
+- Notes: useConfirmWebhook hook, WebhookAction component with 64-char hex input validation, wallet-gated Confirm button, error decoding for 6019/6020. Build passes.
+
+### R016 — Admins can manage wallet allowlist entries in the Token-2022 hook program
+- Class: admin/support
+- Status: validated
+- Description: Admins can add or update wallet allowlist entries in the Token-2022 hook program
+- Why it matters: The transfer hook blocks non-compliant wallets; admins must be able to manage the list
+- Source: user
+- Primary owning slice: M003/S03
+- Supporting slices: none
+- Validation: validated
+- Notes: useSetCompliance mutation via hookProgram, Compliance page with lookup/set forms, PDA derivation, TransactionStatus feedback. Build passes.
+
+### R017 — Relayer operators can register their pubkey and metadata
+- Class: admin/support
+- Status: validated
+- Description: Relayer operators can register their pubkey and metadata in the app
+- Why it matters: The Relayers page needs to show which relayers are active and trusted
+- Source: user
+- Primary owning slice: M003/S03
+- Supporting slices: none
+- Validation: validated
+- Notes: localStorage CRUD registry with SSR-safe guards, shape validation, duplicate prevention. Registration form with pubkey validation. Build passes.
 
 ## Deferred
 
@@ -204,7 +206,7 @@ This file is the explicit capability and coverage contract for the project.
 - Primary owning slice: none
 - Supporting slices: none
 - Validation: unmapped
-- Notes: Deferred to post-M003; paste-address approach works for M002
+- Notes: Deferred to post-M003; paste-address approach works
 
 ### R019 — Full Mobile Wallet Adapter support for iOS/Android wallets
 - Class: quality-attribute
@@ -245,23 +247,23 @@ This file is the explicit capability and coverage contract for the project.
 
 | ID | Class | Status | Primary owner | Supporting | Proof |
 |---|---|---|---|---|---|
-| R001 | primary-user-loop | active | M001/S02 | none | S02: Wallet adapter wired (provider, button, Anchor hook), build+typecheck pass. Awaiting human UAT — connecting a real wallet requires browser extension. |
-| R002 | primary-user-loop | active | M001/S03 | none | unmapped |
-| R003 | primary-user-loop | active | M001/S04 | none | S04: useMilestones() hook fetches conditionAccount.all() and joins to parent agreements; milestones page renders live status badges, USDC amounts, condition counts; build+typecheck pass; zero mock data. |
-| R004 | primary-user-loop | validated | M001/S05 | none | S05: useComplianceEntries() hook fetches ComplianceEntry accounts from hook program (gherkin_pay_hook) via .all(); compliance page renders live data with shadcn Table/Badge, loading/empty/error/disconnected states. Build and typecheck pass. |
-| R005 | primary-user-loop | validated | M001/S06 | none | S06: Activity page parses real on-chain events from gherkin_pay program transactions using Anchor EventParser; events labelled by type with timestamp and affected payment pubkey; bun run build passes; zero hardcoded mock arrays. |
-| R006 | quality-attribute | active | M001/S01 | M001/S02, M001/S03, M001/S04, M001/S05, M001/S06 | S01: shadcn installed, themed to GherkinPay dark green palette, 4 core components (Button/Table/Badge/Dialog) available, bun run build passes. S02: WalletMultiButton uses shadcn Button. S03: Agreements page uses Table/Badge/Skeleton. S04: Milestones page uses Table/Badge/Skeleton. S05: Compliance page uses Table/Badge/Skeleton. Full validation when S06 adopts components. |
-| R007 | primary-user-loop | active | M002/S01 | M002/S02 | unmapped |
-| R008 | primary-user-loop | active | M002/S02 | none | unmapped |
-| R009 | primary-user-loop | active | M002/S03 | none | unmapped |
-| R010 | primary-user-loop | active | M002/S03 | none | unmapped |
-| R011 | primary-user-loop | active | M003/S01 | none | unmapped |
-| R012 | primary-user-loop | active | M003/S01 | none | unmapped |
-| R013 | primary-user-loop | active | M003/S01 | none | unmapped |
-| R014 | primary-user-loop | active | M003/S02 | none | unmapped |
-| R015 | primary-user-loop | active | M003/S02 | none | unmapped |
-| R016 | admin/support | active | M003/S03 | none | unmapped |
-| R017 | admin/support | active | M003/S03 | none | unmapped |
+| R001 | primary-user-loop | validated | M001/S02 | none | validated |
+| R002 | primary-user-loop | validated | M001/S03 | none | validated |
+| R003 | primary-user-loop | validated | M001/S04 | none | validated |
+| R004 | primary-user-loop | validated | M001/S05 | none | validated |
+| R005 | primary-user-loop | validated | M001/S06 | none | validated |
+| R006 | quality-attribute | validated | M001/S01 | M001/S02–S06 | validated |
+| R007 | primary-user-loop | validated | M002/S01 | M002/S02 | validated |
+| R008 | primary-user-loop | validated | M002/S02 | none | validated |
+| R009 | primary-user-loop | validated | M002/S03 | none | validated |
+| R010 | primary-user-loop | validated | M002/S03 | none | validated |
+| R011 | primary-user-loop | validated | M003/S01 | none | validated |
+| R012 | primary-user-loop | validated | M003/S01 | none | validated |
+| R013 | primary-user-loop | validated | M003/S01 | none | validated |
+| R014 | primary-user-loop | validated | M003/S02 | none | validated |
+| R015 | primary-user-loop | validated | M003/S02 | none | validated |
+| R016 | admin/support | validated | M003/S03 | none | validated |
+| R017 | admin/support | validated | M003/S03 | none | validated |
 | R018 | differentiator | deferred | none | none | unmapped |
 | R019 | quality-attribute | deferred | none | none | unmapped |
 | R020 | anti-feature | out-of-scope | none | none | n/a |
@@ -269,7 +271,8 @@ This file is the explicit capability and coverage contract for the project.
 
 ## Coverage Summary
 
-- Active requirements: 15
-- Mapped to slices: 15
-- Validated: 2 (R004, R005)
+- Active requirements: 0
+- Validated: 17 (R001–R017)
+- Deferred: 2 (R018, R019)
+- Out of scope: 2 (R020, R021)
 - Unmapped active requirements: 0

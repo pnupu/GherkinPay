@@ -43,6 +43,6 @@ See `.gsd/REQUIREMENTS.md` for the explicit capability contract, requirement sta
 
 ## Milestone Sequence
 
-- [ ] M001: Foundation — shadcn setup, wallet connect, live on-chain reads for all 5 pages
-- [ ] M002: Core Flows — create payment wizard, fund, release, cancel
-- [ ] M003: Advanced Flows — condition cranks, multisig signing, webhook confirm, compliance management, relayer registration
+- [x] M001: Foundation — shadcn setup, wallet connect, live on-chain reads for all 5 pages
+- [x] M002: Core Flows — create payment wizard, fund, release, cancel
+- [x] M003: Advanced Flows — condition cranks, multisig signing, webhook confirm, compliance management, relayer registration
