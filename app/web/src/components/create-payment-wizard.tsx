@@ -123,6 +123,7 @@ export function CreatePaymentWizard() {
   // Step 1 fields
   const [payeeWallet, setPayeeWallet] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
+  const [metadataUri, setMetadataUri] = useState("");
   const [milestoneCount, setMilestoneCount] = useState(2);
   const [milestoneAmounts, setMilestoneAmounts] = useState<string[]>(["", ""]);
 
@@ -157,6 +158,7 @@ export function CreatePaymentWizard() {
       setMode("simple");
       setPayeeWallet("");
       setTotalAmount("");
+      setMetadataUri("");
       setMilestoneCount(2);
       setMilestoneAmounts(["", ""]);
       setSimpleConditions(DEFAULT_CONDITION_VALUE);
@@ -252,6 +254,7 @@ export function CreatePaymentWizard() {
         isMilestone: false,
         operator: simpleConditions.operator,
         conditions: simpleConditions.conditions.map(toConditionInput),
+        metadataUri,
       });
     } else {
       const milestones: MilestoneInput[] = milestoneConditions.map(
@@ -272,6 +275,7 @@ export function CreatePaymentWizard() {
         operator: "and", // top-level operator for milestone payments
         conditions: [], // conditions live inside milestones
         milestones,
+        metadataUri,
       });
     }
   }, [
@@ -282,6 +286,7 @@ export function CreatePaymentWizard() {
     simpleConditions,
     milestoneConditions,
     milestoneAmounts,
+    metadataUri,
     mutation,
   ]);
 
@@ -435,6 +440,23 @@ export function CreatePaymentWizard() {
                   Amount must be greater than 0
                 </p>
               )}
+            </div>
+
+            {/* Travel Rule Metadata URI (optional) */}
+            <div className="space-y-1.5">
+              <Label htmlFor="metadata-uri">Travel Rule Metadata URI</Label>
+              <Input
+                id="metadata-uri"
+                value={metadataUri}
+                onChange={(e) =>
+                  setMetadataUri((e.target as HTMLInputElement).value)
+                }
+                placeholder="https://example.com/.well-known/travel-rule.json"
+                className="font-mono text-xs"
+              />
+              <p className="text-xs text-muted-foreground">
+                Optional — link to Travel Rule identity metadata
+              </p>
             </div>
 
             {/* Milestone-specific fields */}
@@ -591,6 +613,15 @@ export function CreatePaymentWizard() {
                 <span className="text-muted-foreground">Total Amount</span>
                 <span className="font-medium">{totalAmount} USDC</span>
               </div>
+
+              {metadataUri && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Metadata URI</span>
+                  <span className="font-mono text-xs truncate max-w-[200px]">
+                    {metadataUri}
+                  </span>
+                </div>
+              )}
 
               {mode === "milestone" && (
                 <>

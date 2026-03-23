@@ -19,8 +19,9 @@ pub mod gherkin_pay {
         payment_id: u64,
         total_amount: u64,
         operator: ConditionOperator,
+        metadata_uri: String,
     ) -> Result<()> {
-        instructions::create_payment::handle_create_payment(ctx, payment_id, total_amount, operator)
+        instructions::create_payment::handle_create_payment(ctx, payment_id, total_amount, operator, metadata_uri)
     }
 
     pub fn create_milestone_payment(
@@ -28,8 +29,9 @@ pub mod gherkin_pay {
         payment_id: u64,
         total_amount: u64,
         milestone_count: u8,
+        metadata_uri: String,
     ) -> Result<()> {
-        instructions::create_milestone_payment::handle_create_milestone_payment(ctx, payment_id, total_amount, milestone_count)
+        instructions::create_milestone_payment::handle_create_milestone_payment(ctx, payment_id, total_amount, milestone_count, metadata_uri)
     }
 
     pub fn add_milestone(

@@ -56,6 +56,7 @@ pub fn handle_create_payment(
     payment_id: u64,
     total_amount: u64,
     operator: ConditionOperator,
+    metadata_uri: String,
 ) -> Result<()> {
     let clock = Clock::get()?;
 
@@ -75,6 +76,7 @@ pub fn handle_create_payment(
     payment.created_at = clock.unix_timestamp;
     payment.bump = ctx.bumps.payment;
     payment.escrow_bump = ctx.bumps.escrow_token_account;
+    payment.metadata_uri = metadata_uri.clone();
 
     let cond = &mut ctx.accounts.condition_account;
     cond.payment = payment.key();
@@ -95,6 +97,7 @@ pub fn handle_create_payment(
         total_amount,
         is_milestone: false,
         milestone_count: 1,
+        metadata_uri,
     });
 
     Ok(())

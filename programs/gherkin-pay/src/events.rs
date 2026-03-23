@@ -10,6 +10,7 @@ pub struct PaymentCreated {
     pub total_amount: u64,
     pub is_milestone: bool,
     pub milestone_count: u8,
+    pub metadata_uri: String,
 }
 
 #[event]

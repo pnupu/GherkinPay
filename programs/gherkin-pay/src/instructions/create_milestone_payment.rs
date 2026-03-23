@@ -50,6 +50,7 @@ pub fn handle_create_milestone_payment(
     payment_id: u64,
     total_amount: u64,
     milestone_count: u8,
+    metadata_uri: String,
 ) -> Result<()> {
     require!(milestone_count > 0, GherkinPayError::ZeroMilestones);
     require!(
@@ -75,6 +76,7 @@ pub fn handle_create_milestone_payment(
     payment.created_at = clock.unix_timestamp;
     payment.bump = ctx.bumps.payment;
     payment.escrow_bump = ctx.bumps.escrow_token_account;
+    payment.metadata_uri = metadata_uri.clone();
 
     emit!(PaymentCreated {
         payment: payment.key(),
@@ -85,6 +87,7 @@ pub fn handle_create_milestone_payment(
         total_amount,
         is_milestone: true,
         milestone_count,
+        metadata_uri,
     });
 
     Ok(())

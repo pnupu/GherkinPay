@@ -18,6 +18,8 @@ pub struct PaymentAgreement {
     pub created_at: i64,
     pub bump: u8,
     pub escrow_bump: u8,
+    #[max_len(200)]
+    pub metadata_uri: String,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, PartialEq, Eq, InitSpace)]

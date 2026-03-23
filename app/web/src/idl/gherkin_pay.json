@@ -374,6 +374,10 @@
         {
           "name": "milestone_count",
           "type": "u8"
+        },
+        {
+          "name": "metadata_uri",
+          "type": "string"
         }
       ]
     },
@@ -483,6 +487,10 @@
               "name": "ConditionOperator"
             }
           }
+        },
+        {
+          "name": "metadata_uri",
+          "type": "string"
         }
       ]
     },
@@ -1318,6 +1326,10 @@
           {
             "name": "escrow_bump",
             "type": "u8"
+          },
+          {
+            "name": "metadata_uri",
+            "type": "string"
           }
         ]
       }
@@ -1386,6 +1398,10 @@
           {
             "name": "milestone_count",
             "type": "u8"
+          },
+          {
+            "name": "metadata_uri",
+            "type": "string"
           }
         ]
       }

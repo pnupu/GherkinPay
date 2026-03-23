@@ -10,20 +10,20 @@ Trustless structured settlements: funds released only when on-chain conditions a
 
 ## Current State
 
-- Anchor smart contract (`gherkin-pay`) is complete with all instructions implemented and tested locally
+- Anchor smart contract (`gherkin-pay`) is complete with all instructions implemented, including Travel Rule metadata_uri field
 - Token-2022 transfer hook (`gherkin-pay-hook`) handles compliance allowlist enforcement
-- Next.js 15 frontend (`app/web`) has all five console pages (Agreements, Milestones, Compliance, Relayers, Activity) with polished UI — all hardcoded mock data, zero on-chain reads yet
-- shadcn/ui installed and themed to GherkinPay dark green palette (S01 complete)
-- Wallet adapter wired into App Router — WalletContextProvider in root layout, WalletMultiButton in sidebar, Anchor Program hook available (S02 complete)
-- Agreements page fetches live PaymentAgreement accounts from devnet via React Query with shadcn Table/Badge/Skeleton — zero mock data, zero tRPC (S03 complete)
-- PDA derivation helpers and query hook pattern established for remaining pages
-- IDL types and constants in place for both programs; devnet RPC endpoint configured via T3 env schema
-- Milestones page fetches live conditionAccount data from devnet with parent agreement join, status badges, USDC amounts (S04 complete)
-- Compliance page fetches live ComplianceEntry accounts from hook program via useComplianceEntries() with shadcn components (S05 complete)
-- Relayers page cleaned of mock data with static placeholder for M003 (S05 complete)
-- Activity page parses live on-chain events from program transaction logs via Anchor EventParser (S06 complete)
-- All five console pages wired to live on-chain data — zero hardcoded mock arrays remain
-- M001 milestone definition of done is fully met
+- Next.js 15 frontend (`app/web`) has all console pages with live on-chain data — zero mock data
+- shadcn/ui themed to GherkinPay dark green palette
+- Wallet adapter wired into App Router with full Anchor Program integration
+- All five original console pages (Agreements, Milestones, Compliance, Relayers, Activity) live on devnet data
+- Create payment wizard supports simple and milestone modes with all 5 condition types and Travel Rule metadata
+- Fund, release, cancel flows implemented
+- Advanced flows: condition cranks (time, oracle, webhook, token-gate), multisig signing, compliance management, relayer registration
+- Agreement detail page shows Travel Rule metadata URI (clickable for HTTP links)
+- Compliance Audit Log page at /audit with filterable timeline of 7 on-chain event types
+- Standalone crank automation bot (`scripts/crank-bot.ts`) auto-cranks time, oracle, and token-gate conditions
+- M004 StableHacks Institutional Readiness complete — hackathon-ready for Track 3
+- Contract requires devnet redeploy for metadata_uri field to be usable on-chain
 
 ## Architecture / Key Patterns
 
@@ -46,3 +46,7 @@ See `.gsd/REQUIREMENTS.md` for the explicit capability contract, requirement sta
 - [x] M001: Foundation — shadcn setup, wallet connect, live on-chain reads for all 5 pages
 - [x] M002: Core Flows — create payment wizard, fund, release, cancel
 - [x] M003: Advanced Flows — condition cranks, multisig signing, webhook confirm, compliance management, relayer registration
+- [x] M004: StableHacks Institutional Readiness — Travel Rule metadata, compliance audit log, crank automation bot
+  - [x] S01: Travel Rule Contract Extension — metadata_uri field on contract, IDL, wizard, and detail page
+  - [x] S02: Compliance Audit Log — filterable compliance event timeline page
+  - [x] S03: Crank Automation Bot — standalone bot auto-cranks time, oracle, and token-gate conditions

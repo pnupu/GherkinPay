@@ -9,6 +9,7 @@ const navItems = [
   { href: "/compliance", label: "Compliance" },
   { href: "/relayers", label: "Relayers" },
   { href: "/activity", label: "Activity" },
+  { href: "/audit", label: "Audit Log" },
 ];
 
 export function DashboardNav() {

@@ -202,6 +202,7 @@ export interface ParsedPaymentDetail {
   milestoneCount: number;
   currentMilestone: number;
   createdAt: number;
+  metadataUri: string;
 }
 
 export function usePaymentDetail(paymentPubkey: string | undefined) {
@@ -230,6 +231,7 @@ export function usePaymentDetail(paymentPubkey: string | undefined) {
         milestoneCount: data.milestoneCount,
         currentMilestone: data.currentMilestone,
         createdAt: toNumber(data.createdAt),
+        metadataUri: data.metadataUri ?? "",
       };
     },
     enabled: !!program && !!paymentPubkey,

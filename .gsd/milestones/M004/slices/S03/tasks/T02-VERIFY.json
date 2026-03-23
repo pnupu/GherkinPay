@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "taskId": "T02",
+  "unitId": "M004/S03/T02",
+  "timestamp": 1774267927981,
+  "passed": true,
+  "discoverySource": "task-plan",
+  "checks": [
+    {
+      "command": "test -f scripts/README.md",
+      "exitCode": 0,
+      "durationMs": 9,
+      "verdict": "pass"
+    }
+  ]
+}

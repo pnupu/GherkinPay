@@ -197,6 +197,24 @@ export default function AgreementDetailPage() {
               <dt className="text-muted-foreground">Payment ID</dt>
               <dd className="font-mono text-xs">{payment.paymentId}</dd>
             </div>
+            <div>
+              <dt className="text-muted-foreground">Metadata URI</dt>
+              <dd className="font-mono text-xs truncate">
+                {payment.metadataUri?.startsWith("http") ? (
+                  <a
+                    href={payment.metadataUri}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline"
+                    title={payment.metadataUri}
+                  >
+                    {payment.metadataUri}
+                  </a>
+                ) : (
+                  payment.metadataUri || "—"
+                )}
+              </dd>
+            </div>
           </dl>
         </CardContent>
       </Card>

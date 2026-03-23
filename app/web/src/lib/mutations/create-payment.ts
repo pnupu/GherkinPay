@@ -58,6 +58,7 @@ export interface CreatePaymentInput {
   operator: "and" | "or";
   conditions: ConditionInput[];
   milestones?: MilestoneInput[];
+  metadataUri?: string;
 }
 
 export interface CreatePaymentResult {
@@ -164,7 +165,7 @@ export function useCreatePayment() {
 
         // 1. createMilestonePayment instruction
         const createIx = await (program.methods as any)
-          .createMilestonePayment(paymentId, input.totalAmount, milestones.length)
+          .createMilestonePayment(paymentId, input.totalAmount, milestones.length, input.metadataUri ?? "")
           .accountsPartial({
             authority,
             payerWallet: input.payerWallet,
@@ -227,7 +228,7 @@ export function useCreatePayment() {
 
         // 1. createPayment instruction
         const createIx = await (program.methods as any)
-          .createPayment(paymentId, input.totalAmount, operatorArg(input.operator))
+          .createPayment(paymentId, input.totalAmount, operatorArg(input.operator), input.metadataUri ?? "")
           .accountsPartial({
             authority,
             payerWallet: input.payerWallet,
