@@ -65,8 +65,8 @@ export default function Home() {
           <Link className="btn btn-primary btn-lg" href="/agreements">
             Open App
           </Link>
-          <Link className="btn btn-outline btn-lg" href="/milestones">
-            View Milestones
+          <Link className="btn btn-outline btn-lg" href="/activity">
+            Activity Feed
           </Link>
         </div>
         <div className="landing-stats">

@@ -221,6 +221,38 @@ const COMPARISON_OPTIONS: { value: string; label: string }[] = [
 ];
 
 // ---------------------------------------------------------------------------
+// Oracle feed presets (Pyth mainnet price feed IDs as hex)
+// ---------------------------------------------------------------------------
+
+const ORACLE_PRESETS = [
+  {
+    label: "SOL / USD",
+    feedId: "0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+    decimals: 8,
+  },
+  {
+    label: "BTC / USD",
+    feedId: "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
+    decimals: 8,
+  },
+  {
+    label: "ETH / USD",
+    feedId: "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
+    decimals: 8,
+  },
+  {
+    label: "USDC / USD",
+    feedId: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
+    decimals: 8,
+  },
+  {
+    label: "Custom…",
+    feedId: "",
+    decimals: 0,
+  },
+] as const;
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -671,14 +703,51 @@ function MultisigFields({ index, control, errors }: FieldProps) {
 // -- Oracle --
 
 function OracleFields({ index, control, errors }: FieldProps) {
+  const currentFeed = useWatch({
+    control,
+    name: `conditions.${index}.feedAccount` as never,
+  }) as string | undefined;
+
   return (
     <div className="space-y-3">
+      {/* Oracle preset selector */}
+      <div className="space-y-1">
+        <Label className="text-xs text-muted-foreground">
+          Price Feed Preset
+        </Label>
+        <div className="flex flex-wrap gap-1.5">
+          {ORACLE_PRESETS.filter((p) => p.feedId).map((preset) => {
+            const isActive = currentFeed === preset.feedId;
+            return (
+              <Controller
+                key={preset.label}
+                control={control}
+                name={`conditions.${index}.feedAccount` as never}
+                render={({ field }) => (
+                  <Button
+                    type="button"
+                    variant={isActive ? "default" : "outline"}
+                    size="xs"
+                    className="text-xs"
+                    onClick={() => {
+                      field.onChange(preset.feedId);
+                    }}
+                  >
+                    {preset.label}
+                  </Button>
+                )}
+              />
+            );
+          })}
+        </div>
+      </div>
+
       <div className="space-y-1">
         <Label
           htmlFor={`condition-${index}-feedAccount`}
           className="text-xs text-muted-foreground"
         >
-          Feed Account
+          Feed Account (Pyth Price Feed ID)
         </Label>
         <Controller
           control={control}

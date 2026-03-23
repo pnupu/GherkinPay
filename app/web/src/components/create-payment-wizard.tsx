@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
 
@@ -32,12 +33,28 @@ import {
   type MilestoneInput,
 } from "~/lib/mutations/create-payment";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
-/** USDC devnet mint address */
-const USDC_DEVNET_MINT = "5xUUritQPSGaLS1ggMzmii746xGbbeN2NSPyxqA5U5df";
+/** Known token mints — displayed as selectable presets. */
+const TOKEN_PRESETS = [
+  { symbol: "USDC", label: "USDC", mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" },
+  { symbol: "USDT", label: "USDT", mint: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB" },
+  { symbol: "USDG", label: "USDG", mint: "2u1tszSeqZ3qBWF3uNGPFc8TzMk2tdiwknnRMWGWjGWH" },
+  { symbol: "custom", label: "Custom…", mint: "" },
+] as const;
+
+// Default to first token
+const DEFAULT_TOKEN_SYMBOL = TOKEN_PRESETS[0].symbol;
 
 const DEFAULT_CONDITION_VALUE: ConditionBuilderValue = {
   operator: "and",
@@ -118,12 +135,15 @@ export function CreatePaymentWizard() {
   const [step, setStep] = useState(1);
   const [mode, setMode] = useState<"simple" | "milestone">("simple");
   const wallet = useWallet();
+  const walletModal = useWalletModal();
   const mutation = useCreatePayment();
 
   // Step 1 fields
   const [payeeWallet, setPayeeWallet] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
   const [metadataUri, setMetadataUri] = useState("");
+  const [selectedToken, setSelectedToken] = useState<string>(DEFAULT_TOKEN_SYMBOL);
+  const [customMint, setCustomMint] = useState("");
   const [milestoneCount, setMilestoneCount] = useState(2);
   const [milestoneAmounts, setMilestoneAmounts] = useState<string[]>(["", ""]);
 
@@ -159,6 +179,8 @@ export function CreatePaymentWizard() {
       setPayeeWallet("");
       setTotalAmount("");
       setMetadataUri("");
+      setSelectedToken(DEFAULT_TOKEN_SYMBOL);
+      setCustomMint("");
       setMilestoneCount(2);
       setMilestoneAmounts(["", ""]);
       setSimpleConditions(DEFAULT_CONDITION_VALUE);
@@ -204,6 +226,22 @@ export function CreatePaymentWizard() {
   const totalAmountNum = parseFloat(totalAmount);
   const totalAmountValid = !isNaN(totalAmountNum) && totalAmountNum > 0;
 
+  /** Resolve the active token mint address. */
+  const resolvedMint = useMemo(() => {
+    const preset = TOKEN_PRESETS.find((t) => t.symbol === selectedToken);
+    if (!preset || preset.symbol === "custom") return customMint;
+    return preset.mint;
+  }, [selectedToken, customMint]);
+
+  const tokenMintValid = isValidPublicKey(resolvedMint);
+
+  /** Resolved token label for display in review. */
+  const tokenLabel = useMemo(() => {
+    const preset = TOKEN_PRESETS.find((t) => t.symbol === selectedToken);
+    if (!preset || preset.symbol === "custom") return "Custom";
+    return preset.label;
+  }, [selectedToken]);
+
   const milestoneSumValid = useMemo(() => {
     if (mode !== "milestone") return true;
     const sum = milestoneAmounts.reduce(
@@ -225,6 +263,7 @@ export function CreatePaymentWizard() {
   const step1Valid =
     isValidPublicKey(payeeWallet) &&
     totalAmountValid &&
+    tokenMintValid &&
     (mode === "simple" ||
       (milestoneAmountsAllValid && milestoneSumValid));
 
@@ -240,7 +279,7 @@ export function CreatePaymentWizard() {
   const handleSubmit = useCallback(async () => {
     if (!wallet.publicKey) return;
 
-    const tokenMint = new PublicKey(USDC_DEVNET_MINT);
+    const tokenMint = new PublicKey(resolvedMint);
     const payee = new PublicKey(payeeWallet);
     // Convert to lamports (USDC has 6 decimals)
     const totalBN = new BN(Math.round(totalAmountNum * 1_000_000));
@@ -283,6 +322,7 @@ export function CreatePaymentWizard() {
     payeeWallet,
     totalAmountNum,
     mode,
+    resolvedMint,
     simpleConditions,
     milestoneConditions,
     milestoneAmounts,
@@ -380,13 +420,23 @@ export function CreatePaymentWizard() {
             {/* Payer wallet (read-only, connected wallet) */}
             <div className="space-y-1.5">
               <Label htmlFor="payer-wallet">Payer Wallet</Label>
-              <Input
-                id="payer-wallet"
-                value={payerWalletAddress}
-                readOnly
-                className="font-mono text-xs opacity-70"
-                placeholder="Connect wallet first"
-              />
+              {wallet.publicKey ? (
+                <Input
+                  id="payer-wallet"
+                  value={payerWalletAddress}
+                  readOnly
+                  className="font-mono text-xs opacity-70"
+                />
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-start text-muted-foreground"
+                  onClick={() => walletModal.setVisible(true)}
+                >
+                  Connect wallet to continue
+                </Button>
+              )}
             </div>
 
             {/* Payee wallet */}
@@ -408,22 +458,47 @@ export function CreatePaymentWizard() {
               )}
             </div>
 
-            {/* Token mint (display only) */}
+            {/* Token mint selector */}
             <div className="space-y-1.5">
               <Label>Token Mint</Label>
-              <div className="flex items-center gap-2 rounded-md border border-input bg-muted/30 px-3 py-2">
-                <Badge variant="outline" className="text-xs">
-                  USDC
-                </Badge>
-                <span className="font-mono text-xs text-muted-foreground truncate">
-                  {USDC_DEVNET_MINT}
-                </span>
-              </div>
+              <Select value={selectedToken} onValueChange={setSelectedToken}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select token…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TOKEN_PRESETS.map((t) => (
+                    <SelectItem key={t.symbol} value={t.symbol}>
+                      {t.label}
+                      {t.mint && (
+                        <span className="ml-2 text-muted-foreground text-xs font-mono">
+                          {t.mint.slice(0, 4)}…{t.mint.slice(-4)}
+                        </span>
+                      )}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedToken === "custom" && (
+                <Input
+                  value={customMint}
+                  onChange={(e) => setCustomMint((e.target as HTMLInputElement).value)}
+                  placeholder="Token mint address (base58)"
+                  className="font-mono text-xs mt-1.5"
+                />
+              )}
+              {selectedToken === "custom" && customMint && !isValidPublicKey(customMint) && (
+                <p className="text-xs text-destructive">Invalid Solana address</p>
+              )}
+              {selectedToken !== "custom" && (
+                <p className="text-xs text-muted-foreground font-mono truncate">
+                  {resolvedMint}
+                </p>
+              )}
             </div>
 
             {/* Total amount */}
             <div className="space-y-1.5">
-              <Label htmlFor="total-amount">Total Amount (USDC)</Label>
+              <Label htmlFor="total-amount">Total Amount</Label>
               <Input
                 id="total-amount"
                 type="number"
@@ -485,7 +560,7 @@ export function CreatePaymentWizard() {
                 <Separator />
 
                 <div className="space-y-3">
-                  <Label>Per-Milestone Amounts (USDC)</Label>
+                  <Label>Per-Milestone Amounts</Label>
                   {milestoneAmounts.map((amt, i) => (
                     <div key={i} className="flex items-center gap-2">
                       <span className="text-xs text-muted-foreground w-24">
@@ -508,7 +583,7 @@ export function CreatePaymentWizard() {
                   ))}
                   {totalAmountValid && !milestoneSumValid && (
                     <p className="text-xs text-destructive">
-                      Milestone amounts must sum to total ({totalAmount} USDC).
+                      Milestone amounts must sum to total ({totalAmount} {tokenLabel}).
                       Current sum:{" "}
                       {milestoneAmounts
                         .reduce((s, v) => s + (parseFloat(v) || 0), 0)
@@ -607,11 +682,11 @@ export function CreatePaymentWizard() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Token</span>
-                <span>USDC (devnet)</span>
+                <span>{tokenLabel}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Total Amount</span>
-                <span className="font-medium">{totalAmount} USDC</span>
+                <span className="font-medium">{totalAmount} {tokenLabel}</span>
               </div>
 
               {metadataUri && (
@@ -643,7 +718,7 @@ export function CreatePaymentWizard() {
                             : ""}{" "}
                           ({milestoneConditions[i]!.operator.toUpperCase()})
                         </span>
-                        <span>{amt} USDC</span>
+                        <span>{amt} {tokenLabel}</span>
                       </div>
                     ))}
                   </div>
