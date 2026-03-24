@@ -6,9 +6,9 @@ import { usePathname } from "next/navigation";
 const navItems = [
   { href: "/agreements", label: "Agreements" },
   { href: "/milestones", label: "Milestones" },
-  { href: "/compliance", label: "Compliance" },
+  { href: "/compliance", label: "KYC / AML" },
   { href: "/relayers", label: "Relayers" },
-  { href: "/activity", label: "Activity" },
+  { href: "/activity", label: "KYT Monitor" },
   { href: "/audit", label: "Audit Log" },
 ];
 

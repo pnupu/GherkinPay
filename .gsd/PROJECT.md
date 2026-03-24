@@ -23,7 +23,7 @@ Trustless structured settlements: funds released only when on-chain conditions a
 - Compliance Audit Log page at /audit with filterable timeline of 7 on-chain event types
 - Standalone crank automation bot (`scripts/crank-bot.ts`) auto-cranks time, oracle, and token-gate conditions
 - M004 StableHacks Institutional Readiness complete — hackathon-ready for Track 3
-- Contract requires devnet redeploy for metadata_uri field to be usable on-chain
+- M005 complete: contract rebuilt with metadata_uri, full test suite expanded to 33 passing (20 existing + 6 oracle + 7 token-gate), deployed to devnet, frontend types synced, crank bot validated against devnet
 
 ## Architecture / Key Patterns
 
@@ -50,3 +50,7 @@ See `.gsd/REQUIREMENTS.md` for the explicit capability contract, requirement sta
   - [x] S01: Travel Rule Contract Extension — metadata_uri field on contract, IDL, wizard, and detail page
   - [x] S02: Compliance Audit Log — filterable compliance event timeline page
   - [x] S03: Crank Automation Bot — standalone bot auto-cranks time, oracle, and token-gate conditions
+- [x] M005: On-Chain Verification & Devnet Deploy — contract rebuild, test coverage (33 tests), devnet deployment
+  - [x] S01: Contract Rebuild & Test Fixup — anchor build succeeds, all 20 tests pass with metadata_uri
+  - [x] S02: Oracle & Token-Gate Test Coverage — 13 new tests (6 oracle + 7 token-gate), suite at 33 passing
+  - [x] S03: Devnet Deploy & Smoke Test — deployed to devnet, frontend IDL synced, crank bot validated

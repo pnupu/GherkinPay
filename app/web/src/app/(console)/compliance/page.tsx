@@ -81,15 +81,15 @@ export default function CompliancePage() {
       <>
         <header className="topbar">
           <div>
-            <h1 className="page-title">Compliance</h1>
+            <h1 className="page-title">KYC / AML</h1>
             <p className="page-subtitle">
-              Token-2022 transfer hook allowlist status
+              On-chain identity allowlist — KYC-verified wallets only
             </p>
           </div>
         </header>
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <p className="text-lg font-medium text-muted-foreground">
-            Connect your wallet to manage compliance
+            Connect your wallet to manage KYC status
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
             Use the wallet button in the sidebar to get started.
@@ -106,7 +106,7 @@ export default function CompliancePage() {
     if (isLookupLoading) {
       return (
         <p className="mt-3 text-sm text-muted-foreground">
-          Loading compliance status…
+          Loading KYC status…
         </p>
       );
     }
@@ -114,7 +114,7 @@ export default function CompliancePage() {
     if (complianceEntry === null || complianceEntry === undefined) {
       return (
         <p className="mt-3 text-sm text-muted-foreground">
-          Not registered — no compliance entry exists for this wallet.
+          Not registered — no KYC entry exists for this wallet.
         </p>
       );
     }
@@ -139,16 +139,16 @@ export default function CompliancePage() {
     <>
       <header className="topbar">
         <div>
-          <h1 className="page-title">Compliance</h1>
+          <h1 className="page-title">KYC / AML</h1>
           <p className="page-subtitle">
-            Token-2022 transfer hook allowlist status
+            On-chain identity allowlist — KYC-verified wallets only
           </p>
         </div>
       </header>
 
       {/* Lookup section */}
       <section className="panel">
-        <h2 className="panel-title">Check wallet status</h2>
+        <h2 className="panel-title">Check KYC status</h2>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1">
             <label
@@ -190,7 +190,7 @@ export default function CompliancePage() {
 
       {/* Set compliance section */}
       <section className="panel mt-4">
-        <h2 className="panel-title">Set compliance</h2>
+        <h2 className="panel-title">Set KYC status</h2>
         <div className="flex flex-col gap-3">
           <div>
             <label

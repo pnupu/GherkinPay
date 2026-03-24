@@ -4,7 +4,16 @@ This file is the explicit capability and coverage contract for the project.
 
 ## Active
 
-_No active requirements — all have been validated or deferred._
+### R026 — A payment created via the frontend wizard with a metadata_uri value appears with that URI in the agreement detail page
+- Class: integration
+- Status: active
+- Description: A payment created via the frontend wizard with a metadata_uri value appears with that URI in the agreement detail page
+- Why it matters: Proves the entire M004 stack works end-to-end: contract → IDL → mutation → query → display
+- Source: execution
+- Primary owning slice: M005/S03
+- Supporting slices: none
+- Validation: mapped
+- Notes: Requires devnet deploy (R025) first
 
 ## Validated
 
@@ -52,7 +61,7 @@ _No active requirements — all have been validated or deferred._
 - Validation: validated
 - Notes: useComplianceEntries() fetches from hook program. Lookup and set-compliance forms with TransactionStatus feedback.
 
-### R005 — Activity page shows real on-chain events parsed from program logs
+### R005 — Activity page shows real on-chain events (PaymentCreated, PaymentFunded, PaymentReleased, etc.) parsed from program logs
 - Class: primary-user-loop
 - Status: validated
 - Description: Activity page shows real on-chain events (PaymentCreated, PaymentFunded, PaymentReleased, etc.) parsed from program logs
@@ -63,7 +72,7 @@ _No active requirements — all have been validated or deferred._
 - Validation: validated
 - Notes: Anchor EventParser, event type filter pills, search by event/signature. Zero mock data.
 
-### R006 — All UI elements use shadcn/ui components on top of Tailwind v4
+### R006 — All UI elements use shadcn/ui components (Button, Dialog, Table, Form, etc.) on top of Tailwind v4
 - Class: quality-attribute
 - Status: validated
 - Description: All UI elements use shadcn/ui components (Button, Dialog, Table, Form, etc.) on top of Tailwind v4
@@ -74,7 +83,7 @@ _No active requirements — all have been validated or deferred._
 - Validation: validated
 - Notes: shadcn canary (Tailwind v4), themed to dark green palette. All pages use Table/Badge/Skeleton/Button/Dialog/Input/Card. TableToolbar component for unified search/filter.
 
-### R007 — Users can create a new payment agreement with conditions and AND/OR logic
+### R007 — Users can create a new payment agreement (simple or milestone), define conditions with AND/OR logic, and finalize the setup
 - Class: primary-user-loop
 - Status: validated
 - Description: Users can create a new payment agreement (simple or milestone), define conditions with AND/OR logic, and finalize the setup
@@ -96,7 +105,7 @@ _No active requirements — all have been validated or deferred._
 - Validation: validated
 - Notes: Fund Payment mutation (114-line fund-payment.ts) with USDC ATA lookup, balance check. FundPaymentDialog in agreements-client. Build passes.
 
-### R009 — Any party can trigger evaluate-and-release once conditions are met
+### R009 — Any party can trigger evaluate-and-release once conditions are met, moving funds from escrow to payee
 - Class: primary-user-loop
 - Status: validated
 - Description: Any party can trigger evaluate-and-release once conditions are met, moving funds from escrow to payee
@@ -107,7 +116,7 @@ _No active requirements — all have been validated or deferred._
 - Validation: validated
 - Notes: Release Payment mutation (188-line release-payment.ts) with nextConditionAccount logic. ReleasePaymentDialog wired. Build passes.
 
-### R010 — Authority can cancel an active payment, returning escrowed funds to payer
+### R010 — Authority can cancel an active payment, returning escrowed funds to the payer
 - Class: primary-user-loop
 - Status: validated
 - Description: Authority can cancel an active payment, returning escrowed funds to the payer
@@ -118,7 +127,7 @@ _No active requirements — all have been validated or deferred._
 - Validation: validated
 - Notes: Cancel Payment mutation (101-line cancel-payment.ts) with CancelPaymentDialog. Build passes.
 
-### R011 — Anyone can trigger the time crank for a payment condition
+### R011 — Anyone can trigger the time crank for a payment condition once the unlock timestamp has passed
 - Class: primary-user-loop
 - Status: validated
 - Description: Anyone can trigger the time crank for a payment condition once the unlock timestamp has passed
@@ -129,7 +138,7 @@ _No active requirements — all have been validated or deferred._
 - Validation: validated
 - Notes: useCrankTime mutation hook wired into ConditionCard CrankAction with time-based visibility. Build passes.
 
-### R012 — Users can trigger the oracle crank using a Pyth price feed
+### R012 — Users can trigger the oracle crank for a payment condition using a Pyth price feed
 - Class: primary-user-loop
 - Status: validated
 - Description: Users can trigger the oracle crank for a payment condition using a Pyth price feed
@@ -140,7 +149,7 @@ _No active requirements — all have been validated or deferred._
 - Validation: validated
 - Notes: useCrankOracle mutation with Pyth price display, staleness warning, byte-offset parsing (73-101). Build passes.
 
-### R013 — Anyone can trigger the token gate crank
+### R013 — Anyone can trigger the token gate crank to verify a holder's token balance meets the threshold
 - Class: primary-user-loop
 - Status: validated
 - Description: Anyone can trigger the token gate crank to verify a holder's token balance meets the threshold
@@ -151,7 +160,7 @@ _No active requirements — all have been validated or deferred._
 - Validation: validated
 - Notes: useCrankTokenGate mutation with ATA derivation for TOKEN_2022. Build passes.
 
-### R014 — Registered signers can approve a multisig condition from the UI
+### R014 — Registered signers can approve a multisig condition from the UI; threshold tracking is shown
 - Class: primary-user-loop
 - Status: validated
 - Description: Registered signers can approve a multisig condition from the UI; threshold tracking is shown
@@ -162,7 +171,7 @@ _No active requirements — all have been validated or deferred._
 - Validation: validated
 - Notes: useSignMultisig hook, MultisigAction component with per-signer approval status, wallet-gated Approve button, error decoding for 6005/6006. Build passes.
 
-### R015 — Registered relayers can submit webhook event hash confirmations
+### R015 — Registered relayers can submit webhook event hash confirmations from the UI
 - Class: primary-user-loop
 - Status: validated
 - Description: Registered relayers can submit webhook event hash confirmations from the UI
@@ -173,7 +182,7 @@ _No active requirements — all have been validated or deferred._
 - Validation: validated
 - Notes: useConfirmWebhook hook, WebhookAction component with 64-char hex input validation, wallet-gated Confirm button, error decoding for 6019/6020. Build passes.
 
-### R016 — Admins can manage wallet allowlist entries in the Token-2022 hook program
+### R016 — Admins can add or update wallet allowlist entries in the Token-2022 hook program
 - Class: admin/support
 - Status: validated
 - Description: Admins can add or update wallet allowlist entries in the Token-2022 hook program
@@ -184,7 +193,7 @@ _No active requirements — all have been validated or deferred._
 - Validation: validated
 - Notes: useSetCompliance mutation via hookProgram, Compliance page with lookup/set forms, PDA derivation, TransactionStatus feedback. Build passes.
 
-### R017 — Relayer operators can register their pubkey and metadata
+### R017 — Relayer operators can register their pubkey and metadata in the app
 - Class: admin/support
 - Status: validated
 - Description: Relayer operators can register their pubkey and metadata in the app
@@ -194,6 +203,50 @@ _No active requirements — all have been validated or deferred._
 - Supporting slices: none
 - Validation: validated
 - Notes: localStorage CRUD registry with SSR-safe guards, shape validation, duplicate prevention. Registration form with pubkey validation. Build passes.
+
+### R022 — Every createPayment and createMilestonePayment test call passes metadata_uri; all existing test suites pass under `anchor test`
+- Class: quality-attribute
+- Status: validated
+- Description: Every createPayment and createMilestonePayment test call passes metadata_uri; all existing test suites pass under `anchor test`
+- Why it matters: The contract shape changed in M004 but tests were never updated — they will fail against the new program
+- Source: execution
+- Primary owning slice: M005/S01
+- Supporting slices: none
+- Validation: anchor test exits 0 with 33 passing; all 6 create call sites pass metadata_uri; IDL contains metadata_uri in 4 locations
+- Notes: 5 createPayment calls and 1 createMilestonePayment call need metadata_uri as 4th arg
+
+### R023 — A new test case creates a payment with an oracle condition, cranks it against the mock Pyth feed fixture, and verifies the condition is met
+- Class: quality-attribute
+- Status: validated
+- Description: A new test case creates a payment with an oracle condition, cranks it against the mock Pyth feed fixture, and verifies the condition is met
+- Why it matters: crank_oracle instruction has never been tested on-chain despite existing since M003
+- Source: execution
+- Primary owning slice: M005/S02
+- Supporting slices: none
+- Validation: anchor test passes with 6-test "Payment with Oracle Condition" block — crankOracle succeeds against mock Pyth feed, condition.met flips true, payment completes
+- Notes: Mock Pyth fixture exists at fixtures/mock-pyth-feed.json; loaded into test validator via Anchor.toml
+
+### R024 — A new test case creates a payment with a token-gate condition, cranks it with a holder that meets the balance threshold, and verifies the condition is met
+- Class: quality-attribute
+- Status: validated
+- Description: A new test case creates a payment with a token-gate condition, cranks it with a holder that meets the balance threshold, and verifies the condition is met
+- Why it matters: crank_token_gate instruction has never been tested on-chain despite existing since M003
+- Source: execution
+- Primary owning slice: M005/S02
+- Supporting slices: none
+- Validation: anchor test passes with 7-test "Payment with Token-Gate Condition" block — crankTokenGate succeeds with holder's 1000 tokens exceeding 100-token threshold, condition.met flips true, payment completes
+- Notes: Needs a second Token-2022 mint for the gated token and a holder token account with sufficient balance
+
+### R025 — The gherkin_pay program is deployed to devnet with the account layout that includes metadata_uri
+- Class: operability
+- Status: validated
+- Description: The gherkin_pay program is deployed to devnet with the account layout that includes metadata_uri
+- Why it matters: All frontend and crank bot functionality depends on the deployed program matching the IDL
+- Source: execution
+- Primary owning slice: M005/S03
+- Supporting slices: none
+- Validation: solana program show confirms program deployed at 2wL3PPjoG4UmVrNYZyXvxfTfV738AVCG8LHJPUEtxEeV with 422944 bytes data length; types synced with 4 metadataUri fields; frontend builds clean
+- Notes: Existing devnet payments will be inaccessible after redeploy due to layout change
 
 ## Deferred
 
@@ -252,7 +305,7 @@ _No active requirements — all have been validated or deferred._
 | R003 | primary-user-loop | validated | M001/S04 | none | validated |
 | R004 | primary-user-loop | validated | M001/S05 | none | validated |
 | R005 | primary-user-loop | validated | M001/S06 | none | validated |
-| R006 | quality-attribute | validated | M001/S01 | M001/S02–S06 | validated |
+| R006 | quality-attribute | validated | M001/S01 | M001/S02–S06, M002/S01–S03, M003/S01–S03 | validated |
 | R007 | primary-user-loop | validated | M002/S01 | M002/S02 | validated |
 | R008 | primary-user-loop | validated | M002/S02 | none | validated |
 | R009 | primary-user-loop | validated | M002/S03 | none | validated |
@@ -268,11 +321,15 @@ _No active requirements — all have been validated or deferred._
 | R019 | quality-attribute | deferred | none | none | unmapped |
 | R020 | anti-feature | out-of-scope | none | none | n/a |
 | R021 | constraint | out-of-scope | none | none | n/a |
+| R022 | quality-attribute | validated | M005/S01 | none | anchor test exits 0 with 33 passing; all 6 create call sites pass metadata_uri; IDL contains metadata_uri in 4 locations |
+| R023 | quality-attribute | validated | M005/S02 | none | anchor test passes with 6-test "Payment with Oracle Condition" block — crankOracle succeeds against mock Pyth feed, condition.met flips true, payment completes |
+| R024 | quality-attribute | validated | M005/S02 | none | anchor test passes with 7-test "Payment with Token-Gate Condition" block — crankTokenGate succeeds with holder's 1000 tokens exceeding 100-token threshold, condition.met flips true, payment completes |
+| R025 | operability | validated | M005/S03 | none | solana program show confirms program deployed at 2wL3PPjoG4UmVrNYZyXvxfTfV738AVCG8LHJPUEtxEeV with 422944 bytes data length; types synced with 4 metadataUri fields; frontend builds clean |
+| R026 | integration | active | M005/S03 | none | mapped |
 
 ## Coverage Summary
 
-- Active requirements: 0
-- Validated: 17 (R001–R017)
-- Deferred: 2 (R018, R019)
-- Out of scope: 2 (R020, R021)
+- Active requirements: 1
+- Mapped to slices: 1
+- Validated: 21 (R001, R002, R003, R004, R005, R006, R007, R008, R009, R010, R011, R012, R013, R014, R015, R016, R017, R022, R023, R024, R025)
 - Unmapped active requirements: 0

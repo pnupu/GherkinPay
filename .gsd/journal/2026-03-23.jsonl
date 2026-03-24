@@ -85,3 +85,4 @@
 {"ts":"2026-03-23T12:17:51.337Z","flowId":"80933d20-d417-45ed-97c4-1d7709a06258","seq":4,"eventType":"unit-end","data":{"unitType":"complete-milestone","unitId":"M004","status":"completed","artifactVerified":true},"causedBy":{"flowId":"80933d20-d417-45ed-97c4-1d7709a06258","seq":3}}
 {"ts":"2026-03-23T12:17:52.941Z","flowId":"80933d20-d417-45ed-97c4-1d7709a06258","seq":5,"eventType":"iteration-end","data":{"iteration":15}}
 {"ts":"2026-03-23T12:17:52.941Z","flowId":"36a96b2c-3c12-4f08-a987-f515f97ac3a2","seq":1,"eventType":"iteration-start","data":{"iteration":16}}
+{"ts":"2026-03-23T19:00:13.130Z","flowId":"a987da3d-acf9-4bfa-8f64-57b3ef5233e3","seq":2,"eventType":"terminal","data":{"reason":"milestone-complete","milestoneId":"M005"}}

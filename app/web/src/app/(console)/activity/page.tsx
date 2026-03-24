@@ -99,9 +99,9 @@ export default function ActivityPage() {
     <>
       <header className="topbar">
         <div>
-          <h1 className="page-title">Activity</h1>
+          <h1 className="page-title">KYT Monitor</h1>
           <p className="page-subtitle">
-            Recent settlement and condition evaluation events
+            Know Your Transaction — real-time settlement and condition events
           </p>
         </div>
       </header>

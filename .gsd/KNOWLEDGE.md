@@ -68,3 +68,27 @@ The compliance audit log hook (`audit-log.ts`) re-imports the `ActivityEvent` in
 ## Compliance filter pills show all event types including zero-count
 
 Unlike the Activity page which only shows filter pills for event types present in data, the Audit Log page always renders all 7 COMPLIANCE_EVENTS pills with counts. This is deliberate — in an audit context, knowing which event types are absent is as important as seeing present ones.
+
+## Anchor TS types use camelCase, IDL uses snake_case
+
+Anchor's IDL generator preserves Rust snake_case field names in `target/idl/*.json` (e.g. `metadata_uri`), but the TypeScript type generator in `target/types/*.ts` converts them to camelCase (e.g. `metadataUri`). When verifying field presence in TS types, use `metadataUri` not `metadata_uri`. This applies to all Rust-style field names.
+
+## Oracle test pattern: mock Pyth feed with known price for deterministic assertion
+
+When testing crankOracle, use a deterministic setup: known mock feed price (e.g. 15B) + known comparison operator (e.g. lt) + known target (e.g. 20B). This avoids flaky tests from live price changes. The mock feed address `JBc8woEgPzyXwLEmZJpnSiNhneGBcectQrQpzm52fvCj` is hardcoded in localnet fixtures — if it changes, oracle tests break silently without assertion failures (the comparison just evaluates differently).
+
+## Token-gate test pattern: separate mint per test block
+
+Token-gate tests should create their own Token-2022 mint rather than reusing the payment escrow mint. This isolates the test from other token operations and ensures the holder balance is fully controlled. The pattern: create gate mint → create ATA → mintTo → create payment → add tokenGated condition → finalize → fund → crankTokenGate → evaluateAndRelease.
+
+## Worktree keypair drift: anchor build regenerates program keypairs
+
+Running `anchor build` in a git worktree generates a **new** `target/deploy/*-keypair.json` if one doesn't already exist, producing a different program address than the main repo. Before `anchor deploy`, always verify `solana-keygen pubkey target/deploy/gherkin_pay-keypair.json` matches the expected on-chain program ID. If it doesn't, copy the keypair from the main repo.
+
+## macOS has no GNU `timeout` — use perl alarm
+
+macOS ships without GNU coreutils `timeout`. In shell scripts and CI that need a timeout wrapper, use:
+```bash
+perl -e 'alarm 15; exec @ARGV' -- your-command --args
+```
+This sends SIGALRM after N seconds. Exit code 142 indicates the alarm fired (process was killed by timeout). This is POSIX-portable and requires no extra installs.

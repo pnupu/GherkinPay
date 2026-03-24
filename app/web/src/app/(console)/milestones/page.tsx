@@ -110,7 +110,7 @@ export default function MilestonesPage() {
       <header className="topbar">
         <div>
           <h1 className="page-title">Milestones</h1>
-          <p className="page-subtitle">Phase-by-phase release management</p>
+          <p className="page-subtitle">Phased stablecoin disbursement tied to verifiable conditions</p>
         </div>
       </header>
 

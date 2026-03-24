@@ -8,7 +8,7 @@ export default function AgreementsPage() {
         <div>
           <h1 className="page-title">Agreements</h1>
           <p className="page-subtitle">
-            Condition engine settlement workspace
+            Programmable stablecoin escrow — condition-gated settlement
           </p>
         </div>
         <div className="topbar-actions">

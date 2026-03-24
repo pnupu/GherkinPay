@@ -207,9 +207,9 @@ export default function AuditPage() {
     <>
       <header className="topbar">
         <div>
-          <h1 className="page-title">Audit Log</h1>
+          <h1 className="page-title">AML Audit Log</h1>
           <p className="page-subtitle">
-            Compliance-relevant on-chain events for the settlement program
+            Anti-money-laundering event trail — filterable compliance record
           </p>
         </div>
       </header>

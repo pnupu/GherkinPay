@@ -2,33 +2,44 @@ import Link from "next/link";
 
 const features = [
   {
-    title: "Condition Engine",
-    desc: "Composable AND/OR rule trees — time-locks, oracles, multisig, webhooks, token gates — evaluated on-chain before any funds move.",
+    title: "Programmable Escrow",
+    desc: "Composable AND/OR condition trees — time-locks, Pyth oracles, multisig, webhooks, token gates — evaluated on-chain before any funds move.",
     icon: "⧫",
   },
   {
-    title: "Token-2022 Compliance",
-    desc: "Transfer-hook allowlists and mint-authority checks enforced at the protocol level, every settlement.",
+    title: "KYC / AML Enforcement",
+    desc: "On-chain identity allowlist via Token-2022 transfer hooks. Only KYC-verified wallets can send or receive — enforced at the protocol level.",
     icon: "◈",
   },
   {
+    title: "Travel Rule Compliance",
+    desc: "Every payment carries a metadata URI linking to sender/receiver identity data, satisfying FATF Travel Rule requirements for institutional VASPs.",
+    icon: "⬡",
+  },
+  {
     title: "Milestone Releases",
-    desc: "Phased fund disbursement tied to verifiable deliverables, each gated by its own condition set.",
+    desc: "Phased stablecoin disbursement tied to verifiable deliverables, each gated by its own condition set — ideal for trade finance and project funding.",
     icon: "▣",
   },
   {
-    title: "Permissionless Cranks",
-    desc: "Anyone can trigger oracle, time-lock, and token-gate evaluations — no privileged operators required.",
+    title: "Multi-Stablecoin",
+    desc: "Native support for USDC, USDT, and USDG with custom token mint extensibility. Institutional-grade settlement across regulated stablecoins.",
+    icon: "◇",
+  },
+  {
+    title: "Permissionless Automation",
+    desc: "Anyone can trigger oracle, time-lock, and token-gate evaluations — no privileged operators. Autonomous crank bot included for hands-off settlement.",
     icon: "⟐",
   },
 ];
 
 const pages = [
   { href: "/agreements", label: "Agreements", note: "Create & manage escrows" },
-  { href: "/milestones", label: "Milestones", note: "Track phased releases" },
-  { href: "/compliance", label: "Compliance", note: "Token-2022 rule status" },
+  { href: "/milestones", label: "Milestones", note: "Phased disbursement" },
+  { href: "/compliance", label: "KYC / AML", note: "Identity allowlist" },
   { href: "/relayers", label: "Relayers", note: "Crank operator registry" },
-  { href: "/activity", label: "Activity", note: "On-chain event feed" },
+  { href: "/activity", label: "KYT Monitor", note: "Transaction monitoring" },
+  { href: "/audit", label: "Audit Log", note: "AML event trail" },
 ];
 
 export default function Home() {
@@ -51,22 +62,23 @@ export default function Home() {
 
       {/* Hero */}
       <section className="landing-hero">
-        <div className="landing-badge">Solana-native escrow protocol</div>
+        <div className="landing-badge">Institutional stablecoin infrastructure on Solana</div>
         <h1 className="landing-title">
           Programmable settlements,
           <br />
-          <span className="landing-title-accent">verified on-chain.</span>
+          <span className="landing-title-accent">compliance built in.</span>
         </h1>
         <p className="landing-subtitle">
-          Condition-gated escrow with composable rule engines, milestone-based
-          releases, and Token-2022 compliance — trustless settlement on Solana.
+          Condition-gated stablecoin escrow with KYC/AML enforcement, Travel Rule
+          compliance, milestone-based releases, and autonomous settlement — built
+          for institutional-grade payments on Solana.
         </p>
         <div className="landing-actions">
           <Link className="btn btn-primary btn-lg" href="/agreements">
             Open App
           </Link>
           <Link className="btn btn-outline btn-lg" href="/activity">
-            Activity Feed
+            KYT Monitor
           </Link>
         </div>
         <div className="landing-stats">
@@ -77,7 +89,12 @@ export default function Home() {
           <div className="landing-stat-divider" />
           <div className="landing-stat">
             <span className="landing-stat-value">T-22</span>
-            <span className="landing-stat-label">Token standard</span>
+            <span className="landing-stat-label">KYC enforcement</span>
+          </div>
+          <div className="landing-stat-divider" />
+          <div className="landing-stat">
+            <span className="landing-stat-value">3</span>
+            <span className="landing-stat-label">Stablecoins</span>
           </div>
           <div className="landing-stat-divider" />
           <div className="landing-stat">
@@ -119,7 +136,7 @@ export default function Home() {
       <footer className="landing-footer">
         <span className="landing-footer-brand">◆ GherkinPay</span>
         <span className="landing-footer-note">
-          Built on Solana · Anchor · Token-2022
+          Built on Solana · Anchor · Token-2022 · StableHacks 2026
         </span>
       </footer>
     </main>
