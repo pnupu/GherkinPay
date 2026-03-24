@@ -9,7 +9,10 @@ import { WalletContextProvider } from "~/components/wallet-provider";
 export const metadata: Metadata = {
   title: "GherkinPay",
   description: "Condition-driven escrow settlements on Solana",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  icons: [
+    { rel: "icon", url: "/favicon.ico", sizes: "48x48" },
+    { rel: "icon", url: "/icon.svg", type: "image/svg+xml" },
+  ],
 };
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
