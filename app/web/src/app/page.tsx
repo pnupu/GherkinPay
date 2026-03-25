@@ -31,6 +31,11 @@ const features = [
     desc: "Anyone can trigger oracle, time-lock, and token-gate evaluations — no privileged operators. Autonomous crank bot included for hands-off settlement.",
     icon: "⟐",
   },
+  {
+    title: "FX Oracle Settlement",
+    desc: "Cross-border forex settlement triggered by live Pyth EUR/USD, GBP/USD, and USD/JPY rate feeds — institutional-grade FX payments settled on Solana in seconds.",
+    icon: "⬢",
+  },
 ];
 
 const pages = [
@@ -83,8 +88,13 @@ export default function Home() {
         </div>
         <div className="landing-stats">
           <div className="landing-stat">
-            <span className="landing-stat-value">5</span>
+            <span className="landing-stat-value">6</span>
             <span className="landing-stat-label">Condition types</span>
+          </div>
+          <div className="landing-stat-divider" />
+          <div className="landing-stat">
+            <span className="landing-stat-value">3</span>
+            <span className="landing-stat-label">FX pairs</span>
           </div>
           <div className="landing-stat-divider" />
           <div className="landing-stat">

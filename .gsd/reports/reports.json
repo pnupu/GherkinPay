@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "projectName": "M006",
+  "projectPath": "/Users/ilkka/GherkinPay/.gsd/worktrees/M006",
+  "gsdVersion": "2.43.0",
+  "entries": [
+    {
+      "filename": "M006-2026-03-25T12-05-54.html",
+      "generatedAt": "2026-03-25T12:05:54.406Z",
+      "milestoneId": "M006",
+      "milestoneTitle": "FX Oracle Settlement",
+      "label": "M006: FX Oracle Settlement",
+      "kind": "milestone",
+      "totalCost": 14.368942,
+      "totalTokens": 18698371,
+      "totalDuration": 3460727,
+      "doneSlices": 17,
+      "totalSlices": 17,
+      "doneMilestones": 5,
+      "totalMilestones": 7,
+      "phase": "pre-planning"
+    }
+  ]
+}

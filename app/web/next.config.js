@@ -31,6 +31,15 @@ const config = {
       };
     }
     config.externals.push("pino-pretty", "lokijs", "encoding");
+
+    // Stub out jito-ts — pulled in transitively by @pythnetwork/solana-utils
+    // but unused. Its bundled @solana/web3.js requires rpc-websockets paths
+    // not exported by the installed version.
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "jito-ts": false,
+    };
+
     return config;
   },
 };

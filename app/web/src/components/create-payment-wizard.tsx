@@ -89,13 +89,19 @@ function toConditionInput(c: ConditionFormValue): ConditionInput {
         threshold: c.threshold,
       };
     case "oracle":
-      return {
-        type: "oracle",
-        feedAccount: new PublicKey(c.feedAccount),
-        operator: c.operator,
-        targetValue: new BN(c.targetValue),
-        decimals: c.decimals,
-      };
+      {
+        const isHex = /^[0-9a-fA-F]{64}$/.test(c.feedAccount);
+        const feedAccount = isHex
+          ? new PublicKey(Buffer.from(c.feedAccount, "hex"))
+          : new PublicKey(c.feedAccount);
+        return {
+          type: "oracle",
+          feedAccount,
+          operator: c.operator,
+          targetValue: new BN(c.targetValue),
+          decimals: c.decimals,
+        };
+      }
     case "webhook": {
       const bytes = c.eventHash.match(/.{2}/g)!.map((b) => parseInt(b, 16));
       return {

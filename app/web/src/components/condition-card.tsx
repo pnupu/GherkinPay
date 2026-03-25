@@ -9,9 +9,8 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { TransactionStatus } from "~/components/transaction-status";
 import { cn } from "~/lib/utils";
-import { useAnchorProgram } from "~/lib/anchor";
 import { useCrankTime } from "~/lib/mutations/crank-time";
-import { useCrankOracle, parsePythPrice, isPriceStale } from "~/lib/mutations/crank-oracle";
+import { usePostAndCrankOracle } from "~/lib/mutations/post-and-crank-oracle";
 import { useCrankTokenGate } from "~/lib/mutations/crank-token-gate";
 import { useSignMultisig } from "~/lib/mutations/sign-multisig";
 import { useConfirmWebhook } from "~/lib/mutations/confirm-webhook";
@@ -109,10 +108,13 @@ function OracleMeta({
       {stale === true && (
         <>
           <dt className="text-muted-foreground">Staleness</dt>
-          <dd>
+          <dd className="space-y-1">
             <Badge variant="destructive" className="text-xs">
               ⚠ Stale (&gt;60s)
             </Badge>
+            <p className="text-xs text-muted-foreground">
+              FX market may be closed — prices update during trading hours only.
+            </p>
           </dd>
         </>
       )}
@@ -160,13 +162,14 @@ function WebhookMeta({ data }: { data: WebhookData }) {
   );
 }
 
-/* ── oracle price hook ────────────────── */
+/* ── oracle price hook (Hermes pull-model) ── */
+
+const HERMES_URL = "https://hermes.pyth.network";
 
 function useOraclePrice(
   feedAccount: string | null,
   skip: boolean,
 ) {
-  const { connection } = useAnchorProgram();
   const [price, setPrice] = useState<string | null>(null);
   const [stale, setStale] = useState<boolean | null>(null);
 
@@ -176,23 +179,34 @@ function useOraclePrice(
 
     const fetchPrice = async () => {
       try {
-        const info = await connection.getAccountInfo(
-          new PublicKey(feedAccount),
-        );
-        if (cancelled || !info?.data) return;
-        const parsed = parsePythPrice(Buffer.from(info.data));
+        // Convert base58 feedAccount pubkey bytes → hex feed ID
+        const feedIdHex = Buffer.from(
+          new PublicKey(feedAccount).toBytes(),
+        ).toString("hex");
+
+        const { HermesClient } = await import("@pythnetwork/hermes-client");
+        const hermes = new HermesClient(HERMES_URL, {});
+        const result = await hermes.getLatestPriceUpdates([
+          "0x" + feedIdHex,
+        ]);
+
+        if (cancelled) return;
+        const parsed = result.parsed?.[0];
         if (!parsed) return;
 
         const scaledPrice =
-          Number(parsed.price) * Math.pow(10, parsed.exponent);
+          Number(parsed.price.price) * Math.pow(10, parsed.price.expo);
         setPrice(
           scaledPrice.toLocaleString(undefined, {
-            maximumFractionDigits: 4,
+            maximumFractionDigits: 6,
           }),
         );
-        setStale(isPriceStale(parsed.publishTime));
+
+        // Stale if publish_time is more than 60s ago
+        const age = Math.floor(Date.now() / 1000) - parsed.price.publish_time;
+        setStale(age > 60);
       } catch {
-        // Informational only
+        // Informational only — price display is best-effort
       }
     };
 
@@ -200,7 +214,7 @@ function useOraclePrice(
     return () => {
       cancelled = true;
     };
-  }, [feedAccount, skip, connection]);
+  }, [feedAccount, skip]);
 
   return { price, stale };
 }
@@ -413,7 +427,7 @@ function CrankAction({
   conditionAccountPubkey: string;
 }) {
   const crankTime = useCrankTime();
-  const crankOracle = useCrankOracle();
+  const postAndCrankOracle = usePostAndCrankOracle();
   const crankTokenGate = useCrankTokenGate();
 
   const paymentKey = useMemo(
@@ -430,7 +444,7 @@ function CrankAction({
     condition.type === "timeBased"
       ? crankTime
       : condition.type === "oracle"
-        ? crankOracle
+        ? postAndCrankOracle
         : condition.type === "tokenGated"
           ? crankTokenGate
           : undefined;
@@ -496,14 +510,14 @@ function CrankAction({
             <Button
               size="sm"
               onClick={() =>
-                crankOracle.mutate({
+                postAndCrankOracle.mutate({
                   paymentPubkey: paymentKey,
                   conditionAccountPubkey: conditionKey,
                   conditionIndex: index,
-                  priceFeedPubkey: new PublicKey(data.feedAccount),
+                  feedAccount: new PublicKey(data.feedAccount),
                 })
               }
-              disabled={crankOracle.isPending}
+              disabled={postAndCrankOracle.isPending}
             >
               Crank Oracle
             </Button>

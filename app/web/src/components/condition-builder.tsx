@@ -95,7 +95,22 @@ const comparisonOperators = ["gt", "gte", "lt", "lte", "eq"] as const;
 
 const oracleSchema = z.object({
   type: z.literal("oracle"),
-  feedAccount: publicKeyString,
+  feedAccount: z
+    .string()
+    .min(1, "Required")
+    .refine(
+      (val) => {
+        // Accept 64-char hex (Pyth feed ID) or valid base58 Solana address
+        if (/^[0-9a-fA-F]{64}$/.test(val)) return true;
+        try {
+          new PublicKey(val);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      { message: "Invalid feed ID (base58 address or 64-char hex)" }
+    ),
   operator: z.enum(comparisonOperators, {
     errorMap: () => ({ message: "Select an operator" }),
   }),
@@ -224,31 +239,59 @@ const COMPARISON_OPTIONS: { value: string; label: string }[] = [
 // Oracle feed presets (Pyth mainnet price feed IDs as hex)
 // ---------------------------------------------------------------------------
 
-const ORACLE_PRESETS = [
+type OraclePresetCategory = "crypto" | "fx";
+
+interface OraclePreset {
+  label: string;
+  feedId: string;
+  decimals: number;
+  category: OraclePresetCategory;
+}
+
+const ORACLE_PRESETS: readonly OraclePreset[] = [
+  // Crypto
   {
     label: "SOL / USD",
-    feedId: "0xef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
+    feedId: "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d",
     decimals: 8,
+    category: "crypto",
   },
   {
     label: "BTC / USD",
-    feedId: "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
+    feedId: "e62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
     decimals: 8,
+    category: "crypto",
   },
   {
     label: "ETH / USD",
-    feedId: "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
+    feedId: "ff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
     decimals: 8,
+    category: "crypto",
   },
   {
     label: "USDC / USD",
-    feedId: "0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
+    feedId: "eaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a",
     decimals: 8,
+    category: "crypto",
+  },
+  // FX
+  {
+    label: "EUR / USD",
+    feedId: "a995d00bb36a63cef7fd2c287dc105fc8f3d93779f062f09551b0af3e81ec30b",
+    decimals: 5,
+    category: "fx",
   },
   {
-    label: "Custom…",
-    feedId: "",
-    decimals: 0,
+    label: "GBP / USD",
+    feedId: "84c2dde9633d93d1bcad84e7dc41c9d56578b7ec52fabedc1f335d673df0a7c1",
+    decimals: 5,
+    category: "fx",
+  },
+  {
+    label: "USD / JPY",
+    feedId: "ef2c98c804ba503c6a707e38be4dfbb16683775f195b091252bf24693042fd52",
+    decimals: 3,
+    category: "fx",
   },
 ] as const;
 
@@ -389,6 +432,7 @@ export function ConditionBuilder({
             onTypeChange={handleConditionTypeChange}
             onRemove={() => remove(index)}
             canRemove={fields.length > 1}
+            setValue={(name, value, options) => setValue(name as never, value as never, options)}
           />
         ))}
       </div>
@@ -432,6 +476,7 @@ interface ConditionRowProps {
   onTypeChange: (index: number, type: ConditionType) => void;
   onRemove: () => void;
   canRemove: boolean;
+  setValue: (name: string, value: unknown, options?: { shouldValidate?: boolean }) => void;
 }
 
 function ConditionRow({
@@ -441,6 +486,7 @@ function ConditionRow({
   onTypeChange,
   onRemove,
   canRemove,
+  setValue,
 }: ConditionRowProps) {
   const conditionType = useWatch({
     control,
@@ -517,6 +563,7 @@ function ConditionRow({
           index={index}
           control={control}
           errors={conditionErrors as never}
+          setValue={setValue}
         />
       )}
       {conditionType === "webhook" && (
@@ -545,6 +592,7 @@ interface FieldProps {
   index: number;
   control: Control<ConditionBuilderValue>;
   errors: Record<string, { message?: string } | undefined> | undefined;
+  setValue?: (name: string, value: unknown, options?: { shouldValidate?: boolean }) => void;
 }
 
 function FieldError({ message }: { message?: string }) {
@@ -702,11 +750,28 @@ function MultisigFields({ index, control, errors }: FieldProps) {
 
 // -- Oracle --
 
-function OracleFields({ index, control, errors }: FieldProps) {
+function OracleFields({ index, control, errors, setValue }: FieldProps) {
   const currentFeed = useWatch({
     control,
     name: `conditions.${index}.feedAccount` as never,
   }) as string | undefined;
+
+  // Group presets by category for rendering
+  const cryptoPresets = ORACLE_PRESETS.filter((p) => p.category === "crypto");
+  const fxPresets = ORACLE_PRESETS.filter((p) => p.category === "fx");
+
+  const handlePresetClick = useCallback(
+    (preset: OraclePreset, fieldOnChange: (val: string) => void) => {
+      fieldOnChange(preset.feedId);
+      // Auto-fill decimals from preset
+      setValue?.(
+        `conditions.${index}.decimals`,
+        preset.decimals,
+        { shouldValidate: true }
+      );
+    },
+    [index, setValue]
+  );
 
   return (
     <div className="space-y-3">
@@ -715,30 +780,65 @@ function OracleFields({ index, control, errors }: FieldProps) {
         <Label className="text-xs text-muted-foreground">
           Price Feed Preset
         </Label>
-        <div className="flex flex-wrap gap-1.5">
-          {ORACLE_PRESETS.filter((p) => p.feedId).map((preset) => {
-            const isActive = currentFeed === preset.feedId;
-            return (
-              <Controller
-                key={preset.label}
-                control={control}
-                name={`conditions.${index}.feedAccount` as never}
-                render={({ field }) => (
-                  <Button
-                    type="button"
-                    variant={isActive ? "default" : "outline"}
-                    size="xs"
-                    className="text-xs"
-                    onClick={() => {
-                      field.onChange(preset.feedId);
-                    }}
-                  >
-                    {preset.label}
-                  </Button>
-                )}
-              />
-            );
-          })}
+        <div className="space-y-2">
+          {/* Crypto presets */}
+          <div>
+            <Label className="text-xs text-muted-foreground mb-1 block">
+              Crypto
+            </Label>
+            <div className="flex flex-wrap gap-1.5">
+              {cryptoPresets.map((preset) => {
+                const isActive = currentFeed === preset.feedId;
+                return (
+                  <Controller
+                    key={preset.label}
+                    control={control}
+                    name={`conditions.${index}.feedAccount` as never}
+                    render={({ field }) => (
+                      <Button
+                        type="button"
+                        variant={isActive ? "default" : "outline"}
+                        size="xs"
+                        className="text-xs"
+                        onClick={() => handlePresetClick(preset, field.onChange)}
+                      >
+                        {preset.label}
+                      </Button>
+                    )}
+                  />
+                );
+              })}
+            </div>
+          </div>
+          {/* FX presets */}
+          <div>
+            <Label className="text-xs text-muted-foreground mb-1 block">
+              FX
+            </Label>
+            <div className="flex flex-wrap gap-1.5">
+              {fxPresets.map((preset) => {
+                const isActive = currentFeed === preset.feedId;
+                return (
+                  <Controller
+                    key={preset.label}
+                    control={control}
+                    name={`conditions.${index}.feedAccount` as never}
+                    render={({ field }) => (
+                      <Button
+                        type="button"
+                        variant={isActive ? "default" : "outline"}
+                        size="xs"
+                        className="text-xs"
+                        onClick={() => handlePresetClick(preset, field.onChange)}
+                      >
+                        {preset.label}
+                      </Button>
+                    )}
+                  />
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -755,7 +855,7 @@ function OracleFields({ index, control, errors }: FieldProps) {
           render={({ field }) => (
             <Input
               id={`condition-${index}-feedAccount`}
-              placeholder="Oracle feed account address (base58)"
+              placeholder="Pyth feed ID (64-char hex) or Solana address (base58)"
               className="font-mono text-xs"
               value={(field.value as string) ?? ""}
               onChange={field.onChange}

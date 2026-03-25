@@ -1,0 +1,1938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GSD Report — M006 — M006</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg-0:#0f1115;--bg-1:#16181d;--bg-2:#1e2028;--bg-3:#272a33;
+  --border-1:#2b2e38;--border-2:#3b3f4c;
+  --text-0:#ededef;--text-1:#a1a1aa;--text-2:#71717a;
+  --accent:#5e6ad2;--accent-subtle:rgba(94,106,210,.12);
+  --ok:#22c55e;--ok-subtle:rgba(34,197,94,.12);--warn:#ef4444;--caution:#eab308;
+  /* Chart palette — 6 hues for bar charts */
+  --c0:#5e6ad2;--c1:#e5796d;--c2:#14b8a6;--c3:#a78bfa;--c4:#f59e0b;--c5:#10b981;
+  /* Token breakdown — 4 distinct hues */
+  --tk-input:#5e6ad2;--tk-output:#e5796d;--tk-cache-r:#2dd4bf;--tk-cache-w:#64748b;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono','Fira Code',ui-monospace,SFMono-Regular,monospace;
+}
+html{scroll-behavior:smooth;font-size:13px}
+body{background:var(--bg-0);color:var(--text-0);font-family:var(--font);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:var(--mono);font-size:12px;background:var(--bg-3);padding:1px 5px;border-radius:3px}
+.mono{font-family:var(--mono);font-size:12px}
+.muted{color:var(--text-2)}
+.accent{color:var(--accent)}
+.sep{color:var(--border-2);margin:0 4px}
+.empty{color:var(--text-2);padding:8px 0;font-size:13px}
+.indent{padding-left:12px}
+.num{font-variant-numeric:tabular-nums;text-align:right}
+
+/* Status dots — geometric, no emoji */
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex-shrink:0;vertical-align:middle}
+.dot-sm{width:6px;height:6px}
+.dot-complete{background:var(--ok);opacity:.6}
+.dot-active{background:var(--accent)}
+.dot-pending{background:transparent;border:1.5px solid var(--border-2)}
+.dot-parked{background:var(--warn);opacity:.5}
+
+/* Header */
+header{background:var(--bg-1);border-bottom:1px solid var(--border-1);padding:12px 32px;position:sticky;top:0;z-index:200}
+.header-inner{display:flex;align-items:center;gap:16px;max-width:1280px;margin:0 auto}
+.branding{display:flex;align-items:baseline;gap:6px;flex-shrink:0}
+.logo{font-size:18px;font-weight:800;letter-spacing:-.5px;color:var(--text-0)}
+.version{font-size:10px;color:var(--text-2);font-family:var(--mono)}
+.header-meta{flex:1;min-width:0}
+.header-meta h1{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header-path{font-size:11px;color:var(--text-2);font-family:var(--mono);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.header-right{text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.generated{font-size:11px;color:var(--text-2)}
+.back-link{font-size:12px;color:var(--text-1)}
+.back-link:hover{color:var(--accent)}
+
+/* TOC nav */
+.toc{background:var(--bg-1);border-bottom:1px solid var(--border-1);overflow-x:auto}
+.toc ul{display:flex;list-style:none;max-width:1280px;margin:0 auto;padding:0 32px}
+.toc a{display:inline-block;padding:8px 12px;color:var(--text-2);font-size:12px;font-weight:500;border-bottom:2px solid transparent;transition:color .12s,border-color .12s;white-space:nowrap;text-decoration:none}
+.toc a:hover{color:var(--text-0);border-bottom-color:var(--border-2)}
+.toc a.active{color:var(--text-0);border-bottom-color:var(--accent)}
+
+/* Layout */
+main{max-width:1280px;margin:0 auto;padding:32px;display:flex;flex-direction:column;gap:48px}
+section{scroll-margin-top:82px}
+section>h2{font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-1);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-1);display:flex;align-items:center;gap:8px}
+h3{font-size:13px;font-weight:600;color:var(--text-1);margin:20px 0 8px}
+.count{font-size:11px;font-weight:500;color:var(--text-2);background:var(--bg-3);border-radius:3px;padding:1px 6px}
+.count-warn{color:var(--caution)}
+
+/* KV grid (stats/metrics) */
+.kv-grid{display:flex;flex-wrap:wrap;gap:1px;background:var(--border-1);border:1px solid var(--border-1);border-radius:4px;overflow:hidden;margin-bottom:16px}
+.kv{background:var(--bg-1);padding:10px 16px;display:flex;flex-direction:column;gap:2px;min-width:110px;flex:1}
+.kv-val{font-size:18px;font-weight:600;color:var(--text-0);font-variant-numeric:tabular-nums}
+.kv-lbl{font-size:10px;color:var(--text-2);text-transform:uppercase;letter-spacing:.4px}
+
+/* Progress bar */
+.progress-wrap{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.progress-track{flex:1;height:4px;background:var(--bg-3);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:2px}
+.progress-label{font-size:12px;font-weight:600;color:var(--text-1);min-width:40px;text-align:right}
+.active-info{font-size:12px;color:var(--text-1);margin-bottom:4px}
+.activity-line{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-1);padding:6px 0}
+
+/* Tables */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{color:var(--text-2);font-weight:500;padding:6px 12px;text-align:left;border-bottom:1px solid var(--border-1);font-size:11px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+.tbl td{padding:6px 12px;border-bottom:1px solid var(--border-1);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:var(--accent-subtle)}
+.tbl-kv td:first-child{color:var(--text-2);width:180px}
+.table-scroll{overflow-x:auto;border:1px solid var(--border-1);border-radius:4px}
+.table-scroll .tbl{border:none}
+
+/* Health */
+.h-ok td:first-child{color:var(--text-1)}
+.h-caution td{color:var(--caution)}
+.h-warn td{color:var(--warn)}
+
+/* Labels */
+.label{font-size:10px;font-weight:500;color:var(--accent);text-transform:uppercase;letter-spacing:.4px}
+.risk{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;flex-shrink:0}
+.risk-low{color:var(--text-2)}
+.risk-medium{color:var(--caution)}
+.risk-high{color:var(--warn)}
+.risk-unknown{color:var(--text-2)}
+
+/* Tags */
+.tag-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.tag{font-size:11px;font-family:var(--mono);color:var(--text-2);background:var(--bg-3);border-radius:3px;padding:1px 6px}
+
+/* Verification */
+.verif{font-size:12px;color:var(--text-1);padding:4px 0;margin-bottom:6px}
+.verif-blocker{color:var(--warn)}
+
+/* Detail blocks */
+.detail-block{font-size:12px;color:var(--text-2);margin-bottom:6px}
+.detail-label{font-weight:600;color:var(--text-1);display:block;margin-bottom:2px}
+.detail-block ul{padding-left:16px;margin-top:2px}
+.detail-block li{margin-bottom:1px}
+
+/* Progress tree */
+.ms-block{border:1px solid var(--border-1);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.ms-summary{display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;list-style:none;background:var(--bg-1);user-select:none;font-size:13px}
+.ms-summary:hover{background:var(--bg-2)}
+.ms-summary::-webkit-details-marker{display:none}
+.ms-id{font-weight:600}
+.ms-title{flex:1;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ms-body{padding:6px 12px 8px 24px;display:flex;flex-direction:column;gap:4px}
+
+.sl-block{border:1px solid var(--border-1);border-radius:3px;overflow:hidden}
+.sl-summary{display:flex;align-items:center;gap:6px;padding:6px 10px;cursor:pointer;list-style:none;background:var(--bg-2);font-size:12px;user-select:none}
+.sl-summary:hover{background:var(--bg-3)}
+.sl-summary::-webkit-details-marker{display:none}
+.sl-crit{border-left:2px solid var(--accent)}
+.sl-deps::before{content:'\2190 ';color:var(--border-2)}
+.sl-detail{padding:8px 12px;background:var(--bg-0);border-top:1px solid var(--border-1)}
+
+.task-list{list-style:none;padding:4px 0 0;display:flex;flex-direction:column;gap:2px}
+.task-row{display:flex;align-items:center;gap:6px;font-size:12px;padding:3px 6px;border-radius:2px}
+
+/* Dep graph */
+.dep-block{margin-bottom:28px}
+.dep-legend{display:flex;gap:14px;font-size:12px;color:var(--text-2);margin-bottom:8px;align-items:center}
+.dep-legend span{display:flex;align-items:center;gap:4px}
+.dep-wrap{overflow-x:auto;background:var(--bg-1);border:1px solid var(--border-1);border-radius:4px;padding:16px}
+.dep-svg{display:block}
+.edge{fill:none;stroke:var(--border-2);stroke-width:1.5}
+.edge-crit{stroke:var(--accent);stroke-width:2}
+.node rect{fill:var(--bg-2);stroke:var(--border-2);stroke-width:1}
+.n-done rect{fill:var(--ok-subtle);stroke:rgba(34,197,94,.4)}
+.n-active rect{fill:var(--accent-subtle);stroke:var(--accent)}
+.n-crit rect{stroke:var(--accent)!important;stroke-width:1.5!important}
+.n-id{font-family:var(--mono);font-size:10px;fill:var(--text-1);font-weight:600;text-anchor:middle}
+.n-title{font-size:9px;fill:var(--text-2);text-anchor:middle}
+.n-active .n-id{fill:var(--accent)}
+
+/* Metrics */
+.token-block{background:var(--bg-1);border:1px solid var(--border-1);border-radius:4px;padding:14px;margin-bottom:16px}
+.token-bar{display:flex;height:16px;border-radius:2px;overflow:hidden;gap:1px;margin-bottom:8px}
+.tseg{height:100%;min-width:2px}
+.seg-1{background:var(--tk-input)}
+.seg-2{background:var(--tk-output)}
+.seg-3{background:var(--tk-cache-r)}
+.seg-4{background:var(--tk-cache-w)}
+.token-legend{display:flex;flex-wrap:wrap;gap:12px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-2)}
+.leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.chart-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:16px}
+.chart-block{background:var(--bg-1);border:1px solid var(--border-1);border-radius:4px;padding:14px}
+.bar-row{display:grid;grid-template-columns:120px 1fr 68px;align-items:center;gap:6px;margin-bottom:2px}
+.bar-lbl{font-size:12px;color:var(--text-2);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{height:14px;background:var(--bg-3);border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px;background:var(--c0)}
+.bar-c0{background:var(--c0)}.bar-c1{background:var(--c1)}.bar-c2{background:var(--c2)}
+.bar-c3{background:var(--c3)}.bar-c4{background:var(--c4)}.bar-c5{background:var(--c5)}
+.bar-val{font-size:11px;font-variant-numeric:tabular-nums;color:var(--text-1)}
+.bar-sub{font-size:10px;color:var(--text-2);padding-left:128px;margin-bottom:6px}
+
+/* Changelog */
+.cl-entry{border-bottom:1px solid var(--border-1);padding:12px 0}
+.cl-entry:last-child{border-bottom:none}
+.cl-header{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.cl-title{flex:1;font-weight:500}
+.cl-date{margin-left:auto;white-space:nowrap}
+.cl-liner{font-size:13px;color:var(--text-1);margin-bottom:6px}
+.files-detail summary{font-size:12px;cursor:pointer}
+.file-list{list-style:none;padding-left:10px;margin-top:4px;display:flex;flex-direction:column;gap:2px}
+.file-list li{font-size:12px;color:var(--text-1)}
+
+/* Footer */
+footer{border-top:1px solid var(--border-1);padding:20px 32px;margin-top:40px}
+.footer-inner{display:flex;align-items:center;gap:6px;justify-content:center;font-size:11px;color:var(--text-2)}
+
+/* Executive summary & ETA */
+.exec-summary{font-size:13px;color:var(--text-1);margin-bottom:12px;line-height:1.7}
+.eta-line{font-size:12px;color:var(--accent);margin-top:4px}
+
+/* Cost over time chart */
+.cost-svg{display:block;margin:8px 0;background:var(--bg-1);border:1px solid var(--border-1);border-radius:4px}
+.cost-line{fill:none;stroke:var(--accent);stroke-width:2}
+.cost-area{fill:var(--accent-subtle);stroke:none}
+.cost-axis{fill:var(--text-2);font-family:var(--mono);font-size:10px}
+.cost-grid{stroke:var(--border-1);stroke-width:1;stroke-dasharray:4,4}
+
+/* Budget burndown */
+.burndown-wrap{background:var(--bg-1);border:1px solid var(--border-1);border-radius:4px;padding:14px;margin-bottom:16px}
+.burndown-bar{display:flex;height:20px;border-radius:3px;overflow:hidden;gap:1px;margin-bottom:8px}
+.burndown-spent{background:var(--accent);height:100%}
+.burndown-projected{background:var(--caution);height:100%;opacity:.6}
+.burndown-overshoot{background:var(--warn);height:100%;opacity:.7}
+.burndown-legend{display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--text-2)}
+.burndown-legend span{display:flex;align-items:center;gap:4px}
+.burndown-dot{display:inline-block;width:8px;height:8px;border-radius:2px}
+
+/* Blockers */
+.blocker-card{border-left:3px solid var(--warn);background:var(--bg-1);border-radius:0 4px 4px 0;padding:10px 14px;margin-bottom:8px}
+.blocker-id{font-family:var(--mono);font-size:12px;color:var(--warn);margin-bottom:2px}
+.blocker-text{font-size:12px;color:var(--text-1)}
+.blocker-risk{font-size:11px;color:var(--caution);margin-top:2px}
+
+/* Gantt */
+.gantt-wrap{overflow-x:auto;background:var(--bg-1);border:1px solid var(--border-1);border-radius:4px;padding:16px;margin-top:16px}
+.gantt-svg{display:block}
+.gantt-bar-done{fill:var(--ok);opacity:.7}
+.gantt-bar-active{fill:var(--accent)}
+.gantt-bar-pending{fill:var(--border-2)}
+.gantt-label{fill:var(--text-2);font-family:var(--mono);font-size:10px}
+.gantt-axis{fill:var(--text-2);font-family:var(--mono);font-size:9px}
+
+/* Interactive */
+.tl-filter{display:block;width:100%;padding:6px 10px;margin-bottom:8px;background:var(--bg-2);border:1px solid var(--border-1);border-radius:4px;color:var(--text-0);font-size:12px;font-family:var(--font);outline:none}
+.tl-filter:focus{border-color:var(--accent)}
+.tl-filter::placeholder{color:var(--text-2)}
+.sec-toggle{background:none;border:1px solid var(--border-2);color:var(--text-2);width:20px;height:20px;border-radius:3px;cursor:pointer;font-size:14px;line-height:1;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.sec-toggle:hover{border-color:var(--text-1);color:var(--text-1)}
+.theme-toggle{background:var(--bg-3);border:1px solid var(--border-2);color:var(--text-1);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-family:var(--font)}
+.theme-toggle:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Light theme */
+.light-theme{--bg-0:#fff;--bg-1:#fafafa;--bg-2:#f5f5f5;--bg-3:#ebebeb;--border-1:#e5e5e5;--border-2:#d4d4d4;--text-0:#1a1a1a;--text-1:#525252;--text-2:#a3a3a3;--accent:#4f46e5;--accent-subtle:rgba(79,70,229,.08);--ok:#16a34a;--ok-subtle:rgba(22,163,74,.08);--warn:#dc2626;--caution:#ca8a04;--c0:#4f46e5;--c1:#dc2626;--c2:#0d9488;--c3:#7c3aed;--c4:#d97706;--c5:#059669;--tk-input:#4f46e5;--tk-output:#dc2626;--tk-cache-r:#0d9488;--tk-cache-w:#64748b}
+
+/* Responsive */
+@media(max-width:768px){
+  header{padding:10px 16px}
+  .header-inner{flex-wrap:wrap;gap:8px}
+  .header-meta h1{font-size:13px}
+  main{padding:16px}
+  .kv-grid{gap:1px}
+  .kv{min-width:80px;padding:8px 10px}
+  .kv-val{font-size:14px}
+  .chart-row{grid-template-columns:1fr}
+  .toc ul{padding:0 16px}
+  .toc a{padding:6px 8px;font-size:11px}
+  .bar-row{grid-template-columns:80px 1fr 56px}
+  .ms-body{padding-left:12px}
+}
+@media(max-width:480px){
+  .kv{min-width:60px;padding:6px 8px}
+  .kv-val{font-size:12px}
+  .kv-lbl{font-size:9px}
+  .bar-row{grid-template-columns:60px 1fr 48px}
+  .bar-lbl{font-size:10px}
+  .toc ul{flex-wrap:wrap}
+  .header-right{display:none}
+  .gantt-wrap{overflow-x:auto}
+}
+
+/* Print */
+@media print{
+  header,nav.toc{position:static}
+  body{background:#fff;color:#1a1a1a}
+  :root{--bg-0:#fff;--bg-1:#fafafa;--bg-2:#f5f5f5;--bg-3:#ebebeb;--border-1:#e5e5e5;--border-2:#d4d4d4;--text-0:#1a1a1a;--text-1:#525252;--text-2:#a3a3a3;--accent:#4f46e5;--ok:#16a34a;--ok-subtle:rgba(22,163,74,.08);--c0:#4f46e5;--c1:#dc2626;--c2:#0d9488;--c3:#7c3aed;--c4:#d97706;--c5:#059669;--tk-input:#4f46e5;--tk-output:#dc2626;--tk-cache-r:#0d9488;--tk-cache-w:#64748b}
+  section{page-break-inside:avoid}
+  .table-scroll{overflow:visible}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="branding">
+      <span class="logo">GSD</span>
+      <span class="version">v2.43.0</span>
+    </div>
+    <div class="header-meta">
+      <h1>M006 <span class="sep">/</span> <span class="mono accent">M006</span></h1>
+      <span class="header-path">/Users/ilkka/GherkinPay/.gsd/worktrees/M006</span>
+    </div>
+    <div class="header-right">
+      <a class="back-link" href="index.html">All Reports</a>
+      <div class="generated">Wed, Mar 25, 2026, 02:05 PM GMT+2</div>
+    </div>
+  </div>
+</header>
+<nav class="toc" aria-label="Report sections">
+  <ul>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#blockers">Blockers</a></li>
+    <li><a href="#progress">Progress</a></li>
+    <li><a href="#timeline">Timeline</a></li>
+    <li><a href="#depgraph">Dependencies</a></li>
+    <li><a href="#metrics">Metrics</a></li>
+    <li><a href="#health">Health</a></li>
+    <li><a href="#changelog">Changelog</a></li>
+    <li><a href="#knowledge">Knowledge</a></li>
+    <li><a href="#captures">Captures</a></li>
+    <li><a href="#stats">Artifacts</a></li>
+    <li><a href="#discussion">Planning</a></li>
+  </ul>
+</nav>
+<main>
+
+<section id="summary">
+  <h2>Summary</h2>
+  
+    <p class="exec-summary">M006 is 100% complete across 7 milestones. $14.37 spent.</p>
+    <div class="kv-grid"><div class="kv"><span class="kv-val">5/7</span><span class="kv-lbl">Milestones</span></div><div class="kv"><span class="kv-val">17/17</span><span class="kv-lbl">Slices</span></div><div class="kv"><span class="kv-val">pre-planning</span><span class="kv-lbl">Phase</span></div><div class="kv"><span class="kv-val">$14.37</span><span class="kv-lbl">Cost</span></div><div class="kv"><span class="kv-val">18.70M</span><span class="kv-lbl">Tokens</span></div><div class="kv"><span class="kv-val">57m 40s</span><span class="kv-lbl">Duration</span></div><div class="kv"><span class="kv-val">325</span><span class="kv-lbl">Tool calls</span></div><div class="kv"><span class="kv-val">13</span><span class="kv-lbl">Units</span></div><div class="kv"><span class="kv-val">11.3/hr</span><span class="kv-lbl">Rate</span></div><div class="kv"><span class="kv-val">$0.845</span><span class="kv-lbl">Cost/slice</span></div><div class="kv"><span class="kv-val">57.5k</span><span class="kv-lbl">Tokens/tool</span></div><div class="kv"><span class="kv-val">100.0%</span><span class="kv-lbl">Cache hit</span></div><div class="kv"><span class="kv-val">M006</span><span class="kv-lbl">Scope</span></div></div>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" style="width:100%"></div></div>
+      <span class="progress-label">100%</span>
+    </div>
+    
+    
+    
+  
+</section>
+
+<section id="blockers">
+  <h2>Blockers</h2>
+  <p class="empty">No blockers or high-risk items found.</p>
+</section>
+
+<section id="progress">
+  <h2>Progress</h2>
+  
+      <details class="ms-block" open>
+        <summary class="ms-summary ms-complete">
+          <span class="dot dot-complete"></span>
+          <span class="mono ms-id">M001</span>
+          <span class="ms-title">Foundation</span>
+          <span class="muted">6/6</span>
+          
+          
+        </summary>
+        <div class="ms-body">
+    <details class="sl-block">
+      <summary class="sl-summary ">
+        <span class="dot dot-complete dot-sm"></span>
+        <span class="mono muted">S01</span>
+        <span class="muted">shadcn Setup and Design System</span>
+        <span class="risk risk-medium">medium</span>
+        
+        
+        
+      </summary>
+      <div class="sl-detail">
+        <div class="tag-row"><span class="tag">provides: shadcn/ui component library (Button, Table, Badge, Dialog) in src/components/ui/</span><span class="tag">provides: cn() utility in src/lib/utils.ts</span><span class="tag">provides: components.json with ~/ alias configuration</span><span class="tag">provides: Merged CSS namespace — GherkinPay tokens coexist with shadcn tokens in globals.css</span><span class="tag">provides: GherkinPay dark green oklch palette mapped into shadcn CSS variables</span></div>
+        <div class="verif ">
+        passed
+       </div>
+        <div class="detail-block"><span class="detail-label">Decisions</span><ul><li>Manual components.json creation instead of interactive shadcn init to avoid globals.css overwrite</li><li>Renamed --border to --gp-border and --sidebar to --gp-sidebar to avoid shadcn namespace collision</li><li>shadcn canary path for Tailwind v4 CSS-based config compatibility</li></ul></div>
+        <div class="detail-block"><span class="detail-label">Patterns</span><ul><li>All shadcn aliases use ~/ prefix (matching tsconfig paths), never @/</li><li>GherkinPay custom properties prefixed gp- when they collide with shadcn tokens</li><li>shadcn components live in src/components/ui/ with ~/lib/utils imports</li><li>Typecheck must run after build (tsconfig includes .next/types/**)</li></ul></div>
+        
+      </div>
+    </details>
+    <details class="sl-block">
+      <summary class="sl-summary ">
+        <span class="dot dot-complete dot-sm"></span>
+        <span class="mono muted">S02</span>
+        <span class="muted">Wallet Connect and Anchor Client</span>
+        <span class="risk risk-high">high</span>
+        <span class="muted sl-deps">S01</span>
+        
+        
+      </summary>
+      <div class="sl-detail">
+        <div class="tag-row"><span class="tag">provides: WalletContextProvider client component wrapping the entire app for wallet connectivity</span><span class="tag">provides: useAnchorProgram() hook returning typed Program&lt;GherkinPay&gt; and Program&lt;GherkinPayHook&gt; (or null when disconnected)</span><span class="tag">provides: WalletMultiButton rendered in console sidebar replacing placeholder</span><span class="tag">provides: IDL JSON and TypeScript types for both on-chain programs in app/web/src/</span><span class="tag">provides: Program ID constants and RPC endpoint env var with T3 schema validation</span><span class="tag">provides: Webpack externals for Solana transitive Node.js deps</span><span class="tag">requires: shadcn Button component, globals.css with merged theme, (console)/layout.tsx with placeholder Button</span></div>
+        <div class="verif ">
+        passed
+       </div>
+        <div class="detail-block"><span class="detail-label">Decisions</span><ul><li>Anchor v0.30+ reads program address from IDL JSON — no need to pass PROGRAM_ID to Program constructor</li><li>Wallet Standard auto-detection with wallets=[] — no explicit Phantom/Solflare adapter imports needed</li><li>Added .next to .prettierignore to prevent root lint glob from matching build artifacts</li></ul></div>
+        <div class="detail-block"><span class="detail-label">Patterns</span><ul><li>IDL files live in app/web/src/idl/, TypeScript types in app/web/src/types/</li><li>Constants use ~/env import for T3 env schema integration</li><li>Wallet providers wrap entire app in root layout.tsx as outermost client boundary</li><li>useAnchorProgram() returns null programs when wallet disconnected — consumers must null-check</li></ul></div>
+        
+      </div>
+    </details>
+    <details class="sl-block">
+      <summary class="sl-summary ">
+        <span class="dot dot-complete dot-sm"></span>
+        <span class="mono muted">S03</span>
+        <span class="muted">Agreements — Live Reads</span>
+        <span class="risk risk-medium">medium</span>
+        <span class="muted sl-deps">S02</span>
+        
+        
+      </summary>
+      <div class="sl-detail">
+        <div class="tag-row"><span class="tag">provides: PDA derivation helpers (getPaymentPDA, getEscrowPDA, getConditionPDA) shared across slices</span><span class="tag">provides: useAgreements() React Query hook for live paymentAgreement account fetching</span><span class="tag">provides: Agreements page fully rewritten with live on-chain data and four UI states</span><span class="tag">provides: shadcn Skeleton component added to component library</span><span class="tag">requires: useAnchorProgram() hook, useWallet(), PROGRAM_ID constant, wallet connect infrastructure</span><span class="tag">requires: shadcn Table, Badge components, cn() utility</span></div>
+        <div class="verif ">
+        passed
+       </div>
+        <div class="detail-block"><span class="detail-label">Decisions</span><ul><li>Cast Program&lt;Idl&gt; to Program&lt;GherkinPay&gt; at query hook level because Anchor 0.32 constructor infers Idl generic regardless of IDL object type</li><li>Used &quot;use client&quot; directly on page rather than server shell + client sub-component — page has no server data needs after tRPC removal</li><li>Import BN from @coral-xyz/anchor to avoid separate @types/bn.js dependency</li></ul></div>
+        <div class="detail-block"><span class="detail-label">Patterns</span><ul><li>Query hooks live in lib/queries/ with one file per domain (agreements.ts, milestones.ts, etc.)</li><li>PDA derivation centralized in lib/pda.ts, shared across slices</li><li>Status enum extraction via Object.keys(account.status)[0] with STATUS_CONFIG lookup map for Badge variant mapping</li><li>BN amount formatting via Intl.NumberFormat after dividing by 1e6 (USDC decimals)</li><li>Pubkey truncation as first4…last4 for counterparty display</li><li>Wallet-aware queries: enabled only when program is non-null, memcmp filter on authority at offset 16</li></ul></div>
+        
+      </div>
+    </details>
+    <details class="sl-block">
+      <summary class="sl-summary ">
+        <span class="dot dot-complete dot-sm"></span>
+        <span class="mono muted">S04</span>
+        <span class="muted">Milestones — Live Reads</span>
+        <span class="risk risk-low">low</span>
+        <span class="muted sl-deps">S03</span>
+        
+        
+      </summary>
+      <div class="sl-detail">
+        <div class="tag-row"><span class="tag">provides: useMilestones() React Query hook fetching conditionAccount data with parent agreement join</span><span class="tag">provides: Milestones page rendering live on-chain data with four UI states (disconnected/loading/empty/populated)</span><span class="tag">requires: useAnchorProgram() hook, Program&lt;GherkinPay&gt; type, wallet adapter context</span><span class="tag">requires: useAgreements() hook for parent payment context, query hook pattern, PDA helpers</span></div>
+        <div class="verif ">
+        passed
+       </div>
+        <div class="detail-block"><span class="detail-label">Decisions</span><ul><li>Unfiltered fetch (conditionAccount.all()) with client-side join to agreements — acceptable at devnet scale</li><li>Same Badge variant mapping as agreements page for cross-page visual consistency</li></ul></div>
+        <div class="detail-block"><span class="detail-label">Patterns</span><ul><li>Four-state UI pattern (disconnected/loading/empty/populated) now proven across two pages — established as the standard for S05/S06</li><li>Query hooks in lib/queries/ follow identical structure — Program&lt;GherkinPay&gt; cast, useWallet for cache key, enabled guard on upstream data</li></ul></div>
+        
+      </div>
+    </details>
+    <details class="sl-block">
+      <summary class="sl-summary ">
+        <span class="dot dot-complete dot-sm"></span>
+        <span class="mono muted">S05</span>
+        <span class="muted">Compliance and Relayers — Live Reads</span>
+        <span class="risk risk-low">low</span>
+        <span class="muted sl-deps">S02</span>
+        
+        
+      </summary>
+      <div class="sl-detail">
+        <div class="tag-row"><span class="tag">provides: useComplianceEntries() React Query hook fetching ComplianceEntry accounts from hook program</span><span class="tag">provides: Compliance page with live devnet data, shadcn Table/Badge/Skeleton, and loading/empty/error/disconnected states</span><span class="tag">provides: Clean relayers page with static placeholder (no mock data)</span><span class="tag">requires: useAnchorProgram() hook (hookProgram), HOOK_PROGRAM_ID, GherkinPayHook IDL types</span></div>
+        <div class="verif ">
+        passed
+       </div>
+        <div class="detail-block"><span class="detail-label">Decisions</span><ul><li>Hook program queries use hookProgram from useAnchorProgram() cast to Program&lt;GherkinPayHook&gt; — same pattern as D008 for main program</li></ul></div>
+        <div class="detail-block"><span class="detail-label">Patterns</span><ul><li>Hook program query hooks follow identical pattern to main program hooks — destructure hookProgram instead of program, cast to Program&lt;GherkinPayHook&gt;</li></ul></div>
+        
+      </div>
+    </details>
+    <details class="sl-block">
+      <summary class="sl-summary ">
+        <span class="dot dot-complete dot-sm"></span>
+        <span class="mono muted">S06</span>
+        <span class="muted">Activity Event Feed</span>
+        <span class="risk risk-medium">medium</span>
+        <span class="muted sl-deps">S02</span>
+        
+        
+      </summary>
+      <div class="sl-detail">
+        <div class="tag-row"><span class="tag">provides: useActivityFeed() React Query hook parsing on-chain program events via Anchor EventParser</span><span class="tag">provides: Activity page with live event feed, shadcn Table/Badge/Skeleton, five UI states</span><span class="tag">provides: ActivityEvent type export for potential downstream use</span><span class="tag">requires: useAnchorProgram() hook (program.coder for EventParser), PROGRAM_ID constant, RPC connection</span><span class="tag">requires: shadcn Table, Badge, Skeleton components</span></div>
+        <div class="verif ">
+        passed
+       </div>
+        <div class="detail-block"><span class="detail-label">Decisions</span><ul><li>Badge variant=&quot;outline&quot; for event names — neutral styling, no semantic color per event type</li><li>Cast event.data.payment as unknown as PublicKey since Anchor EventParser returns deserialized PublicKey objects typed as unknown in the Record</li></ul></div>
+        <div class="detail-block"><span class="detail-label">Patterns</span><ul><li>EventParser-based log parsing pattern for extracting typed events from on-chain transaction logs</li><li>All five console pages now follow identical state machine pattern (disconnected → error → loading → empty → data)</li></ul></div>
+        
+      </div>
+    </details></div>
+      </details>
+      <details class="ms-block" open>
+        <summary class="ms-summary ms-complete">
+          <span class="dot dot-complete"></span>
+          <span class="mono ms-id">M002</span>
+          <span class="ms-title">Core Flows</span>
+          <span class="muted">3/3</span>
+          
+          
+        </summary>
+        <div class="ms-body">
+    <details class="sl-block">
+      <summary class="sl-summary ">
+        <span class="dot dot-complete dot-sm"></span>
+        <span class="mono muted">S01</span>
+        <span class="muted">Create Payment Wizard</span>
+        <span class="risk risk-high">high</span>
+        
+        
+        
+      </summary>
+      <div class="sl-detail">
+        <div class="tag-row"><span class="tag">provides: shadcn/ui component library (Button, Table, Badge, Dialog) in src/components/ui/</span><span class="tag">provides: cn() utility in src/lib/utils.ts</span><span class="tag">provides: components.json with ~/ alias configuration</span><span class="tag">provides: Merged CSS namespace — GherkinPay tokens coexist with shadcn tokens in globals.css</span><span class="tag">provides: GherkinPay dark green oklch palette mapped into shadcn CSS variables</span></div>
+        <div class="verif ">
+        passed
+       </div>
+        <div class="detail-block"><span class="detail-label">Decisions</span><ul><li>Manual components.json creation instead of interactive shadcn init to avoid globals.css overwrite</li><li>Renamed --border to --gp-border and --sidebar to --gp-sidebar to avoid shadcn namespace collision</li><li>shadcn canary path for Tailwind v4 CSS-based config compatibility</li></ul></div>
+        <div class="detail-block"><span class="detail-label">Patterns</span><ul><li>All shadcn aliases use ~/ prefix (matching tsconfig paths), never @/</li><li>GherkinPay custom properties prefixed gp- when they collide with shadcn tokens</li><li>shadcn components live in src/components/ui/ with ~/lib/utils imports</li><li>Typecheck must run after build (tsconfig includes .next/types/**)</li></ul></div>
+        
+      </div>
+    </details>
+    <details class="sl-block">
+      <summary class="sl-summary ">
+        <span class="dot dot-complete dot-sm"></span>
+        <span class="mono muted">S02</span>
+        <span class="muted">Fund Payment</span>
+        <span class="risk risk-medium">medium</span>
+        <span class="muted sl-deps">S01</span>
+        
+        
+      </summary>
+      <div class="sl-detail">
+        <div class="tag-row"><span class="tag">provides: WalletContextProvider client component wrapping the entire app for wallet connectivity</span><span class="tag">provides: useAnchorProgram() hook returning typed Program&lt;GherkinPay&gt; and Program&lt;GherkinPayHook&gt; (or null when disconnected)</span><span class="tag">provides: WalletMultiButton rendered in console sidebar replacing placeholder</span><span class="tag">provides: IDL JSON and TypeScript types for both on-chain programs in app/web/src/</span><span class="tag">provides: Program ID constants and RPC endpoint env var with T3 schema validation</span><span class="tag">provides: Webpack externals for Solana transitive Node.js deps</span><span class="tag">requires: shadcn Button component, globals.css with merged theme, (console)/layout.tsx with placeholder Button</span></div>
+        <div class="verif ">
+        passed
+       </div>
+        <div class="detail-block"><span class="detail-label">Decisions</span><ul><li>Anchor v0.30+ reads program address from IDL JSON — no need to pass PROGRAM_ID to Program constructor</li><li>Wallet Standard auto-detection with wallets=[] — no explicit Phantom/Solflare adapter imports needed</li><li>Added .next to .prettierignore to prevent root lint glob from matching build artifacts</li></ul></div>
+        <div class="detail-block"><span class="detail-label">Patterns</span><ul><li>IDL files live in app/web/src/idl/, TypeScript types in app/web/src/types/</li><li>Constants use ~/env import for T3 env schema integration</li><li>Wallet providers wrap entire app in root layout.tsx as outermost client boundary</li><li>useAnchorProgram() returns null programs when wallet disconnected — consumers must null-check</li></ul></div>
+        
+      </div>
+    </details>
+    <details class="sl-block">
+      <summary class="sl-summary ">
+        <span class="dot dot-complete dot-sm"></span>
+        <span class="mono muted">S03</span>
+        <span class="muted">Release and Cancel</span>
+        <span class="risk risk-low">low</span>
+        <span class="muted sl-deps">S01, S02</span>
+        
+        
+      </summary>
+      <div class="sl-detail">
+        <div class="tag-row"><span class="tag">provides: PDA derivation helpers (getPaymentPDA, getEscrowPDA, getConditionPDA) shared across slices</span><span class="tag">provides: useAgreements() React Query hook for live paymentAgreement account fetching</span><span class="tag">provides: Agreements page fully rewritten with live on-chain data and four UI states</span><span class="tag">provides: shadcn Skeleton component added to component library</span><span class="tag">requires: useAnchorProgram() hook, useWallet(), PROGRAM_ID constant, wallet connect infrastructure</span><span class="tag">requires: shadcn Table, Badge components, cn() utility</span></div>
+        <div class="verif ">
+        passed
+       </div>
+        <div class="detail-block"><span class="detail-label">Decisions</span><ul><li>Cast Program&lt;Idl&gt; to Program&lt;GherkinPay&gt; at query hook level because Anchor 0.32 constructor infers Idl generic regardless of IDL object type</li><li>Used &quot;use client&quot; directly on page rather than server shell + client sub-component — page has no server data needs after tRPC removal</li><li>Import BN from @coral-xyz/anchor to avoid separate @types/bn.js dependency</li></ul></div>
+        <div class="detail-block"><span class="detail-label">Patterns</span><ul><li>Query hooks live in lib/queries/ with one file per domain (agreements.ts, milestones.ts, etc.)</li><li>PDA derivation centralized in lib/pda.ts, shared across slices</li><li>Status enum extraction via Object.keys(account.status)[0] with STATUS_CONFIG lookup map for Badge variant mapping</li><li>BN amount formatting via Intl.NumberFormat after dividing by 1e6 (USDC decimals)</li><li>Pubkey truncation as first4…last4 for counterparty display</li><li>Wallet-aware queries: enabled only when program is non-null, memcmp filter on authority at offset 16</li></ul></div>
+        
+      </div>
+    </details></div>
+      </details>
+      <details class="ms-block" open>
+        <summary class="ms-summary ms-complete">
+          <span class="dot dot-complete"></span>
+          <span class="mono ms-id">M003</span>
+          <span class="ms-title">Advanced Flows</span>
+          <span class="muted">3/3</span>
+          
+          
+        </summary>
+        <div class="ms-body">
+    <details class="sl-block">
+      <summary class="sl-summary ">
+        <span class="dot dot-complete dot-sm"></span>
+        <span class="mono muted">S01</span>
+        <span class="muted">Permissionless Cranks</span>
+        <span class="risk risk-high">high</span>
+        
+        
+        
+      </summary>
+      <div class="sl-detail">
+        <div class="tag-row"><span class="tag">provides: shadcn/ui component library (Button, Table, Badge, Dialog) in src/components/ui/</span><span class="tag">provides: cn() utility in src/lib/utils.ts</span><span class="tag">provides: components.json with ~/ alias configuration</span><span class="tag">provides: Merged CSS namespace — GherkinPay tokens coexist with shadcn tokens in globals.css</span><span class="tag">provides: GherkinPay dark green oklch palette mapped into shadcn CSS variables</span></div>
+        <div class="verif ">
+        passed
+       </div>
+        <div class="detail-block"><span class="detail-label">Decisions</span><ul><li>Manual components.json creation instead of interactive shadcn init to avoid globals.css overwrite</li><li>Renamed --border to --gp-border and --sidebar to --gp-sidebar to avoid shadcn namespace collision</li><li>shadcn canary path for Tailwind v4 CSS-based config compatibility</li></ul></div>
+        <div class="detail-block"><span class="detail-label">Patterns</span><ul><li>All shadcn aliases use ~/ prefix (matching tsconfig paths), never @/</li><li>GherkinPay custom properties prefixed gp- when they collide with shadcn tokens</li><li>shadcn components live in src/components/ui/ with ~/lib/utils imports</li><li>Typecheck must run after build (tsconfig includes .next/types/**)</li></ul></div>
+        
+      </div>
+    </details>
+    <details class="sl-block">
+      <summary class="sl-summary ">
+        <span class="dot dot-complete dot-sm"></span>
+        <span class="mono muted">S02</span>
+        <span class="muted">Permissioned Actions</span>
+        <span class="risk risk-medium">medium</span>
+        <span class="muted sl-deps">S01</span>
+        
+        
+      </summary>
+      <div class="sl-detail">
+        <div class="tag-row"><span class="tag">provides: WalletContextProvider client component wrapping the entire app for wallet connectivity</span><span class="tag">provides: useAnchorProgram() hook returning typed Program&lt;GherkinPay&gt; and Program&lt;GherkinPayHook&gt; (or null when disconnected)</span><span class="tag">provides: WalletMultiButton rendered in console sidebar replacing placeholder</span><span class="tag">provides: IDL JSON and TypeScript types for both on-chain programs in app/web/src/</span><span class="tag">provides: Program ID constants and RPC endpoint env var with T3 schema validation</span><span class="tag">provides: Webpack externals for Solana transitive Node.js deps</span><span class="tag">requires: shadcn Button component, globals.css with merged theme, (console)/layout.tsx with placeholder Button</span></div>
+        <div class="verif ">
+        passed
+       </div>
+        <div class="detail-block"><span class="detail-label">Decisions</span><ul><li>Anchor v0.30+ reads program address from IDL JSON — no need to pass PROGRAM_ID to Program constructor</li><li>Wallet Standard auto-detection with wallets=[] — no explicit Phantom/Solflare adapter imports needed</li><li>Added .next to .prettierignore to prevent root lint glob from matching build artifacts</li></ul></div>
+        <div class="detail-block"><span class="detail-label">Patterns</span><ul><li>IDL files live in app/web/src/idl/, TypeScript types in app/web/src/types/</li><li>Constants use ~/env import for T3 env schema integration</li><li>Wallet providers wrap entire app in root layout.tsx as outermost client boundary</li><li>useAnchorProgram() returns null programs when wallet disconnected — consumers must null-check</li></ul></div>
+        
+      </div>
+    </details>
+    <details class="sl-block">
+      <summary class="sl-summary ">
+        <span class="dot dot-complete dot-sm"></span>
+        <span class="mono muted">S03</span>
+        <span class="muted">Admin Flows</span>
+        <span class="risk risk-low">low</span>
+        
+        
+        
+      </summary>
+      <div class="sl-detail">
+        <div class="tag-row"><span class="tag">provides: PDA derivation helpers (getPaymentPDA, getEscrowPDA, getConditionPDA) shared across slices</span><span class="tag">provides: useAgreements() React Query hook for live paymentAgreement account fetching</span><span class="tag">provides: Agreements page fully rewritten with live on-chain data and four UI states</span><span class="tag">provides: shadcn Skeleton component added to component library</span><span class="tag">requires: useAnchorProgram() hook, useWallet(), PROGRAM_ID constant, wallet connect infrastructure</span><span class="tag">requires: shadcn Table, Badge components, cn() utility</span></div>
+        <div class="verif ">
+        passed
+       </div>
+        <div class="detail-block"><span class="detail-label">Decisions</span><ul><li>Cast Program&lt;Idl&gt; to Program&lt;GherkinPay&gt; at query hook level because Anchor 0.32 constructor infers Idl generic regardless of IDL object type</li><li>Used &quot;use client&quot; directly on page rather than server shell + client sub-component — page has no server data needs after tRPC removal</li><li>Import BN from @coral-xyz/anchor to avoid separate @types/bn.js dependency</li></ul></div>
+        <div class="detail-block"><span class="detail-label">Patterns</span><ul><li>Query hooks live in lib/queries/ with one file per domain (agreements.ts, milestones.ts, etc.)</li><li>PDA derivation centralized in lib/pda.ts, shared across slices</li><li>Status enum extraction via Object.keys(account.status)[0] with STATUS_CONFIG lookup map for Badge variant mapping</li><li>BN amount formatting via Intl.NumberFormat after dividing by 1e6 (USDC decimals)</li><li>Pubkey truncation as first4…last4 for counterparty display</li><li>Wallet-aware queries: enabled only when program is non-null, memcmp filter on authority at offset 16</li></ul></div>
+        
+      </div>
+    </details></div>
+      </details>
+      <details class="ms-block" open>
+        <summary class="ms-summary ms-complete">
+          <span class="dot dot-complete"></span>
+          <span class="mono ms-id">M004</span>
+          <span class="ms-title">StableHacks Institutional Readiness</span>
+          <span class="muted">3/3</span>
+          
+          
+        </summary>
+        <div class="ms-body">
+    <details class="sl-block">
+      <summary class="sl-summary ">
+        <span class="dot dot-complete dot-sm"></span>
+        <span class="mono muted">S01</span>
+        <span class="muted">Travel Rule Contract Extension</span>
+        <span class="risk risk-high">high</span>
+        
+        
+        
+      </summary>
+      <div class="sl-detail">
+        <div class="tag-row"><span class="tag">provides: shadcn/ui component library (Button, Table, Badge, Dialog) in src/components/ui/</span><span class="tag">provides: cn() utility in src/lib/utils.ts</span><span class="tag">provides: components.json with ~/ alias configuration</span><span class="tag">provides: Merged CSS namespace — GherkinPay tokens coexist with shadcn tokens in globals.css</span><span class="tag">provides: GherkinPay dark green oklch palette mapped into shadcn CSS variables</span></div>
+        <div class="verif ">
+        passed
+       </div>
+        <div class="detail-block"><span class="detail-label">Decisions</span><ul><li>Manual components.json creation instead of interactive shadcn init to avoid globals.css overwrite</li><li>Renamed --border to --gp-border and --sidebar to --gp-sidebar to avoid shadcn namespace collision</li><li>shadcn canary path for Tailwind v4 CSS-based config compatibility</li></ul></div>
+        <div class="detail-block"><span class="detail-label">Patterns</span><ul><li>All shadcn aliases use ~/ prefix (matching tsconfig paths), never @/</li><li>GherkinPay custom properties prefixed gp- when they collide with shadcn tokens</li><li>shadcn components live in src/components/ui/ with ~/lib/utils imports</li><li>Typecheck must run after build (tsconfig includes .next/types/**)</li></ul></div>
+        
+      </div>
+    </details>
+    <details class="sl-block">
+      <summary class="sl-summary ">
+        <span class="dot dot-complete dot-sm"></span>
+        <span class="mono muted">S02</span>
+        <span class="muted">Compliance Audit Log</span>
+        <span class="risk risk-medium">medium</span>
+        
+        
+        
+      </summary>
+      <div class="sl-detail">
+        <div class="tag-row"><span class="tag">provides: WalletContextProvider client component wrapping the entire app for wallet connectivity</span><span class="tag">provides: useAnchorProgram() hook returning typed Program&lt;GherkinPay&gt; and Program&lt;GherkinPayHook&gt; (or null when disconnected)</span><span class="tag">provides: WalletMultiButton rendered in console sidebar replacing placeholder</span><span class="tag">provides: IDL JSON and TypeScript types for both on-chain programs in app/web/src/</span><span class="tag">provides: Program ID constants and RPC endpoint env var with T3 schema validation</span><span class="tag">provides: Webpack externals for Solana transitive Node.js deps</span><span class="tag">requires: shadcn Button component, globals.css with merged theme, (console)/layout.tsx with placeholder Button</span></div>
+        <div class="verif ">
+        passed
+       </div>
+        <div class="detail-block"><span class="detail-label">Decisions</span><ul><li>Anchor v0.30+ reads program address from IDL JSON — no need to pass PROGRAM_ID to Program constructor</li><li>Wallet Standard auto-detection with wallets=[] — no explicit Phantom/Solflare adapter imports needed</li><li>Added .next to .prettierignore to prevent root lint glob from matching build artifacts</li></ul></div>
+        <div class="detail-block"><span class="detail-label">Patterns</span><ul><li>IDL files live in app/web/src/idl/, TypeScript types in app/web/src/types/</li><li>Constants use ~/env import for T3 env schema integration</li><li>Wallet providers wrap entire app in root layout.tsx as outermost client boundary</li><li>useAnchorProgram() returns null programs when wallet disconnected — consumers must null-check</li></ul></div>
+        
+      </div>
+    </details>
+    <details class="sl-block">
+      <summary class="sl-summary ">
+        <span class="dot dot-complete dot-sm"></span>
+        <span class="mono muted">S03</span>
+        <span class="muted">Crank Automation Bot</span>
+        <span class="risk risk-medium">medium</span>
+        <span class="muted sl-deps">S01</span>
+        
+        
+      </summary>
+      <div class="sl-detail">
+        <div class="tag-row"><span class="tag">provides: PDA derivation helpers (getPaymentPDA, getEscrowPDA, getConditionPDA) shared across slices</span><span class="tag">provides: useAgreements() React Query hook for live paymentAgreement account fetching</span><span class="tag">provides: Agreements page fully rewritten with live on-chain data and four UI states</span><span class="tag">provides: shadcn Skeleton component added to component library</span><span class="tag">requires: useAnchorProgram() hook, useWallet(), PROGRAM_ID constant, wallet connect infrastructure</span><span class="tag">requires: shadcn Table, Badge components, cn() utility</span></div>
+        <div class="verif ">
+        passed
+       </div>
+        <div class="detail-block"><span class="detail-label">Decisions</span><ul><li>Cast Program&lt;Idl&gt; to Program&lt;GherkinPay&gt; at query hook level because Anchor 0.32 constructor infers Idl generic regardless of IDL object type</li><li>Used &quot;use client&quot; directly on page rather than server shell + client sub-component — page has no server data needs after tRPC removal</li><li>Import BN from @coral-xyz/anchor to avoid separate @types/bn.js dependency</li></ul></div>
+        <div class="detail-block"><span class="detail-label">Patterns</span><ul><li>Query hooks live in lib/queries/ with one file per domain (agreements.ts, milestones.ts, etc.)</li><li>PDA derivation centralized in lib/pda.ts, shared across slices</li><li>Status enum extraction via Object.keys(account.status)[0] with STATUS_CONFIG lookup map for Badge variant mapping</li><li>BN amount formatting via Intl.NumberFormat after dividing by 1e6 (USDC decimals)</li><li>Pubkey truncation as first4…last4 for counterparty display</li><li>Wallet-aware queries: enabled only when program is non-null, memcmp filter on authority at offset 16</li></ul></div>
+        
+      </div>
+    </details></div>
+      </details>
+      <details class="ms-block" >
+        <summary class="ms-summary ms-pending">
+          <span class="dot dot-pending"></span>
+          <span class="mono ms-id">M005</span>
+          <span class="ms-title">M005</span>
+          <span class="muted">0/0</span>
+          <span class="label">critical path</span>
+          
+        </summary>
+        <div class="ms-body"><p class="empty indent">No slices in roadmap yet.</p></div>
+      </details>
+      <details class="ms-block" open>
+        <summary class="ms-summary ms-complete">
+          <span class="dot dot-complete"></span>
+          <span class="mono ms-id">M006</span>
+          <span class="ms-title">FX Oracle Settlement</span>
+          <span class="muted">2/2</span>
+          
+          
+        </summary>
+        <div class="ms-body">
+    <details class="sl-block">
+      <summary class="sl-summary ">
+        <span class="dot dot-complete dot-sm"></span>
+        <span class="mono muted">S01</span>
+        <span class="muted">FX Oracle Post+Crank</span>
+        <span class="risk risk-high">high</span>
+        
+        
+        
+      </summary>
+      <div class="sl-detail">
+        <div class="tag-row"><span class="tag">provides: shadcn/ui component library (Button, Table, Badge, Dialog) in src/components/ui/</span><span class="tag">provides: cn() utility in src/lib/utils.ts</span><span class="tag">provides: components.json with ~/ alias configuration</span><span class="tag">provides: Merged CSS namespace — GherkinPay tokens coexist with shadcn tokens in globals.css</span><span class="tag">provides: GherkinPay dark green oklch palette mapped into shadcn CSS variables</span></div>
+        <div class="verif ">
+        passed
+       </div>
+        <div class="detail-block"><span class="detail-label">Decisions</span><ul><li>Manual components.json creation instead of interactive shadcn init to avoid globals.css overwrite</li><li>Renamed --border to --gp-border and --sidebar to --gp-sidebar to avoid shadcn namespace collision</li><li>shadcn canary path for Tailwind v4 CSS-based config compatibility</li></ul></div>
+        <div class="detail-block"><span class="detail-label">Patterns</span><ul><li>All shadcn aliases use ~/ prefix (matching tsconfig paths), never @/</li><li>GherkinPay custom properties prefixed gp- when they collide with shadcn tokens</li><li>shadcn components live in src/components/ui/ with ~/lib/utils imports</li><li>Typecheck must run after build (tsconfig includes .next/types/**)</li></ul></div>
+        
+      </div>
+    </details>
+    <details class="sl-block">
+      <summary class="sl-summary ">
+        <span class="dot dot-complete dot-sm"></span>
+        <span class="mono muted">S02</span>
+        <span class="muted">Landing Page FX Framing &amp; Deploy</span>
+        <span class="risk risk-low">low</span>
+        <span class="muted sl-deps">S01</span>
+        
+        
+      </summary>
+      <div class="sl-detail">
+        <div class="tag-row"><span class="tag">provides: WalletContextProvider client component wrapping the entire app for wallet connectivity</span><span class="tag">provides: useAnchorProgram() hook returning typed Program&lt;GherkinPay&gt; and Program&lt;GherkinPayHook&gt; (or null when disconnected)</span><span class="tag">provides: WalletMultiButton rendered in console sidebar replacing placeholder</span><span class="tag">provides: IDL JSON and TypeScript types for both on-chain programs in app/web/src/</span><span class="tag">provides: Program ID constants and RPC endpoint env var with T3 schema validation</span><span class="tag">provides: Webpack externals for Solana transitive Node.js deps</span><span class="tag">requires: shadcn Button component, globals.css with merged theme, (console)/layout.tsx with placeholder Button</span></div>
+        <div class="verif ">
+        passed
+       </div>
+        <div class="detail-block"><span class="detail-label">Decisions</span><ul><li>Anchor v0.30+ reads program address from IDL JSON — no need to pass PROGRAM_ID to Program constructor</li><li>Wallet Standard auto-detection with wallets=[] — no explicit Phantom/Solflare adapter imports needed</li><li>Added .next to .prettierignore to prevent root lint glob from matching build artifacts</li></ul></div>
+        <div class="detail-block"><span class="detail-label">Patterns</span><ul><li>IDL files live in app/web/src/idl/, TypeScript types in app/web/src/types/</li><li>Constants use ~/env import for T3 env schema integration</li><li>Wallet providers wrap entire app in root layout.tsx as outermost client boundary</li><li>useAnchorProgram() returns null programs when wallet disconnected — consumers must null-check</li></ul></div>
+        
+      </div>
+    </details></div>
+      </details>
+      <details class="ms-block" open>
+        <summary class="ms-summary ms-active">
+          <span class="dot dot-active"></span>
+          <span class="mono ms-id">M007</span>
+          <span class="ms-title">Institutional Custody Framing</span>
+          <span class="muted">0/0</span>
+          
+          <span class="muted">needs M006</span>
+        </summary>
+        <div class="ms-body"><p class="empty indent">No slices in roadmap yet.</p></div>
+      </details>
+</section>
+
+<section id="timeline">
+  <h2>Timeline</h2>
+  
+    <div class="table-scroll">
+      <table class="tbl">
+        <thead><tr>
+          <th>#</th><th>Type</th><th>ID</th><th>Model</th>
+          <th>Started</th><th>Duration</th><th>Cost</th>
+          <th>Tokens</th><th>Tools</th><th>Tier</th><th>Routed</th><th>Trunc</th><th>CHF</th>
+        </tr></thead>
+        <tbody>
+      <tr>
+        <td class="muted">1</td>
+        <td class="mono">research-slice</td>
+        <td class="mono muted">M006/S01</td>
+        <td>opus-4-6</td>
+        <td class="muted">Mar 25, 2026, 12:56 PM</td>
+        <td>46s</td>
+        <td class="num">$0.330</td>
+        <td class="num">151.2k</td>
+        <td class="num">10</td>
+        <td class="mono"></td>
+        <td></td>
+        <td class="num"></td>
+        <td></td>
+      </tr>
+      <tr style="background:rgba(239,68,68,0.089)">
+        <td class="muted">2</td>
+        <td class="mono">research-slice</td>
+        <td class="mono muted">M006/S01</td>
+        <td>opus-4-6</td>
+        <td class="muted">Mar 25, 2026, 01:08 PM</td>
+        <td>5m 27s</td>
+        <td class="num">$2.17</td>
+        <td class="num">2.94M</td>
+        <td class="num">49</td>
+        <td class="mono"></td>
+        <td></td>
+        <td class="num"></td>
+        <td></td>
+      </tr>
+      <tr style="background:rgba(239,68,68,0.054)">
+        <td class="muted">3</td>
+        <td class="mono">plan-slice</td>
+        <td class="mono muted">M006/S01</td>
+        <td>opus-4-6</td>
+        <td class="muted">Mar 25, 2026, 01:13 PM</td>
+        <td>3m 59s</td>
+        <td class="num">$1.32</td>
+        <td class="num">1.69M</td>
+        <td class="num">21</td>
+        <td class="mono"></td>
+        <td></td>
+        <td class="num"></td>
+        <td></td>
+      </tr>
+      <tr style="background:rgba(239,68,68,0.053)">
+        <td class="muted">4</td>
+        <td class="mono">execute-task</td>
+        <td class="mono muted">M006/S01/T01</td>
+        <td>opus-4-6</td>
+        <td class="muted">Mar 25, 2026, 01:18 PM</td>
+        <td>3m 40s</td>
+        <td class="num">$1.29</td>
+        <td class="num">1.78M</td>
+        <td class="num">30</td>
+        <td class="mono"></td>
+        <td></td>
+        <td class="num"></td>
+        <td></td>
+      </tr>
+      <tr style="background:rgba(239,68,68,0.150)">
+        <td class="muted">5</td>
+        <td class="mono">execute-task</td>
+        <td class="mono muted">M006/S01/T02</td>
+        <td>opus-4-6</td>
+        <td class="muted">Mar 25, 2026, 01:21 PM</td>
+        <td>7m 35s</td>
+        <td class="num">$3.65</td>
+        <td class="num">5.80M</td>
+        <td class="num">72</td>
+        <td class="mono"></td>
+        <td></td>
+        <td class="num"></td>
+        <td></td>
+      </tr>
+      <tr style="background:rgba(239,68,68,0.043)">
+        <td class="muted">6</td>
+        <td class="mono">complete-slice</td>
+        <td class="mono muted">M006/S01</td>
+        <td>opus-4-6</td>
+        <td class="muted">Mar 25, 2026, 01:29 PM</td>
+        <td>3m 24s</td>
+        <td class="num">$1.05</td>
+        <td class="num">1.47M</td>
+        <td class="num">23</td>
+        <td class="mono"></td>
+        <td></td>
+        <td class="num"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="muted">7</td>
+        <td class="mono">research-slice</td>
+        <td class="mono muted">M006/S02</td>
+        <td>opus-4-6</td>
+        <td class="muted">Mar 25, 2026, 01:32 PM</td>
+        <td>1m 15s</td>
+        <td class="num">$0.436</td>
+        <td class="num">514.3k</td>
+        <td class="num">14</td>
+        <td class="mono"></td>
+        <td></td>
+        <td class="num"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="muted">8</td>
+        <td class="mono">plan-slice</td>
+        <td class="mono muted">M006/S02</td>
+        <td>opus-4-6</td>
+        <td class="muted">Mar 25, 2026, 01:34 PM</td>
+        <td>1m 25s</td>
+        <td class="num">$0.352</td>
+        <td class="num">294.5k</td>
+        <td class="num">7</td>
+        <td class="mono"></td>
+        <td></td>
+        <td class="num"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="muted">9</td>
+        <td class="mono">execute-task</td>
+        <td class="mono muted">M006/S02/T01</td>
+        <td>opus-4-6</td>
+        <td class="muted">Mar 25, 2026, 01:35 PM</td>
+        <td>1m 44s</td>
+        <td class="num">$0.521</td>
+        <td class="num">676.7k</td>
+        <td class="num">15</td>
+        <td class="mono"></td>
+        <td></td>
+        <td class="num"></td>
+        <td></td>
+      </tr>
+      <tr style="background:rgba(239,68,68,0.054)">
+        <td class="muted">10</td>
+        <td class="mono">execute-task</td>
+        <td class="mono muted">M006/S02/T02</td>
+        <td>opus-4-6</td>
+        <td class="muted">Mar 25, 2026, 01:37 PM</td>
+        <td>20m 36s</td>
+        <td class="num">$1.31</td>
+        <td class="num">1.09M</td>
+        <td class="num">22</td>
+        <td class="mono"></td>
+        <td></td>
+        <td class="num"></td>
+        <td></td>
+      </tr>
+      <tr style="background:rgba(239,68,68,0.027)">
+        <td class="muted">11</td>
+        <td class="mono">complete-slice</td>
+        <td class="mono muted">M006/S02</td>
+        <td>opus-4-6</td>
+        <td class="muted">Mar 25, 2026, 01:58 PM</td>
+        <td>2m 27s</td>
+        <td class="num">$0.664</td>
+        <td class="num">865.4k</td>
+        <td class="num">18</td>
+        <td class="mono"></td>
+        <td></td>
+        <td class="num"></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="muted">12</td>
+        <td class="mono">validate-milestone</td>
+        <td class="mono muted">M006</td>
+        <td>opus-4-6</td>
+        <td class="muted">Mar 25, 2026, 02:00 PM</td>
+        <td>1m 55s</td>
+        <td class="num">$0.522</td>
+        <td class="num">614.0k</td>
+        <td class="num">23</td>
+        <td class="mono"></td>
+        <td></td>
+        <td class="num"></td>
+        <td></td>
+      </tr>
+      <tr style="background:rgba(239,68,68,0.031)">
+        <td class="muted">13</td>
+        <td class="mono">complete-milestone</td>
+        <td class="mono muted">M006</td>
+        <td>opus-4-6</td>
+        <td class="muted">Mar 25, 2026, 02:02 PM</td>
+        <td>3m 21s</td>
+        <td class="num">$0.747</td>
+        <td class="num">817.9k</td>
+        <td class="num">21</td>
+        <td class="mono"></td>
+        <td></td>
+        <td class="num"></td>
+        <td></td>
+      </tr></tbody>
+      </table>
+    </div>
+</section>
+
+<section id="depgraph">
+  <h2>Dependencies</h2>
+  
+    <div class="dep-block">
+      <h3>M001: Foundation</h3>
+      <div class="dep-legend">
+    <span><span class="dot dot-complete dot-sm"></span> done</span>
+    <span><span class="dot dot-active dot-sm"></span> active</span>
+    <span><span class="dot dot-pending dot-sm"></span> pending</span>
+    <span><span class="dot dot-parked dot-sm"></span> parked</span>
+  </div>
+      <div class="dep-wrap">
+        <svg class="dep-svg" viewBox="0 0 728 188" width="728" height="188">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="var(--border-2)"/>
+            </marker>
+            <marker id="arr-crit" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="var(--accent)"/>
+            </marker>
+          </defs>
+          <path d="M150,94 C178,94 178,94 206,94" class="edge" marker-end="url(#arr)"/><path d="M336,94 C364,94 364,40 392,40" class="edge" marker-end="url(#arr)"/><path d="M522,40 C550,40 550,94 578,94" class="edge" marker-end="url(#arr)"/><path d="M336,94 C364,94 364,94 392,94" class="edge" marker-end="url(#arr)"/><path d="M336,94 C364,94 364,148 392,148" class="edge" marker-end="url(#arr)"/>
+          <g class="node n-done" transform="translate(20,74)">
+      <rect width="130" height="40" rx="4"/>
+      <text x="65" y="16" class="n-id">S01</text>
+      <text x="65" y="30" class="n-title">shadcn Setup and …</text>
+      <title>S01: shadcn Setup and Design System</title>
+    </g><g class="node n-done" transform="translate(206,74)">
+      <rect width="130" height="40" rx="4"/>
+      <text x="65" y="16" class="n-id">S02</text>
+      <text x="65" y="30" class="n-title">Wallet Connect an…</text>
+      <title>S02: Wallet Connect and Anchor Client</title>
+    </g><g class="node n-done" transform="translate(392,20)">
+      <rect width="130" height="40" rx="4"/>
+      <text x="65" y="16" class="n-id">S03</text>
+      <text x="65" y="30" class="n-title">Agreements — Live…</text>
+      <title>S03: Agreements — Live Reads</title>
+    </g><g class="node n-done" transform="translate(578,74)">
+      <rect width="130" height="40" rx="4"/>
+      <text x="65" y="16" class="n-id">S04</text>
+      <text x="65" y="30" class="n-title">Milestones — Live…</text>
+      <title>S04: Milestones — Live Reads</title>
+    </g><g class="node n-done" transform="translate(392,74)">
+      <rect width="130" height="40" rx="4"/>
+      <text x="65" y="16" class="n-id">S05</text>
+      <text x="65" y="30" class="n-title">Compliance and Re…</text>
+      <title>S05: Compliance and Relayers — Live Reads</title>
+    </g><g class="node n-done" transform="translate(392,128)">
+      <rect width="130" height="40" rx="4"/>
+      <text x="65" y="16" class="n-id">S06</text>
+      <text x="65" y="30" class="n-title">Activity Event Fe…</text>
+      <title>S06: Activity Event Feed</title>
+    </g>
+        </svg>
+      </div>
+    </div>
+    <div class="dep-block">
+      <h3>M002: Core Flows</h3>
+      <div class="dep-legend">
+    <span><span class="dot dot-complete dot-sm"></span> done</span>
+    <span><span class="dot dot-active dot-sm"></span> active</span>
+    <span><span class="dot dot-pending dot-sm"></span> pending</span>
+    <span><span class="dot dot-parked dot-sm"></span> parked</span>
+  </div>
+      <div class="dep-wrap">
+        <svg class="dep-svg" viewBox="0 0 542 80" width="542" height="80">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="var(--border-2)"/>
+            </marker>
+            <marker id="arr-crit" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="var(--accent)"/>
+            </marker>
+          </defs>
+          <path d="M150,40 C178,40 178,40 206,40" class="edge" marker-end="url(#arr)"/><path d="M150,40 C271,40 271,40 392,40" class="edge" marker-end="url(#arr)"/><path d="M336,40 C364,40 364,40 392,40" class="edge" marker-end="url(#arr)"/>
+          <g class="node n-done" transform="translate(20,20)">
+      <rect width="130" height="40" rx="4"/>
+      <text x="65" y="16" class="n-id">S01</text>
+      <text x="65" y="30" class="n-title">Create Payment Wi…</text>
+      <title>S01: Create Payment Wizard</title>
+    </g><g class="node n-done" transform="translate(206,20)">
+      <rect width="130" height="40" rx="4"/>
+      <text x="65" y="16" class="n-id">S02</text>
+      <text x="65" y="30" class="n-title">Fund Payment</text>
+      <title>S02: Fund Payment</title>
+    </g><g class="node n-done" transform="translate(392,20)">
+      <rect width="130" height="40" rx="4"/>
+      <text x="65" y="16" class="n-id">S03</text>
+      <text x="65" y="30" class="n-title">Release and Cancel</text>
+      <title>S03: Release and Cancel</title>
+    </g>
+        </svg>
+      </div>
+    </div>
+    <div class="dep-block">
+      <h3>M003: Advanced Flows</h3>
+      <div class="dep-legend">
+    <span><span class="dot dot-complete dot-sm"></span> done</span>
+    <span><span class="dot dot-active dot-sm"></span> active</span>
+    <span><span class="dot dot-pending dot-sm"></span> pending</span>
+    <span><span class="dot dot-parked dot-sm"></span> parked</span>
+  </div>
+      <div class="dep-wrap">
+        <svg class="dep-svg" viewBox="0 0 356 134" width="356" height="134">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="var(--border-2)"/>
+            </marker>
+            <marker id="arr-crit" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="var(--accent)"/>
+            </marker>
+          </defs>
+          <path d="M150,40 C178,40 178,67 206,67" class="edge" marker-end="url(#arr)"/>
+          <g class="node n-done" transform="translate(20,20)">
+      <rect width="130" height="40" rx="4"/>
+      <text x="65" y="16" class="n-id">S01</text>
+      <text x="65" y="30" class="n-title">Permissionless Cr…</text>
+      <title>S01: Permissionless Cranks</title>
+    </g><g class="node n-done" transform="translate(206,47)">
+      <rect width="130" height="40" rx="4"/>
+      <text x="65" y="16" class="n-id">S02</text>
+      <text x="65" y="30" class="n-title">Permissioned Acti…</text>
+      <title>S02: Permissioned Actions</title>
+    </g><g class="node n-done" transform="translate(20,74)">
+      <rect width="130" height="40" rx="4"/>
+      <text x="65" y="16" class="n-id">S03</text>
+      <text x="65" y="30" class="n-title">Admin Flows</text>
+      <title>S03: Admin Flows</title>
+    </g>
+        </svg>
+      </div>
+    </div>
+    <div class="dep-block">
+      <h3>M004: StableHacks Institutional Readiness</h3>
+      <div class="dep-legend">
+    <span><span class="dot dot-complete dot-sm"></span> done</span>
+    <span><span class="dot dot-active dot-sm"></span> active</span>
+    <span><span class="dot dot-pending dot-sm"></span> pending</span>
+    <span><span class="dot dot-parked dot-sm"></span> parked</span>
+  </div>
+      <div class="dep-wrap">
+        <svg class="dep-svg" viewBox="0 0 356 134" width="356" height="134">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="var(--border-2)"/>
+            </marker>
+            <marker id="arr-crit" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="var(--accent)"/>
+            </marker>
+          </defs>
+          <path d="M150,40 C178,40 178,67 206,67" class="edge" marker-end="url(#arr)"/>
+          <g class="node n-done" transform="translate(20,20)">
+      <rect width="130" height="40" rx="4"/>
+      <text x="65" y="16" class="n-id">S01</text>
+      <text x="65" y="30" class="n-title">Travel Rule Contr…</text>
+      <title>S01: Travel Rule Contract Extension</title>
+    </g><g class="node n-done" transform="translate(20,74)">
+      <rect width="130" height="40" rx="4"/>
+      <text x="65" y="16" class="n-id">S02</text>
+      <text x="65" y="30" class="n-title">Compliance Audit …</text>
+      <title>S02: Compliance Audit Log</title>
+    </g><g class="node n-done" transform="translate(206,47)">
+      <rect width="130" height="40" rx="4"/>
+      <text x="65" y="16" class="n-id">S03</text>
+      <text x="65" y="30" class="n-title">Crank Automation …</text>
+      <title>S03: Crank Automation Bot</title>
+    </g>
+        </svg>
+      </div>
+    </div>
+    <div class="dep-block">
+      <h3>M006: FX Oracle Settlement</h3>
+      <div class="dep-legend">
+    <span><span class="dot dot-complete dot-sm"></span> done</span>
+    <span><span class="dot dot-active dot-sm"></span> active</span>
+    <span><span class="dot dot-pending dot-sm"></span> pending</span>
+    <span><span class="dot dot-parked dot-sm"></span> parked</span>
+  </div>
+      <div class="dep-wrap">
+        <svg class="dep-svg" viewBox="0 0 356 80" width="356" height="80">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="var(--border-2)"/>
+            </marker>
+            <marker id="arr-crit" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="var(--accent)"/>
+            </marker>
+          </defs>
+          <path d="M150,40 C178,40 178,40 206,40" class="edge" marker-end="url(#arr)"/>
+          <g class="node n-done" transform="translate(20,20)">
+      <rect width="130" height="40" rx="4"/>
+      <text x="65" y="16" class="n-id">S01</text>
+      <text x="65" y="30" class="n-title">FX Oracle Post+Cr…</text>
+      <title>S01: FX Oracle Post+Crank</title>
+    </g><g class="node n-done" transform="translate(206,20)">
+      <rect width="130" height="40" rx="4"/>
+      <text x="65" y="16" class="n-id">S02</text>
+      <text x="65" y="30" class="n-title">Landing Page FX F…</text>
+      <title>S02: Landing Page FX Framing &amp; Deploy</title>
+    </g>
+        </svg>
+      </div>
+    </div>
+</section>
+
+<section id="metrics">
+  <h2>Metrics</h2>
+  
+    <div class="kv-grid"><div class="kv"><span class="kv-val">$14.37</span><span class="kv-lbl">Total cost</span></div><div class="kv"><span class="kv-val">18.70M</span><span class="kv-lbl">Total tokens</span></div><div class="kv"><span class="kv-val">299</span><span class="kv-lbl">Input</span></div><div class="kv"><span class="kv-val">87.5k</span><span class="kv-lbl">Output</span></div><div class="kv"><span class="kv-val">18.11M</span><span class="kv-lbl">Cache read</span></div><div class="kv"><span class="kv-val">499.7k</span><span class="kv-lbl">Cache write</span></div><div class="kv"><span class="kv-val">57m 40s</span><span class="kv-lbl">Duration</span></div><div class="kv"><span class="kv-val">13</span><span class="kv-lbl">Units</span></div><div class="kv"><span class="kv-val">325</span><span class="kv-lbl">Tool calls</span></div><div class="kv"><span class="kv-val">0</span><span class="kv-lbl">Truncations</span></div></div>
+    
+    
+    <div class="token-block">
+      <h3>Token breakdown</h3>
+      <div class="token-bar"><div class="tseg seg-1" style="width:0.00%" title="Input: 299 (0.0%)"></div><div class="tseg seg-2" style="width:0.47%" title="Output: 87.5k (0.5%)"></div><div class="tseg seg-3" style="width:96.86%" title="Cache read: 18.11M (96.9%)"></div><div class="tseg seg-4" style="width:2.67%" title="Cache write: 499.7k (2.7%)"></div></div>
+      <div class="token-legend"><span class="leg-item"><span class="leg-dot seg-1"></span>Input: 299 (0.0%)</span><span class="leg-item"><span class="leg-dot seg-2"></span>Output: 87.5k (0.5%)</span><span class="leg-item"><span class="leg-dot seg-3"></span>Cache read: 18.11M (96.9%)</span><span class="leg-item"><span class="leg-dot seg-4"></span>Cache write: 499.7k (2.7%)</span></div>
+    </div>
+    
+    <div class="token-block">
+      <h3>Cost over time</h3>
+      <svg class="cost-svg" viewBox="0 0 600 200" width="600" height="200">
+        <line x1="50" y1="20" x2="570" y2="20" class="cost-grid"/><text x="46" y="23" class="cost-axis" text-anchor="end">$14.37</text><line x1="50" y1="57.5" x2="570" y2="57.5" class="cost-grid"/><text x="46" y="60.5" class="cost-axis" text-anchor="end">$10.78</text><line x1="50" y1="95" x2="570" y2="95" class="cost-grid"/><text x="46" y="98" class="cost-axis" text-anchor="end">$7.18</text><line x1="50" y1="132.5" x2="570" y2="132.5" class="cost-grid"/><text x="46" y="135.5" class="cost-axis" text-anchor="end">$3.59</text><line x1="50" y1="170" x2="570" y2="170" class="cost-grid"/><text x="46" y="173" class="cost-axis" text-anchor="end">$0.0000</text>
+        <path d="M50.0,166.6 L93.3,143.9 L136.7,130.1 L180.0,116.6 L223.3,78.5 L266.7,67.5 L310.0,63.0 L353.3,59.3 L396.7,53.8 L440.0,40.2 L483.3,33.3 L526.7,27.8 L570.0,20.0 L570.0,170.0 L50.0,170.0 Z" class="cost-area"/>
+        <path d="M50.0,166.6 L93.3,143.9 L136.7,130.1 L180.0,116.6 L223.3,78.5 L266.7,67.5 L310.0,63.0 L353.3,59.3 L396.7,53.8 L440.0,40.2 L483.3,33.3 L526.7,27.8 L570.0,20.0" class="cost-line"/>
+        <text x="50" y="196" class="cost-axis">#1</text>
+        <text x="570" y="196" class="cost-axis" text-anchor="end">#13</text>
+      </svg>
+    </div>
+    
+    <div class="chart-row">
+      <div class="chart-block"><h3>Cost by phase</h3>
+      <div class="bar-row">
+        <div class="bar-lbl">research</div>
+        <div class="bar-track"><div class="bar-fill bar-c0" style="width:36.5%"></div></div>
+        <div class="bar-val">$2.93</div>
+      </div>
+      <div class="bar-sub">3 units</div>
+      <div class="bar-row">
+        <div class="bar-lbl">planning</div>
+        <div class="bar-track"><div class="bar-fill bar-c1" style="width:20.8%"></div></div>
+        <div class="bar-val">$1.67</div>
+      </div>
+      <div class="bar-sub">2 units</div>
+      <div class="bar-row">
+        <div class="bar-lbl">execution</div>
+        <div class="bar-track"><div class="bar-fill bar-c2" style="width:100.0%"></div></div>
+        <div class="bar-val">$8.04</div>
+      </div>
+      <div class="bar-sub">6 units</div>
+      <div class="bar-row">
+        <div class="bar-lbl">completion</div>
+        <div class="bar-track"><div class="bar-fill bar-c3" style="width:21.4%"></div></div>
+        <div class="bar-val">$1.72</div>
+      </div>
+      <div class="bar-sub">2 units</div></div>
+      <div class="chart-block"><h3>Tokens by phase</h3>
+      <div class="bar-row">
+        <div class="bar-lbl">research</div>
+        <div class="bar-track"><div class="bar-fill bar-c0" style="width:33.5%"></div></div>
+        <div class="bar-val">3.61M</div>
+      </div>
+      <div class="bar-sub">$2.93</div>
+      <div class="bar-row">
+        <div class="bar-lbl">planning</div>
+        <div class="bar-track"><div class="bar-fill bar-c1" style="width:18.4%"></div></div>
+        <div class="bar-val">1.98M</div>
+      </div>
+      <div class="bar-sub">$1.67</div>
+      <div class="bar-row">
+        <div class="bar-lbl">execution</div>
+        <div class="bar-track"><div class="bar-fill bar-c2" style="width:100.0%"></div></div>
+        <div class="bar-val">10.77M</div>
+      </div>
+      <div class="bar-sub">$8.04</div>
+      <div class="bar-row">
+        <div class="bar-lbl">completion</div>
+        <div class="bar-track"><div class="bar-fill bar-c3" style="width:21.7%"></div></div>
+        <div class="bar-val">2.34M</div>
+      </div>
+      <div class="bar-sub">$1.72</div></div>
+    </div>
+    
+    <div class="chart-row">
+      <div class="chart-block"><h3>Cost by slice</h3>
+      <div class="bar-row">
+        <div class="bar-lbl">M006</div>
+        <div class="bar-track"><div class="bar-fill bar-c0" style="width:12.9%"></div></div>
+        <div class="bar-val">$1.27</div>
+      </div>
+      <div class="bar-sub">2 units</div>
+      <div class="bar-row">
+        <div class="bar-lbl">M006/S01</div>
+        <div class="bar-track"><div class="bar-fill bar-c1" style="width:100.0%"></div></div>
+        <div class="bar-val">$9.82</div>
+      </div>
+      <div class="bar-sub">6 units</div>
+      <div class="bar-row">
+        <div class="bar-lbl">M006/S02</div>
+        <div class="bar-track"><div class="bar-fill bar-c2" style="width:33.4%"></div></div>
+        <div class="bar-val">$3.28</div>
+      </div>
+      <div class="bar-sub">5 units</div></div>
+      <div class="chart-block"><h3>Cost by model</h3>
+      <div class="bar-row">
+        <div class="bar-lbl">opus-4-6</div>
+        <div class="bar-track"><div class="bar-fill bar-c0" style="width:100.0%"></div></div>
+        <div class="bar-val">$14.37</div>
+      </div>
+      <div class="bar-sub">13 units</div></div>
+      <div class="chart-block"><h3>Duration by slice</h3>
+      <div class="bar-row">
+        <div class="bar-lbl">M006</div>
+        <div class="bar-track"><div class="bar-fill bar-c0" style="width:19.2%"></div></div>
+        <div class="bar-val">5m 17s</div>
+      </div>
+      <div class="bar-sub">$1.27</div>
+      <div class="bar-row">
+        <div class="bar-lbl">M006/S01</div>
+        <div class="bar-track"><div class="bar-fill bar-c1" style="width:90.5%"></div></div>
+        <div class="bar-val">24m 53s</div>
+      </div>
+      <div class="bar-sub">$9.82</div>
+      <div class="bar-row">
+        <div class="bar-lbl">M006/S02</div>
+        <div class="bar-track"><div class="bar-fill bar-c2" style="width:100.0%"></div></div>
+        <div class="bar-val">27m 29s</div>
+      </div>
+      <div class="bar-sub">$3.28</div></div>
+    </div>
+    
+    <div class="gantt-wrap">
+      <h3>Slice timeline</h3>
+      <svg class="gantt-svg" viewBox="0 0 700 150" width="700" height="150">
+        <text x="134" y="49" class="gantt-label" text-anchor="end">M006/S01</text>
+      <rect x="140.0" y="36.0" width="281.9" height="18" rx="2" class="gantt-bar-done"><title>M006/S01: 36m 5s</title></rect>
+<text x="134" y="79" class="gantt-label" text-anchor="end">M006/S02</text>
+      <rect x="422.2" y="66.0" width="216.0" height="18" rx="2" class="gantt-bar-done"><title>M006/S02: 27m 39s</title></rect>
+<text x="134" y="109" class="gantt-label" text-anchor="end">M006</text>
+      <rect x="638.4" y="96.0" width="41.6" height="18" rx="2" class="gantt-bar-pending"><title>M006: 5m 19s</title></rect>
+        <text x="140.0" y="142" class="gantt-axis" text-anchor="middle">Mar 25, 2026, 12:56 PM</text><text x="275.0" y="142" class="gantt-axis" text-anchor="middle">Mar 25, 2026, 01:13 PM</text><text x="410.0" y="142" class="gantt-axis" text-anchor="middle">Mar 25, 2026, 01:31 PM</text><text x="545.0" y="142" class="gantt-axis" text-anchor="middle">Mar 25, 2026, 01:48 PM</text><text x="680.0" y="142" class="gantt-axis" text-anchor="middle">Mar 25, 2026, 02:05 PM</text>
+      </svg>
+    </div>
+  
+</section>
+
+<section id="health">
+  <h2>Health</h2>
+  
+    <table class="tbl tbl-kv"><tbody><tr><td>Token profile</td><td>standard</td></tr><tr class="h-ok"><td>Truncation rate</td><td>0.0% per unit (0 total)</td></tr><tr class="h-ok"><td>Continue-here rate</td><td>0.0% per unit (0 total)</td></tr><tr><td>Tool calls</td><td>325</td></tr><tr><td>Messages</td><td>269 assistant / 0 user</td></tr></tbody></table>
+    
+    <h3>Tier breakdown</h3>
+    <table class="tbl">
+      <thead><tr><th>Tier</th><th>Units</th><th>Cost</th><th>Tokens</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">unknown</td>
+           <td>13</td><td>$14.37</td>
+           <td>18.70M</td></tr>
+      </tbody>
+    </table>
+    
+      <h3>Progress Score</h3>
+      <div style="font-size:1.1em;font-weight:bold;color:#22c55e">● Progressing well</div>
+      <div style="margin-left:1em;color:#888">· Health trend stable</div>
+    
+      <h3>Doctor Run History</h3>
+      <table class="tbl">
+        <thead><tr><th></th><th>Time</th><th>Summary</th></tr></thead>
+        <tbody><tr style="color:#22c55e">
+        <td class="mono">✓</td>
+        <td class="mono">2026-03-25 12:05:51</td>
+        <td>Clean · 3 fixed · Worktree for completed milestone M006 still exists at /Users/ilkka/GherkinPay/.gsd/worktrees/M006</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Worktree for completed milestone M006 still exists at /Users/ilkka/GherkinPay/.gsd/worktrees/M006 <span class="mono" style="color:#888">M006</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ STATE.md is stale — shows &quot;completing-milestone&quot; but derived state is &quot;pre-planning&quot; <span class="mono" style="color:#888">project</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ skipped removing worktree at /Users/ilkka/GherkinPay/.gsd/worktrees/M006 (is cwd)</div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ rebuilt STATE.md from derived state</div></td></tr><tr style="color:#22c55e">
+        <td class="mono">✓</td>
+        <td class="mono">2026-03-25 12:02:27</td>
+        <td>Clean · 3 fixed · Worktree for completed milestone M006 still exists at /Users/ilkka/GherkinPay/.gsd/worktrees/M006</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Worktree for completed milestone M006 still exists at /Users/ilkka/GherkinPay/.gsd/worktrees/M006 <span class="mono" style="color:#888">M006</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ STATE.md is stale — shows &quot;validating-milestone&quot; but derived state is &quot;completing-milestone&quot; <span class="mono" style="color:#888">project</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ skipped removing worktree at /Users/ilkka/GherkinPay/.gsd/worktrees/M006 (is cwd)</div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ rebuilt STATE.md from derived state</div></td></tr><tr style="color:#22c55e">
+        <td class="mono">✓</td>
+        <td class="mono">2026-03-25 12:00:30</td>
+        <td>Clean · 3 fixed · Worktree for completed milestone M006 still exists at /Users/ilkka/GherkinPay/.gsd/worktrees/M006</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Worktree for completed milestone M006 still exists at /Users/ilkka/GherkinPay/.gsd/worktrees/M006 <span class="mono" style="color:#888">M006</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ STATE.md is stale — shows &quot;summarizing&quot; but derived state is &quot;validating-milestone&quot; <span class="mono" style="color:#888">project</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ skipped removing worktree at /Users/ilkka/GherkinPay/.gsd/worktrees/M006 (is cwd)</div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ rebuilt STATE.md from derived state</div></td></tr><tr style="color:#ef4444">
+        <td class="mono">✗</td>
+        <td class="mono">2026-03-25 11:57:59</td>
+        <td>2 errors, 4 warnings · 3 fixed · All tasks are done but S02-SUMMARY.md is missing</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ STATE.md is stale — shows &quot;executing&quot; but derived state is &quot;summarizing&quot; <span class="mono" style="color:#888">project</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ TypeScript is a dependency but tsc is not available (run npm install) <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ rebuilt STATE.md from derived state</div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ created placeholder /Users/ilkka/GherkinPay/.gsd/worktrees/M006/.gsd/milestones/M006/slices/S02/S02-UAT.md</div></td></tr><tr style="color:#22c55e">
+        <td class="mono">✓</td>
+        <td class="mono">2026-03-25 11:37:20</td>
+        <td>Clean · Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ TypeScript is a dependency but tsc is not available (run npm install) <span class="mono" style="color:#888">environment</span></div></td></tr><tr style="color:#22c55e">
+        <td class="mono">✓</td>
+        <td class="mono">2026-03-25 11:35:33</td>
+        <td>Clean · 2 fixed · STATE.md is stale — shows &quot;planning&quot; but derived state is &quot;executing&quot;</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ STATE.md is stale — shows &quot;planning&quot; but derived state is &quot;executing&quot; <span class="mono" style="color:#888">project</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ TypeScript is a dependency but tsc is not available (run npm install) <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ rebuilt STATE.md from derived state</div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ updated /Users/ilkka/GherkinPay/.gsd/worktrees/M006/.gsd/STATE.md</div></td></tr><tr style="color:#22c55e">
+        <td class="mono">✓</td>
+        <td class="mono">2026-03-25 11:34:06</td>
+        <td>Clean · Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ TypeScript is a dependency but tsc is not available (run npm install) <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Slice M006/S02 has no plan file <span class="mono" style="color:#888">M006/S02</span></div></td></tr><tr style="color:#22c55e">
+        <td class="mono">✓</td>
+        <td class="mono">2026-03-25 11:32:48</td>
+        <td>Clean · 2 fixed · STATE.md is stale — shows &quot;summarizing&quot; but derived state is &quot;planning&quot;</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ STATE.md is stale — shows &quot;summarizing&quot; but derived state is &quot;planning&quot; <span class="mono" style="color:#888">project</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ TypeScript is a dependency but tsc is not available (run npm install) <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ rebuilt STATE.md from derived state</div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ updated /Users/ilkka/GherkinPay/.gsd/worktrees/M006/.gsd/STATE.md</div></td></tr><tr style="color:#ef4444">
+        <td class="mono">✗</td>
+        <td class="mono">2026-03-25 11:29:21</td>
+        <td>2 errors, 4 warnings · 3 fixed · All tasks are done but S01-SUMMARY.md is missing</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ STATE.md is stale — shows &quot;executing&quot; but derived state is &quot;summarizing&quot; <span class="mono" style="color:#888">project</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ TypeScript is a dependency but tsc is not available (run npm install) <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ rebuilt STATE.md from derived state</div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ created placeholder /Users/ilkka/GherkinPay/.gsd/worktrees/M006/.gsd/milestones/M006/slices/S01/S01-UAT.md</div></td></tr><tr style="color:#ef4444">
+        <td class="mono">✗</td>
+        <td class="mono">2026-03-25 11:21:43</td>
+        <td>1 error, 2 warnings · node_modules missing — run npm install</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#ef4444;font-size:0.85em">✗ node_modules missing — run npm install <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ TypeScript is a dependency but tsc is not available (run npm install) <span class="mono" style="color:#888">environment</span></div></td></tr><tr style="color:#ef4444">
+        <td class="mono">✗</td>
+        <td class="mono">2026-03-25 11:18:00</td>
+        <td>1 error, 3 warnings · 2 fixed · node_modules missing — run npm install</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ STATE.md is stale — shows &quot;planning&quot; but derived state is &quot;executing&quot; <span class="mono" style="color:#888">project</span></div><div style="margin-left:2em;color:#ef4444;font-size:0.85em">✗ node_modules missing — run npm install <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ rebuilt STATE.md from derived state</div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ updated /Users/ilkka/GherkinPay/.gsd/worktrees/M006/.gsd/STATE.md</div></td></tr><tr style="color:#ef4444">
+        <td class="mono">✗</td>
+        <td class="mono">2026-03-25 11:13:58</td>
+        <td>1 error, 4 warnings · 2 fixed · node_modules missing — run npm install</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ STATE.md is stale — shows &quot;planned&quot; but derived state is &quot;planning&quot; <span class="mono" style="color:#888">project</span></div><div style="margin-left:2em;color:#ef4444;font-size:0.85em">✗ node_modules missing — run npm install <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ rebuilt STATE.md from derived state</div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ updated /Users/ilkka/GherkinPay/.gsd/worktrees/M006/.gsd/STATE.md</div></td></tr><tr style="color:#22c55e">
+        <td class="mono">✓</td>
+        <td class="mono">2026-03-23 12:17:52</td>
+        <td>Clean · 3 fixed · Worktree for completed milestone M004 still exists at /Users/ilkka/GherkinPay/.gsd/worktrees/M004</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Worktree for completed milestone M004 still exists at /Users/ilkka/GherkinPay/.gsd/worktrees/M004 <span class="mono" style="color:#888">M004</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ STATE.md is stale — shows &quot;completing-milestone&quot; but derived state is &quot;complete&quot; <span class="mono" style="color:#888">project</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3000 is already in use by f17 (PID 84551) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ skipped removing worktree at /Users/ilkka/GherkinPay/.gsd/worktrees/M004 (is cwd)</div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ rebuilt STATE.md from derived state</div></td></tr><tr style="color:#22c55e">
+        <td class="mono">✓</td>
+        <td class="mono">2026-03-23 12:15:25</td>
+        <td>Clean · 3 fixed · Worktree for completed milestone M004 still exists at /Users/ilkka/GherkinPay/.gsd/worktrees/M004</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Worktree for completed milestone M004 still exists at /Users/ilkka/GherkinPay/.gsd/worktrees/M004 <span class="mono" style="color:#888">M004</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ STATE.md is stale — shows &quot;validating-milestone&quot; but derived state is &quot;completing-milestone&quot; <span class="mono" style="color:#888">project</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3000 is already in use by f17 (PID 84551) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ skipped removing worktree at /Users/ilkka/GherkinPay/.gsd/worktrees/M004 (is cwd)</div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ rebuilt STATE.md from derived state</div></td></tr><tr style="color:#22c55e">
+        <td class="mono">✓</td>
+        <td class="mono">2026-03-23 12:14:09</td>
+        <td>Clean · 3 fixed · Worktree for completed milestone M004 still exists at /Users/ilkka/GherkinPay/.gsd/worktrees/M004</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Worktree for completed milestone M004 still exists at /Users/ilkka/GherkinPay/.gsd/worktrees/M004 <span class="mono" style="color:#888">M004</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ STATE.md is stale — shows &quot;summarizing&quot; but derived state is &quot;validating-milestone&quot; <span class="mono" style="color:#888">project</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3000 is already in use by f17 (PID 84551) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ skipped removing worktree at /Users/ilkka/GherkinPay/.gsd/worktrees/M004 (is cwd)</div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ rebuilt STATE.md from derived state</div></td></tr><tr style="color:#ef4444">
+        <td class="mono">✗</td>
+        <td class="mono">2026-03-23 12:12:07</td>
+        <td>2 errors, 6 warnings · 3 fixed · All tasks are done but S03-SUMMARY.md is missing</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ STATE.md is stale — shows &quot;executing&quot; but derived state is &quot;summarizing&quot; <span class="mono" style="color:#888">project</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3000 is already in use by f17 (PID 84551) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ rebuilt STATE.md from derived state</div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ created placeholder /Users/ilkka/GherkinPay/.gsd/worktrees/M004/.gsd/milestones/M004/slices/S03/S03-UAT.md</div></td></tr><tr style="color:#22c55e">
+        <td class="mono">✓</td>
+        <td class="mono">2026-03-23 12:08:46</td>
+        <td>Clean · Port 3000 is already in use by f17 (PID 84551) — Kill the process or use a different port</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3000 is already in use by f17 (PID 84551) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 8000 is already in use by f77 (PID 85964) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div></td></tr><tr style="color:#22c55e">
+        <td class="mono">✓</td>
+        <td class="mono">2026-03-23 12:03:29</td>
+        <td>Clean · 2 fixed · STATE.md is stale — shows &quot;planning&quot; but derived state is &quot;executing&quot;</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ STATE.md is stale — shows &quot;planning&quot; but derived state is &quot;executing&quot; <span class="mono" style="color:#888">project</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3000 is already in use by f17 (PID 84551) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ rebuilt STATE.md from derived state</div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ updated /Users/ilkka/GherkinPay/.gsd/worktrees/M004/.gsd/STATE.md</div></td></tr><tr style="color:#22c55e">
+        <td class="mono">✓</td>
+        <td class="mono">2026-03-23 12:00:49</td>
+        <td>Clean · Port 3000 is already in use by f17 (PID 84551) — Kill the process or use a different port</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3000 is already in use by f17 (PID 84551) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 8000 is already in use by f77 (PID 85964) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div></td></tr><tr style="color:#22c55e">
+        <td class="mono">✓</td>
+        <td class="mono">2026-03-23 11:58:53</td>
+        <td>Clean · 2 fixed · STATE.md is stale — shows &quot;summarizing&quot; but derived state is &quot;planning&quot;</td>
+      </tr>
+      <tr><td colspan="3"><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ STATE.md is stale — shows &quot;summarizing&quot; but derived state is &quot;planning&quot; <span class="mono" style="color:#888">project</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3000 is already in use by f17 (PID 84551) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#eab308;font-size:0.85em">⚠ Port 3001 is already in use by f13 (PID 59364) — Kill the process or use a different port <span class="mono" style="color:#888">environment</span></div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ rebuilt STATE.md from derived state</div><div style="margin-left:2em;color:#22c55e;font-size:0.85em">↳ updated /Users/ilkka/GherkinPay/.gsd/worktrees/M004/.gsd/STATE.md</div></td></tr></tbody>
+      </table>
+  
+</section>
+
+<section id="changelog">
+  <h2>Changelog <span class="count">17</span></h2>
+  
+      <div class="cl-entry">
+        <div class="cl-header">
+          <span class="mono muted">M006/S02</span>
+          <span class="cl-title">Landing Page FX Framing &amp; Deploy</span>
+          <span class="muted cl-date">Mar 25, 2026, 02:00 AM</span>
+        </div>
+        <p class="cl-liner">Added FX Oracle Settlement feature card and expanded stats bar to the landing page, then deployed the full M006 build to EC2 — live at gherkinpay.lacertalabs.xyz with FX presets, post+crank oracle, and updated landing page.</p>
+        
+      <div class="detail-block"><span class="detail-label">Decisions</span>
+        <ul><li>Anchor v0.30+ reads program address from IDL JSON — no need to pass PROGRAM_ID to Program constructor</li><li>Wallet Standard auto-detection with wallets=[] — no explicit Phantom/Solflare adapter imports needed</li><li>Added .next to .prettierignore to prevent root lint glob from matching build artifacts</li></ul>
+      </div>
+        
+      <details class="files-detail">
+        <summary class="muted">1 file modified</summary>
+        <ul class="file-list">
+          <li><code>app/web/src/app/page.tsx</code> — Added 7th FX Oracle Settlement feature card, expanded stats bar with &quot;3 FX pairs&quot; stat</li>
+        </ul>
+      </details>
+      </div>
+      <div class="cl-entry">
+        <div class="cl-header">
+          <span class="mono muted">M004/S01</span>
+          <span class="cl-title">Travel Rule Contract Extension</span>
+          <span class="muted cl-date">Mar 23, 2026, 02:00 AM</span>
+        </div>
+        <p class="cl-liner">Payment agreements now carry a Travel Rule metadata URI field end-to-end: stored on-chain via both create instructions, emitted in events, and visible in the wizard and detail page</p>
+        
+      <div class="detail-block"><span class="detail-label">Decisions</span>
+        <ul><li>Manual components.json creation instead of interactive shadcn init to avoid globals.css overwrite</li><li>Renamed --border to --gp-border and --sidebar to --gp-sidebar to avoid shadcn namespace collision</li><li>shadcn canary path for Tailwind v4 CSS-based config compatibility</li></ul>
+      </div>
+        
+      <details class="files-detail">
+        <summary class="muted">10 files modified</summary>
+        <ul class="file-list">
+          <li><code>programs/gherkin-pay/src/state/payment.rs</code> — Added `#[max_len(200)] pub metadata_uri: String` to PaymentAgreement</li><li><code>programs/gherkin-pay/src/events.rs</code> — Added `pub metadata_uri: String` to PaymentCreated event</li><li><code>programs/gherkin-pay/src/instructions/create_payment.rs</code> — Added metadata_uri param, assignment, and emit field</li><li><code>programs/gherkin-pay/src/instructions/create_milestone_payment.rs</code> — Added metadata_uri param, assignment, and emit field</li><li><code>programs/gherkin-pay/src/lib.rs</code> — Threaded metadata_uri through both dispatcher functions</li><li><code>app/web/src/idl/gherkin_pay.json</code> — Added metadata_uri to PaymentAgreement type, both create instructions, and PaymentCreated event</li><li><code>app/web/src/lib/mutations/create-payment.ts</code> — Added metadataUri to CreatePaymentInput; threaded to both instruction builders</li><li><code>app/web/src/components/create-payment-wizard.tsx</code> — Added metadataUri state, input field, reset, review display, mutation threading</li><li><code>app/web/src/lib/queries/conditions.ts</code> — Added metadataUri to ParsedPaymentDetail; mapped from account data</li><li><code>app/web/src/app/(console)/agreements/[id]/page.tsx</code> — Added Metadata URI row with clickable link for HTTP URIs</li>
+        </ul>
+      </details>
+      </div>
+      <div class="cl-entry">
+        <div class="cl-header">
+          <span class="mono muted">M004/S02</span>
+          <span class="cl-title">Compliance Audit Log</span>
+          <span class="muted cl-date">Mar 23, 2026, 02:00 AM</span>
+        </div>
+        <p class="cl-liner">Filterable compliance audit log page at /audit parsing 7 on-chain event types with context-dependent detail columns, search, and pagination</p>
+        
+      <div class="detail-block"><span class="detail-label">Decisions</span>
+        <ul><li>Anchor v0.30+ reads program address from IDL JSON — no need to pass PROGRAM_ID to Program constructor</li><li>Wallet Standard auto-detection with wallets=[] — no explicit Phantom/Solflare adapter imports needed</li><li>Added .next to .prettierignore to prevent root lint glob from matching build artifacts</li></ul>
+      </div>
+        
+      <details class="files-detail">
+        <summary class="muted">3 files modified</summary>
+        <ul class="file-list">
+          <li><code>app/web/src/lib/queries/audit-log.ts</code> — useComplianceAuditLog() hook with COMPLIANCE_EVENTS allowlist and ComplianceEventName type</li><li><code>app/web/src/app/(console)/audit/page.tsx</code> — Compliance Audit Log page with filterable table, detail column, search, pagination, and all states</li><li><code>app/web/src/app/_components/dashboard-nav.tsx</code> — Added &quot;Audit Log&quot; nav entry after Activity</li>
+        </ul>
+      </details>
+      </div>
+      <div class="cl-entry">
+        <div class="cl-header">
+          <span class="mono muted">M004/S03</span>
+          <span class="cl-title">Crank Automation Bot</span>
+          <span class="muted cl-date">Mar 23, 2026, 02:00 AM</span>
+        </div>
+        <p class="cl-liner">Standalone TypeScript crank bot that polls all on-chain ConditionAccounts and automatically cranks time-based, oracle, and token-gated conditions — with dry-run mode and structured logging.</p>
+        
+      <div class="detail-block"><span class="detail-label">Decisions</span>
+        <ul><li>Cast Program&lt;Idl&gt; to Program&lt;GherkinPay&gt; at query hook level because Anchor 0.32 constructor infers Idl generic regardless of IDL object type</li><li>Used &quot;use client&quot; directly on page rather than server shell + client sub-component — page has no server data needs after tRPC removal</li><li>Import BN from @coral-xyz/anchor to avoid separate @types/bn.js dependency</li></ul>
+      </div>
+        
+      <details class="files-detail">
+        <summary class="muted">2 files modified</summary>
+        <ul class="file-list">
+          <li><code>scripts/crank-bot.ts</code> — Standalone crank bot with time, oracle, and token-gate condition evaluation, CLI args, polling loop, dry-run mode, structured logging</li><li><code>scripts/README.md</code> — Operator documentation for bot prerequisites, CLI options, condition types, output format, and limitations</li>
+        </ul>
+      </details>
+      </div>
+      <div class="cl-entry">
+        <div class="cl-header">
+          <span class="mono muted">M002/S01</span>
+          <span class="cl-title">Create Payment Wizard</span>
+          <span class="muted cl-date">Mar 20, 2026, 02:50 PM</span>
+        </div>
+        <p class="cl-liner">3-step Dialog wizard for creating simple and milestone payment agreements with all 5 condition types, sequential on-chain transaction submission, and automatic agreements list refresh — wired into the Agreements page.</p>
+        
+      <div class="detail-block"><span class="detail-label">Decisions</span>
+        <ul><li>Manual components.json creation instead of interactive shadcn init to avoid globals.css overwrite</li><li>Renamed --border to --gp-border and --sidebar to --gp-sidebar to avoid shadcn namespace collision</li><li>shadcn canary path for Tailwind v4 CSS-based config compatibility</li></ul>
+      </div>
+        
+      <details class="files-detail">
+        <summary class="muted">23 files modified</summary>
+        <ul class="file-list">
+          <li><code>app/web/src/components/create-payment-wizard.tsx</code> — 3-step wizard Dialog with simple/milestone modes, validation, mutation submission, TransactionStatus feedback</li><li><code>app/web/src/components/condition-builder.tsx</code> — ConditionBuilder with all 5 condition types, dynamic add/remove, Zod validation</li><li><code>app/web/src/components/transaction-status.tsx</code> — TransactionStatus with idle/loading/success/error states and Explorer links</li><li><code>app/web/src/lib/mutations/create-payment.ts</code> — useCreatePayment() mutation hook with full simple + milestone payment flows</li><li><code>app/web/src/lib/anchor.ts</code> — useAnchorProgram() hook returning typed Program&lt;GherkinPay&gt;</li><li><code>app/web/src/lib/pda.ts</code> — PDA derivation helpers (getPaymentPDA, getEscrowPDA, getConditionPDA)</li><li><code>app/web/src/lib/constants.ts</code> — PROGRAM_ID and SOLANA_RPC_URL constants</li><li><code>app/web/src/types/gherkin_pay.ts</code> — TypeScript IDL type</li><li><code>app/web/src/idl/gherkin_pay.json</code> — Anchor IDL JSON</li><li><code>app/web/src/components/ui/input.tsx</code> — shadcn Input</li><li><code>app/web/src/components/ui/label.tsx</code> — shadcn Label</li><li><code>app/web/src/components/ui/select.tsx</code> — shadcn Select</li><li><code>app/web/src/components/ui/radio-group.tsx</code> — shadcn RadioGroup</li><li><code>app/web/src/components/ui/tabs.tsx</code> — shadcn Tabs</li><li><code>app/web/src/components/ui/separator.tsx</code> — shadcn Separator</li><li><code>app/web/src/components/ui/badge.tsx</code> — shadcn Badge</li><li><code>app/web/src/components/ui/dialog.tsx</code> — shadcn Dialog</li><li><code>app/web/src/components/ui/button.tsx</code> — shadcn Button (generated by init)</li><li><code>app/web/src/lib/utils.ts</code> — cn() utility</li><li><code>app/web/src/styles/globals.css</code> — remapped shadcn CSS variables to dark theme</li><li><code>app/web/components.json</code> — shadcn configuration</li><li><code>app/web/src/app/(console)/agreements/page.tsx</code> — replaced static button with CreatePaymentWizard</li><li><code>app/web/package.json</code> — added Anchor, Solana, react-hook-form, @hookform/resolvers dependencies</li>
+        </ul>
+      </details>
+      </div>
+      <div class="cl-entry">
+        <div class="cl-header">
+          <span class="mono muted">M001/S04</span>
+          <span class="cl-title">Milestones — Live Reads</span>
+          <span class="muted cl-date">Mar 20, 2026, 02:00 AM</span>
+        </div>
+        <p class="cl-liner">Milestones page fetches real conditionAccount data from devnet, joined to parent agreements, with status badges, USDC amounts, and condition counts — zero mock data remaining</p>
+        
+      <div class="detail-block"><span class="detail-label">Decisions</span>
+        <ul><li>Unfiltered fetch (conditionAccount.all()) with client-side join to agreements — acceptable at devnet scale</li><li>Same Badge variant mapping as agreements page for cross-page visual consistency</li></ul>
+      </div>
+        
+      <details class="files-detail">
+        <summary class="muted">2 files modified</summary>
+        <ul class="file-list">
+          <li><code>app/web/src/lib/queries/milestones.ts</code> — new: useMilestones() React Query hook with conditionAccount fetch and agreement join</li><li><code>app/web/src/app/(console)/milestones/page.tsx</code> — full rewrite: live on-chain data with four UI states, shadcn components, zero mock data</li>
+        </ul>
+      </details>
+      </div>
+      <div class="cl-entry">
+        <div class="cl-header">
+          <span class="mono muted">M001/S05</span>
+          <span class="cl-title">Compliance and Relayers — Live Reads</span>
+          <span class="muted cl-date">Mar 20, 2026, 02:00 AM</span>
+        </div>
+        <p class="cl-liner">Compliance page fetches live ComplianceEntry accounts from the hook program; relayers page cleaned of mock data with static placeholder for M003.</p>
+        
+      <div class="detail-block"><span class="detail-label">Decisions</span>
+        <ul><li>Hook program queries use hookProgram from useAnchorProgram() cast to Program&lt;GherkinPayHook&gt; — same pattern as D008 for main program</li></ul>
+      </div>
+        
+      <details class="files-detail">
+        <summary class="muted">3 files modified</summary>
+        <ul class="file-list">
+          <li><code>app/web/src/lib/queries/compliance.ts</code> — New React Query hook fetching ComplianceEntry accounts from hook program</li><li><code>app/web/src/app/(console)/compliance/page.tsx</code> — Rewritten with live devnet data, shadcn components, four visual states</li><li><code>app/web/src/app/(console)/relayers/page.tsx</code> — Removed mock array, replaced with static placeholder</li>
+        </ul>
+      </details>
+      </div>
+      <div class="cl-entry">
+        <div class="cl-header">
+          <span class="mono muted">M001/S06</span>
+          <span class="cl-title">Activity Event Feed</span>
+          <span class="muted cl-date">Mar 20, 2026, 02:00 AM</span>
+        </div>
+        <p class="cl-liner">Live on-chain event feed parsing gherkin_pay program transaction logs via Anchor EventParser, displayed with shadcn Table/Badge/Skeleton and five UI states</p>
+        
+      <div class="detail-block"><span class="detail-label">Decisions</span>
+        <ul><li>Badge variant=&quot;outline&quot; for event names — neutral styling, no semantic color per event type</li><li>Cast event.data.payment as unknown as PublicKey since Anchor EventParser returns deserialized PublicKey objects typed as unknown in the Record</li></ul>
+      </div>
+        
+      <details class="files-detail">
+        <summary class="muted">2 files modified</summary>
+        <ul class="file-list">
+          <li><code>app/web/src/lib/queries/activity.ts</code> — New useActivityFeed() hook with EventParser log parsing and ActivityEvent type</li><li><code>app/web/src/app/(console)/activity/page.tsx</code> — Complete rewrite: live event feed with shadcn components and five UI states</li>
+        </ul>
+      </details>
+      </div>
+      <div class="cl-entry">
+        <div class="cl-header">
+          <span class="mono muted">M002/S02</span>
+          <span class="cl-title">Fund Payment</span>
+          <span class="muted cl-date">Mar 20, 2026, 02:00 AM</span>
+        </div>
+        <p class="cl-liner">Fund button on Created payments opens a confirmation dialog with balance check, signs the fundPayment transaction, and updates status to Active with real on-chain data replacing all mock agreement data</p>
+        
+      <div class="detail-block"><span class="detail-label">Decisions</span>
+        <ul><li>Anchor v0.30+ reads program address from IDL JSON — no need to pass PROGRAM_ID to Program constructor</li><li>Wallet Standard auto-detection with wallets=[] — no explicit Phantom/Solflare adapter imports needed</li><li>Added .next to .prettierignore to prevent root lint glob from matching build artifacts</li></ul>
+      </div>
+        
+      <details class="files-detail">
+        <summary class="muted">5 files modified</summary>
+        <ul class="file-list">
+          <li><code>app/web/src/lib/token.ts</code> — New: USDC_MINT constant and getUsdcAta() Token-2022 ATA helper</li><li><code>app/web/src/lib/mutations/fund-payment.ts</code> — New: useFundPayment() mutation hook with PDA derivation and cache invalidation</li><li><code>app/web/src/components/fund-payment-dialog.tsx</code> — New: FundPaymentDialog with balance check, escrow details, and TransactionStatus</li><li><code>app/web/src/components/agreements-client.tsx</code> — New: AgreementsClient fetching real on-chain data with Fund action buttons</li><li><code>app/web/src/app/(console)/agreements/page.tsx</code> — Updated: simplified to server shell delegating to AgreementsClient</li>
+        </ul>
+      </details>
+      </div>
+      <div class="cl-entry">
+        <div class="cl-header">
+          <span class="mono muted">M002/S03</span>
+          <span class="cl-title">Release and Cancel</span>
+          <span class="muted cl-date">Mar 20, 2026, 02:00 AM</span>
+        </div>
+        <p class="cl-liner">Release and cancel mutation hooks with confirmation dialogs and action buttons on the agreements page — completing the full payment lifecycle UI on devnet</p>
+        
+      <div class="detail-block"><span class="detail-label">Decisions</span>
+        <ul><li>Cast Program&lt;Idl&gt; to Program&lt;GherkinPay&gt; at query hook level because Anchor 0.32 constructor infers Idl generic regardless of IDL object type</li><li>Used &quot;use client&quot; directly on page rather than server shell + client sub-component — page has no server data needs after tRPC removal</li><li>Import BN from @coral-xyz/anchor to avoid separate @types/bn.js dependency</li></ul>
+      </div>
+        
+      <details class="files-detail">
+        <summary class="muted">15 files modified</summary>
+        <ul class="file-list">
+          <li><code>app/web/src/lib/mutations/release-payment.ts</code> — useReleasePayment hook with crankTime pre-flight and nextConditionAccount three-way logic</li><li><code>app/web/src/lib/mutations/cancel-payment.ts</code> — useCancelPayment hook with escrow refund to payer</li><li><code>app/web/src/components/release-payment-dialog.tsx</code> — Release confirmation dialog with milestone awareness and TransactionStatus</li><li><code>app/web/src/components/cancel-payment-dialog.tsx</code> — Cancel confirmation dialog with refund calculation and TransactionStatus</li><li><code>app/web/src/components/agreements-client.tsx</code> — Agreements table with on-chain data fetching and conditional action buttons</li><li><code>app/web/src/components/transaction-status.tsx</code> — Reusable transaction status display (idle/loading/success/error)</li><li><code>app/web/src/app/(console)/agreements/page.tsx</code> — Simplified to server shell delegating to AgreementsClient</li><li><code>app/web/src/lib/anchor.ts</code> — useAnchorProgram hook with typed GherkinPay program</li><li><code>app/web/src/lib/pda.ts</code> — PDA derivation helpers (payment, escrow, condition)</li><li><code>app/web/src/lib/constants.ts</code> — PROGRAM_ID, SOLANA_RPC_URL, USDC_MINT</li><li><code>app/web/src/lib/token.ts</code> — Token-2022 ATA derivation helper</li><li><code>app/web/src/lib/utils.ts</code> — cn, truncateAddress, formatTokenAmount utilities</li><li><code>app/web/src/types/gherkin_pay.ts</code> — Anchor-generated TypeScript IDL types</li><li><code>app/web/src/idl/gherkin_pay.json</code> — Anchor IDL JSON (built from source)</li><li><code>app/web/package.json</code> — Added Solana/Anchor runtime dependencies</li>
+        </ul>
+      </details>
+      </div>
+      <div class="cl-entry">
+        <div class="cl-header">
+          <span class="mono muted">M003/S01</span>
+          <span class="cl-title">Permissionless Cranks</span>
+          <span class="muted cl-date">Mar 20, 2026, 02:00 AM</span>
+        </div>
+        <p class="cl-liner">Agreement detail page with live on-chain condition data and permissionless crank buttons for time, oracle, and token gate conditions — including Pyth price display, staleness warnings, and decoded error feedback.</p>
+        
+      <div class="detail-block"><span class="detail-label">Decisions</span>
+        <ul><li>Manual components.json creation instead of interactive shadcn init to avoid globals.css overwrite</li><li>Renamed --border to --gp-border and --sidebar to --gp-sidebar to avoid shadcn namespace collision</li><li>shadcn canary path for Tailwind v4 CSS-based config compatibility</li></ul>
+      </div>
+        
+      <details class="files-detail">
+        <summary class="muted">34 files modified</summary>
+        <ul class="file-list">
+          <li><code>app/web/package.json</code> — added 13 Solana/Anchor/wallet/shadcn dependencies</li><li><code>app/web/components.json</code> — shadcn canary configuration</li><li><code>app/web/next.config.js</code> — webpack externals for Node.js polyfills</li><li><code>app/web/src/env.js</code> — T3 env schema with NEXT_PUBLIC_SOLANA_RPC_URL</li><li><code>app/web/src/idl/gherkin_pay.json</code> — Anchor IDL for gherkin_pay program</li><li><code>app/web/src/idl/gherkin_pay_hook.json</code> — Anchor IDL for hook program</li><li><code>app/web/src/types/gherkin_pay.ts</code> — TypeScript types, enums, error codes</li><li><code>app/web/src/types/gherkin_pay_hook.ts</code> — TypeScript types for hook program</li><li><code>app/web/src/lib/anchor.ts</code> — useAnchorProgram() hook</li><li><code>app/web/src/lib/pda.ts</code> — PDA derivation helpers</li><li><code>app/web/src/lib/constants.ts</code> — program ID constants</li><li><code>app/web/src/lib/token.ts</code> — USDC mint and ATA helper</li><li><code>app/web/src/lib/utils.ts</code> — cn() utility</li><li><code>app/web/src/lib/errors.ts</code> — 27-variant error decoder</li><li><code>app/web/src/lib/queries/agreements.ts</code> — useAgreements(), formatTokenAmount, truncatePubkey</li><li><code>app/web/src/lib/queries/conditions.ts</code> — useConditions(), usePaymentDetail()</li><li><code>app/web/src/lib/mutations/crank-time.ts</code> — useCrankTime() mutation</li><li><code>app/web/src/lib/mutations/crank-oracle.ts</code> — useCrankOracle() with parsePythPrice, isPriceStale</li><li><code>app/web/src/lib/mutations/crank-token-gate.ts</code> — useCrankTokenGate() with ATA derivation</li><li><code>app/web/src/components/wallet-provider.tsx</code> — WalletContextProvider</li><li><code>app/web/src/components/wallet-button.tsx</code> — WalletMultiButton wrapper</li><li><code>app/web/src/components/condition-card.tsx</code> — ConditionCard with CrankAction and oracle price display</li><li><code>app/web/src/components/agreements-client.tsx</code> — agreements list with clickable rows</li><li><code>app/web/src/components/transaction-status.tsx</code> — transaction feedback component</li><li><code>app/web/src/components/ui/button.tsx</code> — shadcn Button</li><li><code>app/web/src/components/ui/table.tsx</code> — shadcn Table</li><li><code>app/web/src/components/ui/badge.tsx</code> — shadcn Badge</li><li><code>app/web/src/components/ui/card.tsx</code> — shadcn Card</li><li><code>app/web/src/components/ui/skeleton.tsx</code> — shadcn Skeleton</li><li><code>app/web/src/components/ui/dialog.tsx</code> — shadcn Dialog</li><li><code>app/web/src/app/layout.tsx</code> — wrapped with WalletContextProvider</li><li><code>app/web/src/app/(console)/layout.tsx</code> — added WalletButton to sidebar</li><li><code>app/web/src/app/(console)/agreements/page.tsx</code> — rewired to use AgreementsClient</li><li><code>app/web/src/app/(console)/agreements/[id]/page.tsx</code> — agreement detail page</li>
+        </ul>
+      </details>
+      </div>
+      <div class="cl-entry">
+        <div class="cl-header">
+          <span class="mono muted">M003/S02</span>
+          <span class="cl-title">Permissioned Actions</span>
+          <span class="muted cl-date">Mar 20, 2026, 02:00 AM</span>
+        </div>
+        <p class="cl-liner">Multisig signers can approve conditions with per-signer status tracking, and relayers can submit webhook event hash confirmations — both wallet-gated with decoded error feedback on the agreement detail view</p>
+        
+      <div class="detail-block"><span class="detail-label">Decisions</span>
+        <ul><li>Anchor v0.30+ reads program address from IDL JSON — no need to pass PROGRAM_ID to Program constructor</li><li>Wallet Standard auto-detection with wallets=[] — no explicit Phantom/Solflare adapter imports needed</li><li>Added .next to .prettierignore to prevent root lint glob from matching build artifacts</li></ul>
+      </div>
+        
+      <details class="files-detail">
+        <summary class="muted">4 files modified</summary>
+        <ul class="file-list">
+          <li><code>app/web/src/lib/mutations/sign-multisig.ts</code> — new: useSignMultisig() mutation hook with Anchor signMultisig RPC, query invalidation, error decoding</li><li><code>app/web/src/lib/mutations/confirm-webhook.ts</code> — new: useConfirmWebhook() mutation hook with eventHash byte array arg, Anchor confirmWebhook RPC, query invalidation, error decoding</li><li><code>app/web/src/components/condition-card.tsx</code> — modified: added MultisigAction and WebhookAction sub-components with wallet-gated UI, replaced placeholder text, excluded permissioned actions from shared TransactionStatus</li><li><code>app/web/src/components/ui/input.tsx</code> — new: shadcn Input component</li>
+        </ul>
+      </details>
+      </div>
+      <div class="cl-entry">
+        <div class="cl-header">
+          <span class="mono muted">M003/S03</span>
+          <span class="cl-title">Admin Flows</span>
+          <span class="muted cl-date">Mar 20, 2026, 02:00 AM</span>
+        </div>
+        <p class="cl-liner">Live compliance allowlist management via hookProgram on-chain writes and localStorage-based relayer registration, replacing mock-data admin pages with functional devnet UI</p>
+        
+      <div class="detail-block"><span class="detail-label">Decisions</span>
+        <ul><li>Cast Program&lt;Idl&gt; to Program&lt;GherkinPay&gt; at query hook level because Anchor 0.32 constructor infers Idl generic regardless of IDL object type</li><li>Used &quot;use client&quot; directly on page rather than server shell + client sub-component — page has no server data needs after tRPC removal</li><li>Import BN from @coral-xyz/anchor to avoid separate @types/bn.js dependency</li></ul>
+      </div>
+        
+      <details class="files-detail">
+        <summary class="muted">5 files modified</summary>
+        <ul class="file-list">
+          <li><code>app/web/src/lib/queries/compliance.ts</code> — ComplianceEntry query hook with PDA derivation</li><li><code>app/web/src/lib/mutations/set-compliance.ts</code> — setCompliance mutation hook using hookProgram</li><li><code>app/web/src/app/(console)/compliance/page.tsx</code> — rewritten from mock data to live on-chain reads/writes</li><li><code>app/web/src/lib/relayer-registry.ts</code> — localStorage CRUD helpers for relayer registry</li><li><code>app/web/src/app/(console)/relayers/page.tsx</code> — rewritten from mock data to localStorage-backed registration</li>
+        </ul>
+      </details>
+      </div>
+      <div class="cl-entry">
+        <div class="cl-header">
+          <span class="mono muted">M001/S01</span>
+          <span class="cl-title">shadcn Setup and Design System</span>
+          <span class="muted cl-date">Mar 19, 2026, 02:00 AM</span>
+        </div>
+        <p class="cl-liner">shadcn/ui installed, themed to GherkinPay dark green palette, and building clean alongside existing CSS — Button, Table, Badge, Dialog available; CSS namespace collision resolved; `bun run build` and `bun run typecheck` pass.</p>
+        
+      <div class="detail-block"><span class="detail-label">Decisions</span>
+        <ul><li>Manual components.json creation instead of interactive shadcn init to avoid globals.css overwrite</li><li>Renamed --border to --gp-border and --sidebar to --gp-sidebar to avoid shadcn namespace collision</li><li>shadcn canary path for Tailwind v4 CSS-based config compatibility</li></ul>
+      </div>
+        
+      <details class="files-detail">
+        <summary class="muted">10 files modified</summary>
+        <ul class="file-list">
+          <li><code>app/web/components.json</code> — new: shadcn config with new-york style, ~/ aliases, Tailwind v4 CSS path</li><li><code>app/web/src/lib/utils.ts</code> — new: cn() utility (clsx + tailwind-merge)</li><li><code>app/web/src/styles/globals.css</code> — modified: --border→--gp-border (16), --sidebar→--gp-sidebar (2), added tw-animate-css import, shadcn :root variables with oklch values, @theme inline block</li><li><code>app/web/package.json</code> — modified: added 5 shadcn dependencies</li><li><code>app/web/bun.lock</code> — modified: updated lockfile</li><li><code>app/web/src/components/ui/button.tsx</code> — new: shadcn Button component</li><li><code>app/web/src/components/ui/table.tsx</code> — new: shadcn Table component family</li><li><code>app/web/src/components/ui/badge.tsx</code> — new: shadcn Badge component</li><li><code>app/web/src/components/ui/dialog.tsx</code> — new: shadcn Dialog component</li><li><code>app/web/src/app/(console)/layout.tsx</code> — modified: added Button import and &quot;Connect Wallet&quot; smoke test</li>
+        </ul>
+      </details>
+      </div>
+      <div class="cl-entry">
+        <div class="cl-header">
+          <span class="mono muted">M001/S02</span>
+          <span class="cl-title">Wallet Connect and Anchor Client</span>
+          <span class="muted cl-date">Mar 19, 2026, 02:00 AM</span>
+        </div>
+        <p class="cl-liner">Wallet adapter and Anchor program client wired into App Router — Phantom/Solflare connect from the sidebar, typed Program instances available via hook for all downstream slices</p>
+        
+      <div class="detail-block"><span class="detail-label">Decisions</span>
+        <ul><li>Anchor v0.30+ reads program address from IDL JSON — no need to pass PROGRAM_ID to Program constructor</li><li>Wallet Standard auto-detection with wallets=[] — no explicit Phantom/Solflare adapter imports needed</li><li>Added .next to .prettierignore to prevent root lint glob from matching build artifacts</li></ul>
+      </div>
+        
+      <details class="files-detail">
+        <summary class="muted">14 files modified</summary>
+        <ul class="file-list">
+          <li><code>app/web/src/idl/gherkin_pay.json</code> — IDL JSON for main program</li><li><code>app/web/src/idl/gherkin_pay_hook.json</code> — IDL JSON for hook program</li><li><code>app/web/src/types/gherkin_pay.ts</code> — TypeScript types for main program</li><li><code>app/web/src/types/gherkin_pay_hook.ts</code> — TypeScript types for hook program</li><li><code>app/web/src/lib/constants.ts</code> — PROGRAM_ID, HOOK_PROGRAM_ID, DEVNET_RPC_ENDPOINT</li><li><code>app/web/src/env.js</code> — Added NEXT_PUBLIC_SOLANA_RPC_URL to T3 env schema</li><li><code>app/web/src/components/wallet-provider.tsx</code> — WalletContextProvider client component</li><li><code>app/web/src/lib/anchor.ts</code> — useAnchorProgram() hook with typed Program instances</li><li><code>app/web/src/components/wallet-button.tsx</code> — WalletMultiButton wrapper</li><li><code>app/web/src/app/layout.tsx</code> — WalletContextProvider wrapping TRPCReactProvider</li><li><code>app/web/src/app/(console)/layout.tsx</code> — WalletButton replacing placeholder</li><li><code>app/web/next.config.js</code> — webpack externals and resolve fallbacks for Solana deps</li><li><code>app/web/package.json</code> — Solana/wallet/Anchor dependencies added</li><li><code>.prettierignore</code> — Added .next to prevent lint failures on build artifacts</li>
+        </ul>
+      </details>
+      </div>
+      <div class="cl-entry">
+        <div class="cl-header">
+          <span class="mono muted">M001/S03</span>
+          <span class="cl-title">Agreements — Live Reads</span>
+          <span class="muted cl-date">Mar 19, 2026, 02:00 AM</span>
+        </div>
+        <p class="cl-liner">Agreements page fetches and displays real PaymentAgreement accounts from devnet via React Query, with status badges, wallet-aware filtering, and four UI states (disconnected/loading/empty/populated) — zero hardcoded arrays, zero tRPC imports remain</p>
+        
+      <div class="detail-block"><span class="detail-label">Decisions</span>
+        <ul><li>Cast Program&lt;Idl&gt; to Program&lt;GherkinPay&gt; at query hook level because Anchor 0.32 constructor infers Idl generic regardless of IDL object type</li><li>Used &quot;use client&quot; directly on page rather than server shell + client sub-component — page has no server data needs after tRPC removal</li><li>Import BN from @coral-xyz/anchor to avoid separate @types/bn.js dependency</li></ul>
+      </div>
+        
+      <details class="files-detail">
+        <summary class="muted">4 files modified</summary>
+        <ul class="file-list">
+          <li><code>app/web/src/lib/pda.ts</code> — new: PDA derivation for payment, escrow, and condition accounts</li><li><code>app/web/src/lib/queries/agreements.ts</code> — new: useAgreements React Query hook with wallet-aware filtering</li><li><code>app/web/src/app/(console)/agreements/page.tsx</code> — fully rewritten with live data, shadcn components, four UI states</li><li><code>app/web/src/components/ui/skeleton.tsx</code> — new: shadcn Skeleton component (added via CLI)</li>
+        </ul>
+      </details>
+      </div>
+      <div class="cl-entry">
+        <div class="cl-header">
+          <span class="mono muted">M006/S01</span>
+          <span class="cl-title">FX Oracle Post+Crank</span>
+          
+        </div>
+        
+        
+      <div class="detail-block"><span class="detail-label">Decisions</span>
+        <ul><li>Manual components.json creation instead of interactive shadcn init to avoid globals.css overwrite</li><li>Renamed --border to --gp-border and --sidebar to --gp-sidebar to avoid shadcn namespace collision</li><li>shadcn canary path for Tailwind v4 CSS-based config compatibility</li></ul>
+      </div>
+        
+      </div>
+</section>
+
+<section id="knowledge">
+  <h2>Knowledge</h2>
+  <p class="empty">KNOWLEDGE.md exists but no entries parsed.</p>
+</section>
+
+<section id="captures">
+  <h2>Captures</h2>
+  <p class="empty">No captures recorded.</p>
+</section>
+
+<section id="stats">
+  <h2>Artifacts</h2>
+  
+    <h3>Recently completed <span class="count">16</span></h3>
+    <table class="tbl">
+      <thead><tr><th>Milestone</th><th>Slice</th><th>Title</th><th>Completed</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">M006</td><td class="mono">S02</td><td>Landing Page FX Framing &amp; Deploy</td><td class="muted">Mar 25, 2026, 02:00 AM</td></tr>
+        <tr><td class="mono">M004</td><td class="mono">S01</td><td>Travel Rule Contract Extension</td><td class="muted">Mar 23, 2026, 02:00 AM</td></tr>
+        <tr><td class="mono">M004</td><td class="mono">S02</td><td>Compliance Audit Log</td><td class="muted">Mar 23, 2026, 02:00 AM</td></tr>
+        <tr><td class="mono">M004</td><td class="mono">S03</td><td>Crank Automation Bot</td><td class="muted">Mar 23, 2026, 02:00 AM</td></tr>
+        <tr><td class="mono">M002</td><td class="mono">S01</td><td>Create Payment Wizard</td><td class="muted">Mar 20, 2026, 02:50 PM</td></tr>
+      </tbody>
+    </table>
+</section>
+
+<section id="discussion">
+  <h2>Planning</h2>
+  
+    <table class="tbl">
+      <thead><tr><th>ID</th><th>Milestone</th><th>State</th><th>Context</th><th>Draft</th><th>Updated</th></tr></thead>
+      <tbody>
+    <tr>
+      <td class="mono">M001</td>
+      <td>Foundation</td>
+      <td class="mono">discussed</td>
+      <td>yes</td>
+      <td></td>
+      <td class="muted">Mar 25, 2026, 12:56 PM</td>
+    </tr>
+    <tr>
+      <td class="mono">M002</td>
+      <td>Core Flows</td>
+      <td class="mono">discussed</td>
+      <td>yes</td>
+      <td></td>
+      <td class="muted">Mar 25, 2026, 12:56 PM</td>
+    </tr>
+    <tr>
+      <td class="mono">M003</td>
+      <td>Advanced Flows</td>
+      <td class="mono">discussed</td>
+      <td>yes</td>
+      <td></td>
+      <td class="muted">Mar 25, 2026, 12:56 PM</td>
+    </tr>
+    <tr>
+      <td class="mono">M004</td>
+      <td>StableHacks Institutional Readiness</td>
+      <td class="mono">discussed</td>
+      <td>yes</td>
+      <td></td>
+      <td class="muted">Mar 25, 2026, 12:56 PM</td>
+    </tr>
+    <tr>
+      <td class="mono">M005</td>
+      <td>M005</td>
+      <td class="mono">undiscussed</td>
+      <td></td>
+      <td></td>
+      <td class="muted"></td>
+    </tr>
+    <tr>
+      <td class="mono">M006</td>
+      <td>FX Oracle Settlement</td>
+      <td class="mono">discussed</td>
+      <td>yes</td>
+      <td></td>
+      <td class="muted">Mar 25, 2026, 02:05 PM</td>
+    </tr>
+    <tr>
+      <td class="mono">M007</td>
+      <td>Institutional Custody Framing</td>
+      <td class="mono">discussed</td>
+      <td>yes</td>
+      <td></td>
+      <td class="muted">Mar 25, 2026, 12:56 PM</td>
+    </tr></tbody>
+    </table>
+</section>
+</main>
+<footer>
+  <div class="footer-inner">
+    <span>GSD v2.43.0</span>
+    <span class="sep">/</span>
+    <span>M006</span>
+    <span class="sep">/</span><span class="mono">M006</span>
+    <span class="sep">/</span>
+    <span>Wed, Mar 25, 2026, 02:05 PM GMT+2</span>
+  </div>
+</footer>
+<script>
+(function(){
+  const sections=document.querySelectorAll('section[id]');
+  const links=document.querySelectorAll('.toc a');
+  if(!sections.length||!links.length)return;
+  const obs=new IntersectionObserver(entries=>{
+    for(const e of entries){
+      if(!e.isIntersecting)continue;
+      for(const l of links)l.classList.remove('active');
+      const a=document.querySelector('.toc a[href="#'+e.target.id+'"]');
+      if(a)a.classList.add('active');
+    }
+  },{rootMargin:'-10% 0px -80% 0px',threshold:0});
+  for(const s of sections)obs.observe(s);
+})();
+(function(){
+  var tl=document.getElementById('timeline');
+  if(!tl)return;
+  var table=tl.querySelector('.tbl');
+  if(!table)return;
+  var input=document.createElement('input');
+  input.className='tl-filter';
+  input.placeholder='Filter timeline\u2026';
+  input.type='text';
+  table.parentNode.insertBefore(input,table);
+  var rows=table.querySelectorAll('tbody tr');
+  input.addEventListener('input',function(){
+    var q=this.value.toLowerCase();
+    for(var i=0;i<rows.length;i++){
+      rows[i].style.display=rows[i].textContent.toLowerCase().indexOf(q)>-1?'':'none';
+    }
+  });
+})();
+(function(){
+  var saved=JSON.parse(localStorage.getItem('gsd-collapsed')||'{}');
+  document.querySelectorAll('section[id]').forEach(function(sec){
+    var h2=sec.querySelector('h2');
+    if(!h2)return;
+    var btn=document.createElement('button');
+    btn.className='sec-toggle';
+    btn.textContent=saved[sec.id]?'+':'-';
+    btn.setAttribute('aria-label','Toggle section');
+    h2.prepend(btn);
+    if(saved[sec.id])toggleSection(sec,true);
+    btn.addEventListener('click',function(e){
+      e.preventDefault();
+      var collapsed=btn.textContent==='-';
+      toggleSection(sec,collapsed);
+      btn.textContent=collapsed?'+':'-';
+      saved[sec.id]=collapsed;
+      localStorage.setItem('gsd-collapsed',JSON.stringify(saved));
+    });
+  });
+  function toggleSection(sec,hide){
+    var children=sec.children;
+    for(var i=0;i<children.length;i++){
+      if(children[i].tagName!=='H2')children[i].style.display=hide?'none':'';
+    }
+  }
+})();
+(function(){
+  var hr=document.querySelector('.header-right');
+  if(!hr)return;
+  var btn=document.createElement('button');
+  btn.className='theme-toggle';
+  btn.textContent=localStorage.getItem('gsd-theme')==='light'?'Dark':'Light';
+  if(localStorage.getItem('gsd-theme')==='light')document.documentElement.classList.add('light-theme');
+  btn.addEventListener('click',function(){
+    document.documentElement.classList.toggle('light-theme');
+    var isLight=document.documentElement.classList.contains('light-theme');
+    btn.textContent=isLight?'Dark':'Light';
+    localStorage.setItem('gsd-theme',isLight?'light':'dark');
+  });
+  hr.prepend(btn);
+})();
+</script>
+</body>
+</html>
