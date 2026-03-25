@@ -149,7 +149,7 @@ describe("GherkinPay", () => {
       [conditionPDA] = getConditionPDA(paymentPDA, 0);
 
       await program.methods
-        .createPayment(paymentId, PAYMENT_AMOUNT, { and: {} })
+        .createPayment(paymentId, PAYMENT_AMOUNT, { and: {} }, "https://example.com/travel-rule/test")
         .accounts({
           authority: authority.publicKey,
           payerWallet: payer.publicKey,
@@ -325,7 +325,7 @@ describe("GherkinPay", () => {
       [conditionPDA] = getConditionPDA(paymentPDA, 0);
 
       await program.methods
-        .createPayment(paymentId, PAYMENT_AMOUNT, { and: {} })
+        .createPayment(paymentId, PAYMENT_AMOUNT, { and: {} }, "https://example.com/travel-rule/test")
         .accounts({
           authority: authority.publicKey,
           payerWallet: payer.publicKey,
@@ -476,7 +476,7 @@ describe("GherkinPay", () => {
 
       // Create
       await program.methods
-        .createPayment(paymentId, PAYMENT_AMOUNT, { and: {} })
+        .createPayment(paymentId, PAYMENT_AMOUNT, { and: {} }, "https://example.com/travel-rule/test")
         .accounts({
           authority: authority.publicKey,
           payerWallet: payer.publicKey,
@@ -593,7 +593,7 @@ describe("GherkinPay", () => {
 
       // Create with OR operator
       await program.methods
-        .createPayment(paymentId, PAYMENT_AMOUNT, { or: {} })
+        .createPayment(paymentId, PAYMENT_AMOUNT, { or: {} }, "https://example.com/travel-rule/test")
         .accounts({
           authority: authority.publicKey,
           payerWallet: payer.publicKey,
@@ -717,7 +717,7 @@ describe("GherkinPay", () => {
       [conditionPDA] = getConditionPDA(paymentPDA, 0);
 
       await program.methods
-        .createPayment(paymentId, PAYMENT_AMOUNT, { and: {} })
+        .createPayment(paymentId, PAYMENT_AMOUNT, { and: {} }, "https://example.com/travel-rule/test")
         .accounts({
           authority: authority.publicKey,
           payerWallet: payer.publicKey,
@@ -832,7 +832,7 @@ describe("GherkinPay", () => {
       [cond1PDA] = getConditionPDA(paymentPDA, 1);
 
       await program.methods
-        .createMilestonePayment(paymentId, totalAmount, 2)
+        .createMilestonePayment(paymentId, totalAmount, 2, "https://example.com/travel-rule/milestone")
         .accounts({
           authority: authority.publicKey,
           payerWallet: payer.publicKey,
@@ -1002,6 +1002,358 @@ describe("GherkinPay", () => {
       const payment = await program.account.paymentAgreement.fetch(paymentPDA);
       assert.deepEqual(payment.status, { completed: {} });
       assert.equal(payment.releasedAmount.toNumber(), totalAmount.toNumber());
+    });
+  });
+
+  describe("Payment with Oracle Condition", () => {
+    const paymentId = new BN(7);
+    const PYTH_FEED_PUBKEY = new PublicKey(
+      "JBc8woEgPzyXwLEmZJpnSiNhneGBcectQrQpzm52fvCj"
+    );
+    let paymentPDA: PublicKey;
+    let escrowPDA: PublicKey;
+    let conditionPDA: PublicKey;
+
+    before(async () => {
+      await mintTo(
+        provider.connection,
+        (authority as any).payer || authority.payer,
+        mint,
+        payerTokenAccount,
+        authority.publicKey,
+        10_000_000,
+        [],
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+      );
+    });
+
+    it("Creates a payment for oracle test", async () => {
+      [paymentPDA] = getPaymentPDA(paymentId);
+      [escrowPDA] = getEscrowPDA(paymentPDA);
+      [conditionPDA] = getConditionPDA(paymentPDA, 0);
+
+      await program.methods
+        .createPayment(
+          paymentId,
+          PAYMENT_AMOUNT,
+          { and: {} },
+          "https://example.com/travel-rule/test"
+        )
+        .accounts({
+          authority: authority.publicKey,
+          payerWallet: payer.publicKey,
+          payee: payee.publicKey,
+          tokenMint: mint,
+          payment: paymentPDA,
+          escrowTokenAccount: escrowPDA,
+          conditionAccount: conditionPDA,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+          systemProgram: SystemProgram.programId,
+        })
+        .rpc();
+
+      const payment = await program.account.paymentAgreement.fetch(paymentPDA);
+      assert.deepEqual(payment.status, { created: {} });
+    });
+
+    it("Adds an oracle condition", async () => {
+      await program.methods
+        .addCondition({
+          oracle: {
+            feedAccount: PYTH_FEED_PUBKEY,
+            operator: { lt: {} },
+            targetValue: new BN(20_000_000_000),
+            decimals: 8,
+            met: false,
+          },
+        })
+        .accounts({
+          authority: authority.publicKey,
+          payment: paymentPDA,
+          conditionAccount: conditionPDA,
+          systemProgram: SystemProgram.programId,
+        })
+        .rpc();
+
+      const condAccount = await program.account.conditionAccount.fetch(
+        conditionPDA
+      );
+      assert.equal(condAccount.conditions.length, 1);
+    });
+
+    it("Finalizes conditions", async () => {
+      await program.methods
+        .finalizeConditions()
+        .accounts({
+          authority: authority.publicKey,
+          payment: paymentPDA,
+          conditionAccount: conditionPDA,
+        })
+        .rpc();
+
+      const condAccount = await program.account.conditionAccount.fetch(
+        conditionPDA
+      );
+      assert.equal(condAccount.isFinalized, true);
+    });
+
+    it("Funds the payment", async () => {
+      await program.methods
+        .fundPayment()
+        .accounts({
+          payer: payer.publicKey,
+          payment: paymentPDA,
+          conditionAccount: conditionPDA,
+          tokenMint: mint,
+          payerTokenAccount: payerTokenAccount,
+          escrowTokenAccount: escrowPDA,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+        })
+        .signers([payer])
+        .rpc();
+
+      const payment = await program.account.paymentAgreement.fetch(paymentPDA);
+      assert.deepEqual(payment.status, { active: {} });
+    });
+
+    it("Cranks the oracle condition", async () => {
+      await program.methods
+        .crankOracle(0)
+        .accounts({
+          payment: paymentPDA,
+          conditionAccount: conditionPDA,
+          priceFeed: PYTH_FEED_PUBKEY,
+        })
+        .rpc();
+
+      const condAccount = await program.account.conditionAccount.fetch(
+        conditionPDA
+      );
+      const cond = condAccount.conditions[0];
+      assert.ok("oracle" in cond);
+      assert.equal((cond as any).oracle.met, true);
+    });
+
+    it("Evaluates and releases funds", async () => {
+      await program.methods
+        .evaluateAndRelease()
+        .accounts({
+          payment: paymentPDA,
+          conditionAccount: conditionPDA,
+          nextConditionAccount: conditionPDA,
+          tokenMint: mint,
+          escrowTokenAccount: escrowPDA,
+          payeeTokenAccount: payeeTokenAccount,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+        })
+        .rpc();
+
+      const payment = await program.account.paymentAgreement.fetch(paymentPDA);
+      assert.deepEqual(payment.status, { completed: {} });
+      assert.equal(
+        payment.releasedAmount.toNumber(),
+        PAYMENT_AMOUNT.toNumber()
+      );
+    });
+  });
+
+  describe("Payment with Token-Gate Condition", () => {
+    const paymentId = new BN(8);
+    let paymentPDA: PublicKey;
+    let escrowPDA: PublicKey;
+    let conditionPDA: PublicKey;
+    let gateMint: PublicKey;
+    let holderTokenAccountPubkey: PublicKey;
+
+    before(async () => {
+      // Ensure payer has enough tokens for the payment escrow
+      await mintTo(
+        provider.connection,
+        (authority as any).payer || authority.payer,
+        mint,
+        payerTokenAccount,
+        authority.publicKey,
+        10_000_000,
+        [],
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+      );
+    });
+
+    it("Creates gate mint and holder token account", async () => {
+      // Create a second Token-2022 mint (the "gate mint")
+      gateMint = await createMint(
+        provider.connection,
+        (authority as any).payer || authority.payer,
+        authority.publicKey,
+        null,
+        DECIMALS,
+        Keypair.generate(),
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+      );
+
+      // Create a token account for payer on the gate mint
+      holderTokenAccountPubkey = await createAccount(
+        provider.connection,
+        (authority as any).payer || authority.payer,
+        gateMint,
+        payer.publicKey,
+        Keypair.generate(),
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+      );
+
+      // Mint 1000 tokens (1000 * 10^6) to the holder account
+      await mintTo(
+        provider.connection,
+        (authority as any).payer || authority.payer,
+        gateMint,
+        holderTokenAccountPubkey,
+        authority.publicKey,
+        1_000_000_000,
+        [],
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+      );
+
+      // Verify balance
+      const acctInfo = await getAccount(
+        provider.connection,
+        holderTokenAccountPubkey,
+        undefined,
+        TOKEN_2022_PROGRAM_ID
+      );
+      assert.equal(Number(acctInfo.amount), 1_000_000_000);
+    });
+
+    it("Creates a payment for token-gate test", async () => {
+      [paymentPDA] = getPaymentPDA(paymentId);
+      [escrowPDA] = getEscrowPDA(paymentPDA);
+      [conditionPDA] = getConditionPDA(paymentPDA, 0);
+
+      await program.methods
+        .createPayment(
+          paymentId,
+          PAYMENT_AMOUNT,
+          { and: {} },
+          "https://example.com/travel-rule/test"
+        )
+        .accounts({
+          authority: authority.publicKey,
+          payerWallet: payer.publicKey,
+          payee: payee.publicKey,
+          tokenMint: mint,
+          payment: paymentPDA,
+          escrowTokenAccount: escrowPDA,
+          conditionAccount: conditionPDA,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+          systemProgram: SystemProgram.programId,
+        })
+        .rpc();
+
+      const payment = await program.account.paymentAgreement.fetch(paymentPDA);
+      assert.deepEqual(payment.status, { created: {} });
+    });
+
+    it("Adds a token-gate condition", async () => {
+      await program.methods
+        .addCondition({
+          tokenGated: {
+            requiredMint: gateMint,
+            minAmount: new BN(100_000_000),
+            holder: payer.publicKey,
+            met: false,
+          },
+        })
+        .accounts({
+          authority: authority.publicKey,
+          payment: paymentPDA,
+          conditionAccount: conditionPDA,
+          systemProgram: SystemProgram.programId,
+        })
+        .rpc();
+
+      const condAccount = await program.account.conditionAccount.fetch(
+        conditionPDA
+      );
+      assert.equal(condAccount.conditions.length, 1);
+    });
+
+    it("Finalizes conditions", async () => {
+      await program.methods
+        .finalizeConditions()
+        .accounts({
+          authority: authority.publicKey,
+          payment: paymentPDA,
+          conditionAccount: conditionPDA,
+        })
+        .rpc();
+
+      const condAccount = await program.account.conditionAccount.fetch(
+        conditionPDA
+      );
+      assert.equal(condAccount.isFinalized, true);
+    });
+
+    it("Funds the payment", async () => {
+      await program.methods
+        .fundPayment()
+        .accounts({
+          payer: payer.publicKey,
+          payment: paymentPDA,
+          conditionAccount: conditionPDA,
+          tokenMint: mint,
+          payerTokenAccount: payerTokenAccount,
+          escrowTokenAccount: escrowPDA,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+        })
+        .signers([payer])
+        .rpc();
+
+      const payment = await program.account.paymentAgreement.fetch(paymentPDA);
+      assert.deepEqual(payment.status, { active: {} });
+    });
+
+    it("Cranks the token-gate condition", async () => {
+      await program.methods
+        .crankTokenGate(0)
+        .accounts({
+          payment: paymentPDA,
+          conditionAccount: conditionPDA,
+          holderTokenAccount: holderTokenAccountPubkey,
+        })
+        .rpc();
+
+      const condAccount = await program.account.conditionAccount.fetch(
+        conditionPDA
+      );
+      const cond = condAccount.conditions[0];
+      assert.ok("tokenGated" in cond);
+      assert.equal((cond as any).tokenGated.met, true);
+    });
+
+    it("Evaluates and releases funds", async () => {
+      await program.methods
+        .evaluateAndRelease()
+        .accounts({
+          payment: paymentPDA,
+          conditionAccount: conditionPDA,
+          nextConditionAccount: conditionPDA,
+          tokenMint: mint,
+          escrowTokenAccount: escrowPDA,
+          payeeTokenAccount: payeeTokenAccount,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
+        })
+        .rpc();
+
+      const payment = await program.account.paymentAgreement.fetch(paymentPDA);
+      assert.deepEqual(payment.status, { completed: {} });
+      assert.equal(
+        payment.releasedAmount.toNumber(),
+        PAYMENT_AMOUNT.toNumber()
+      );
     });
   });
 });

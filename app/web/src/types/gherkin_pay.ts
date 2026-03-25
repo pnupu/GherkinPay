@@ -7,7 +7,7 @@
 export type GherkinPay = {
   "address": "2wL3PPjoG4UmVrNYZyXvxfTfV738AVCG8LHJPUEtxEeV",
   "metadata": {
-    "name": "triggerPay",
+    "name": "gherkinPay",
     "version": "0.1.0",
     "spec": "0.1.0",
     "description": "GherkinPay — Condition-Based Payment Engine on Solana"
@@ -380,6 +380,10 @@ export type GherkinPay = {
         {
           "name": "milestoneCount",
           "type": "u8"
+        },
+        {
+          "name": "metadataUri",
+          "type": "string"
         }
       ]
     },
@@ -489,6 +493,10 @@ export type GherkinPay = {
               "name": "conditionOperator"
             }
           }
+        },
+        {
+          "name": "metadataUri",
+          "type": "string"
         }
       ]
     },
@@ -1324,6 +1332,10 @@ export type GherkinPay = {
           {
             "name": "escrowBump",
             "type": "u8"
+          },
+          {
+            "name": "metadataUri",
+            "type": "string"
           }
         ]
       }
@@ -1392,6 +1404,10 @@ export type GherkinPay = {
           {
             "name": "milestoneCount",
             "type": "u8"
+          },
+          {
+            "name": "metadataUri",
+            "type": "string"
           }
         ]
       }
