@@ -2,7 +2,7 @@
 
 ## What This Is
 
-GherkinPay is a Solana escrow protocol for condition-gated payments. Parties create a payment agreement, lock funds in escrow, define conditions that must be met before release, and the protocol releases funds automatically when conditions pass. The smart contract is complete and deployed on devnet. The frontend is a Next.js 15 console with a polished dark green design system — currently showing only hardcoded mock data.
+GherkinPay is a Solana escrow protocol for condition-gated stablecoin payments with institutional compliance built in. Parties create a payment agreement, lock funds in escrow, define conditions that must be met before release, and the protocol releases funds automatically when conditions pass. The smart contract is complete and deployed on devnet. The frontend is a Next.js 15 console with a polished dark green design system showing live on-chain data. The app is deployed at gherkinpay.lacertalabs.xyz.
 
 ## Core Value
 
@@ -24,6 +24,8 @@ Trustless structured settlements: funds released only when on-chain conditions a
 - Standalone crank automation bot (`scripts/crank-bot.ts`) auto-cranks time, oracle, and token-gate conditions
 - M004 StableHacks Institutional Readiness complete — hackathon-ready for Track 3
 - M005 complete: contract rebuilt with metadata_uri, full test suite expanded to 33 passing (20 existing + 6 oracle + 7 token-gate), deployed to devnet, frontend types synced, crank bot validated against devnet
+- M006 complete: FX oracle presets (EUR/USD, GBP/USD, JPY/USD) added to condition builder, unified post+crank flow for Pyth pull-model feeds, landing page updated with FX Settlement card and expanded stats, deployed to EC2
+- Deployed to EC2 at gherkinpay.lacertalabs.xyz with Nginx + TLS
 
 ## Architecture / Key Patterns
 
@@ -35,7 +37,8 @@ Trustless structured settlements: funds released only when on-chain conditions a
 - **PDA seeds**: `["payment", authority, payment_id]`, `["escrow", payment]`, `["conditions", payment, milestone_index]`, `["compliance", mint, wallet]`
 - **Network**: Devnet
 - **Token**: USDC (Token-2022 mint on devnet)
-- **Oracle**: Pyth price feeds
+- **Oracle**: Pyth price feeds (crypto push feeds + FX pull feeds via Hermes post+crank)
+- **Deploy**: EC2 t3.medium, Nginx reverse proxy, systemd service, rsync deploy
 
 ## Capability Contract
 
@@ -47,10 +50,6 @@ See `.gsd/REQUIREMENTS.md` for the explicit capability contract, requirement sta
 - [x] M002: Core Flows — create payment wizard, fund, release, cancel
 - [x] M003: Advanced Flows — condition cranks, multisig signing, webhook confirm, compliance management, relayer registration
 - [x] M004: StableHacks Institutional Readiness — Travel Rule metadata, compliance audit log, crank automation bot
-  - [x] S01: Travel Rule Contract Extension — metadata_uri field on contract, IDL, wizard, and detail page
-  - [x] S02: Compliance Audit Log — filterable compliance event timeline page
-  - [x] S03: Crank Automation Bot — standalone bot auto-cranks time, oracle, and token-gate conditions
 - [x] M005: On-Chain Verification & Devnet Deploy — contract rebuild, test coverage (33 tests), devnet deployment
-  - [x] S01: Contract Rebuild & Test Fixup — anchor build succeeds, all 20 tests pass with metadata_uri
-  - [x] S02: Oracle & Token-Gate Test Coverage — 13 new tests (6 oracle + 7 token-gate), suite at 33 passing
-  - [x] S03: Devnet Deploy & Smoke Test — deployed to devnet, frontend IDL synced, crank bot validated
+- [x] M006: FX Oracle Settlement — FX currency pair presets with Pyth pull-model post+crank flow, landing page FX framing, EC2 deploy
+- [ ] M007: Institutional Custody Framing — Fireblocks-compatible custody labels, MPC signer badges, README documentation

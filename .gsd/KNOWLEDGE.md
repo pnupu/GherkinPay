@@ -92,3 +92,15 @@ macOS ships without GNU coreutils `timeout`. In shell scripts and CI that need a
 perl -e 'alarm 15; exec @ARGV' -- your-command --args
 ```
 This sends SIGALRM after N seconds. Exit code 142 indicates the alarm fired (process was killed by timeout). This is POSIX-portable and requires no extra installs.
+
+## @pythnetwork/pyth-solana-receiver pulls in jito-ts which breaks Next.js webpack
+
+`@pythnetwork/pyth-solana-receiver` → `@pythnetwork/solana-utils` → `jito-ts` → old `@solana/web3.js` that requires `rpc-websockets/dist/lib/client` which modern `rpc-websockets` doesn't export. Fix: add `"jito-ts": false` to webpack `resolve.alias` in `next.config.js`. We never use Jito so stubbing it is safe. If Jito support is needed later, pin `rpc-websockets` to a compatible version instead.
+
+## Pyth feed ID round-trip: hex → PublicKey → hex
+
+Oracle presets store Pyth feed IDs as 64-char hex strings (e.g. `a995d00bb36a63cef7fd2c287dc105fc8f3d93779f062f09551b0af3e81ec30b` for EUR/USD). On-chain, these become 32-byte PublicKeys via `new PublicKey(Buffer.from(hex, 'hex'))`. To query Hermes for the price, convert back: `Buffer.from(pubkey.toBytes()).toString('hex')`. This round-trip must be lossless — if any step corrupts the bytes, Hermes returns no data silently.
+
+## Pyth pull-model post+crank pattern
+
+For non-push-sponsored feeds (FX pairs), the price must be posted on-chain before the contract can read it. The flow: `HermesClient.getLatestPriceUpdates([feedIdHex])` → `PythSolanaReceiver.newTransactionBuilder({closeUpdateAccounts: false})` → `addPostPriceUpdates(priceUpdateData)` → `addPriceConsumerInstructions(crankOracleIx)` → `buildVersionedTransactions(computeUnitPriceMicroLamports: 50000)` → `provider.sendAll(txs)`. Setting `closeUpdateAccounts: false` keeps PriceUpdateV2 accounts for inspection. This same flow works for push-sponsored feeds too (just re-posts the price).

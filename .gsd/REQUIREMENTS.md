@@ -15,6 +15,28 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: mapped
 - Notes: Requires devnet deploy (R025) first
 
+### R031 — Wallet addresses (payer, payee, authority) in the agreement detail page display an "MPC Compatible" badge with a tooltip explaining Fireblocks/Fordefi/MPC custody provider compatibility
+- Class: differentiator
+- Status: active
+- Description: Wallet addresses (payer, payee, authority) in the agreement detail page display an "MPC Compatible" badge with a tooltip explaining Fireblocks/Fordefi/MPC custody provider compatibility
+- Why it matters: Fireblocks is a hackathon partner; showing custody awareness signals institutional readiness to judges
+- Source: user
+- Primary owning slice: M007/S01
+- Supporting slices: none
+- Validation: mapped
+- Notes: No contract changes; badges are informational UI labels based on the fact that escrow PDAs use standard Solana signers
+
+### R032 — The project README includes a Custody Integration section explaining that any MPC custody provider (Fireblocks, Fordefi, etc.) can act as payer or payee since the protocol uses standard Solana signers
+- Class: differentiator
+- Status: active
+- Description: The project README includes a Custody Integration section explaining that any MPC custody provider (Fireblocks, Fordefi, etc.) can act as payer or payee since the protocol uses standard Solana signers
+- Why it matters: Documentation proves architectural awareness even without a live Fireblocks integration
+- Source: user
+- Primary owning slice: M007/S01
+- Supporting slices: none
+- Validation: mapped
+- Notes: Existing README has Key Capabilities table — add Custody row and expanded section
+
 ## Validated
 
 ### R001 — Users can connect a Solana wallet (Phantom, Solflare) to the app and see their connected address in the UI
@@ -248,6 +270,50 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: solana program show confirms program deployed at 2wL3PPjoG4UmVrNYZyXvxfTfV738AVCG8LHJPUEtxEeV with 422944 bytes data length; types synced with 4 metadataUri fields; frontend builds clean
 - Notes: Existing devnet payments will be inaccessible after redeploy due to layout change
 
+### R027 — The condition builder's Oracle type includes FX currency pair presets (EUR/USD, GBP/USD, JPY/USD) using Pyth feed IDs, alongside existing crypto presets
+- Class: differentiator
+- Status: validated
+- Description: The condition builder's Oracle type includes FX currency pair presets (EUR/USD, GBP/USD, JPY/USD) using Pyth feed IDs, alongside existing crypto presets
+- Why it matters: Directly addresses Track 3 "integrated institutional on-chain FX venue" judging criteria
+- Source: user
+- Primary owning slice: M006/S01
+- Supporting slices: none
+- Validation: EUR/USD, GBP/USD, USD/JPY presets present in condition-builder.tsx with correct Pyth feed IDs and decimals. Category separators show Crypto and FX groupings. Hex feed IDs pass zod validation. Build passes clean.
+- Notes: Uses Pyth pull-model feed IDs (hex format); same feed_id validation as crypto presets
+
+### R028 — When cranking an oracle condition that uses a non-push-sponsored feed (FX pairs), the UI automatically fetches the latest price from Pyth Hermes, posts it as a PriceUpdateV2 account on Solana, then cranks the oracle condition — all in one user action
+- Class: core-capability
+- Status: validated
+- Description: When cranking an oracle condition that uses a non-push-sponsored feed (FX pairs), the UI automatically fetches the latest price from Pyth Hermes, posts it as a PriceUpdateV2 account on Solana, then cranks the oracle condition — all in one user action
+- Why it matters: FX feeds aren't on Pyth's Solana push-sponsored list; without the post step, the price data doesn't exist on-chain and the crank fails
+- Source: user
+- Primary owning slice: M006/S01
+- Supporting slices: none
+- Validation: usePostAndCrankOracle hook implements full Hermes fetch → PriceUpdateV2 post → crankOracle flow via PythSolanaReceiver SDK. Replaces old useCrankOracle for all oracle conditions. Stale price errors surface FX market guidance. Build passes clean. Runtime verification deferred to UAT.
+- Notes: Uses @pythnetwork/pyth-solana-receiver SDK; PriceUpdateV2 accounts are ephemeral and can be closed after use
+
+### R029 — The landing page includes a dedicated FX Oracle Settlement feature card highlighting cross-border FX settlement via Pyth FX rate feeds, and the stats bar reflects the expanded feed coverage
+- Class: differentiator
+- Status: validated
+- Description: The landing page includes a dedicated FX Oracle Settlement feature card highlighting cross-border FX settlement via Pyth FX rate feeds, and the stats bar reflects the expanded feed coverage
+- Why it matters: Surfaces FX capability prominently for hackathon judges evaluating institutional readiness
+- Source: user
+- Primary owning slice: M006/S02
+- Supporting slices: none
+- Validation: grep -c "FX" app/web/src/app/page.tsx returns 3 (card title, description, stats label); stats bar shows "6 Condition types" and "3 FX pairs"; bun run build exits 0
+- Notes: New feature card in the existing features grid; stats bar update from "5 condition types" to reflect FX+crypto feed count
+
+### R030 — The Next.js app builds cleanly and is deployed to the existing EC2 instance via the documented rsync procedure, serving the latest features at gherkinpay.lacertalabs.xyz
+- Class: operability
+- Status: validated
+- Description: The Next.js app builds cleanly and is deployed to the existing EC2 instance via the documented rsync procedure, serving the latest features at gherkinpay.lacertalabs.xyz
+- Why it matters: Judges need a live demo URL; local-only features don't count
+- Source: user
+- Primary owning slice: M006/S02
+- Supporting slices: M007/S01
+- Validation: rsync + remote npm install/build + systemctl restart completed; curl https://gherkinpay.lacertalabs.xyz returns HTTP 200; all M006 features (FX presets, post+crank, FX landing page card) live at demo URL
+- Notes: Deploy procedure documented in infra/README.md; EC2 at 3.8.170.147, Nginx + systemd
+
 ## Deferred
 
 ### R018 — UI for browsing and selecting Pyth price feeds by symbol when creating oracle conditions
@@ -259,7 +325,7 @@ This file is the explicit capability and coverage contract for the project.
 - Primary owning slice: none
 - Supporting slices: none
 - Validation: unmapped
-- Notes: Deferred to post-M003; paste-address approach works
+- Notes: Deferred to post-M003; paste-address approach works. M006 partially addresses this with FX presets.
 
 ### R019 — Full Mobile Wallet Adapter support for iOS/Android wallets
 - Class: quality-attribute
@@ -326,10 +392,16 @@ This file is the explicit capability and coverage contract for the project.
 | R024 | quality-attribute | validated | M005/S02 | none | anchor test passes with 7-test "Payment with Token-Gate Condition" block — crankTokenGate succeeds with holder's 1000 tokens exceeding 100-token threshold, condition.met flips true, payment completes |
 | R025 | operability | validated | M005/S03 | none | solana program show confirms program deployed at 2wL3PPjoG4UmVrNYZyXvxfTfV738AVCG8LHJPUEtxEeV with 422944 bytes data length; types synced with 4 metadataUri fields; frontend builds clean |
 | R026 | integration | active | M005/S03 | none | mapped |
+| R027 | differentiator | validated | M006/S01 | none | EUR/USD, GBP/USD, USD/JPY presets present in condition-builder.tsx with correct Pyth feed IDs and decimals. Category separators show Crypto and FX groupings. Hex feed IDs pass zod validation. Build passes clean. |
+| R028 | core-capability | validated | M006/S01 | none | usePostAndCrankOracle hook implements full Hermes fetch → PriceUpdateV2 post → crankOracle flow via PythSolanaReceiver SDK. Replaces old useCrankOracle for all oracle conditions. Stale price errors surface FX market guidance. Build passes clean. Runtime verification deferred to UAT. |
+| R029 | differentiator | validated | M006/S02 | none | grep -c "FX" app/web/src/app/page.tsx returns 3 (card title, description, stats label); stats bar shows "6 Condition types" and "3 FX pairs"; bun run build exits 0 |
+| R030 | operability | validated | M006/S02 | M007/S01 | rsync + remote npm install/build + systemctl restart completed; curl https://gherkinpay.lacertalabs.xyz returns HTTP 200; all M006 features (FX presets, post+crank, FX landing page card) live at demo URL |
+| R031 | differentiator | active | M007/S01 | none | mapped |
+| R032 | differentiator | active | M007/S01 | none | mapped |
 
 ## Coverage Summary
 
-- Active requirements: 1
-- Mapped to slices: 1
-- Validated: 21 (R001, R002, R003, R004, R005, R006, R007, R008, R009, R010, R011, R012, R013, R014, R015, R016, R017, R022, R023, R024, R025)
+- Active requirements: 3
+- Mapped to slices: 3
+- Validated: 25 (R001, R002, R003, R004, R005, R006, R007, R008, R009, R010, R011, R012, R013, R014, R015, R016, R017, R022, R023, R024, R025, R027, R028, R029, R030)
 - Unmapped active requirements: 0
