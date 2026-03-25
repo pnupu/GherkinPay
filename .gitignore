@@ -17,6 +17,8 @@ test-ledger
 .gsd/completed-units.json
 .gsd/STATE.md
 .gsd/gsd.db
+.gsd/gsd.db-shm
+.gsd/gsd.db-wal
 .gsd/DISCUSSION-MANIFEST.json
 
 # Infrastructure docs (contains credential references)
