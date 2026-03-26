@@ -52,4 +52,4 @@ See `.gsd/REQUIREMENTS.md` for the explicit capability contract, requirement sta
 - [x] M004: StableHacks Institutional Readiness — Travel Rule metadata, compliance audit log, crank automation bot
 - [x] M005: On-Chain Verification & Devnet Deploy — contract rebuild, test coverage (33 tests), devnet deployment
 - [x] M006: FX Oracle Settlement — FX currency pair presets with Pyth pull-model post+crank flow, landing page FX framing, EC2 deploy
-- [ ] M007: Institutional Custody Framing — Fireblocks-compatible custody labels, MPC signer badges, README documentation
+- [x] M007: Institutional Custody Framing — MPC custody badges on agreement detail page, README custody documentation, EC2 deploy ✅

@@ -104,3 +104,11 @@ Oracle presets store Pyth feed IDs as 64-char hex strings (e.g. `a995d00bb36a63c
 ## Pyth pull-model post+crank pattern
 
 For non-push-sponsored feeds (FX pairs), the price must be posted on-chain before the contract can read it. The flow: `HermesClient.getLatestPriceUpdates([feedIdHex])` → `PythSolanaReceiver.newTransactionBuilder({closeUpdateAccounts: false})` → `addPostPriceUpdates(priceUpdateData)` → `addPriceConsumerInstructions(crankOracleIx)` → `buildVersionedTransactions(computeUnitPriceMicroLamports: 50000)` → `provider.sendAll(txs)`. Setting `closeUpdateAccounts: false` keeps PriceUpdateV2 accounts for inspection. This same flow works for push-sponsored feeds too (just re-posts the price).
+
+## Radix primitives import from monolithic "radix-ui" package
+
+The project uses the monolithic `radix-ui` package (not individual `@radix-ui/react-*` packages). Import Tooltip as `import { Tooltip as TooltipPrimitive } from "radix-ui"`. The primitive exposes sub-components via dot notation: `TooltipPrimitive.Provider`, `TooltipPrimitive.Root`, `TooltipPrimitive.Trigger`, `TooltipPrimitive.Portal`, `TooltipPrimitive.Content`. Same pattern applies to other Radix primitives (Dialog, Popover, etc.).
+
+## TooltipProvider is app-wide in root layout
+
+`<TooltipProvider>` is wired once in `app/web/src/app/layout.tsx` inside `TRPCReactProvider`. Any component in the tree can use `<Tooltip>` without adding its own provider. If removed, Radix throws "TooltipProvider must be used within a TooltipProvider" at runtime — the error is clear but only surfaces on first hover, not at build time.

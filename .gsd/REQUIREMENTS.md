@@ -15,28 +15,6 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: mapped
 - Notes: Requires devnet deploy (R025) first
 
-### R031 — Wallet addresses (payer, payee, authority) in the agreement detail page display an "MPC Compatible" badge with a tooltip explaining Fireblocks/Fordefi/MPC custody provider compatibility
-- Class: differentiator
-- Status: active
-- Description: Wallet addresses (payer, payee, authority) in the agreement detail page display an "MPC Compatible" badge with a tooltip explaining Fireblocks/Fordefi/MPC custody provider compatibility
-- Why it matters: Fireblocks is a hackathon partner; showing custody awareness signals institutional readiness to judges
-- Source: user
-- Primary owning slice: M007/S01
-- Supporting slices: none
-- Validation: mapped
-- Notes: No contract changes; badges are informational UI labels based on the fact that escrow PDAs use standard Solana signers
-
-### R032 — The project README includes a Custody Integration section explaining that any MPC custody provider (Fireblocks, Fordefi, etc.) can act as payer or payee since the protocol uses standard Solana signers
-- Class: differentiator
-- Status: active
-- Description: The project README includes a Custody Integration section explaining that any MPC custody provider (Fireblocks, Fordefi, etc.) can act as payer or payee since the protocol uses standard Solana signers
-- Why it matters: Documentation proves architectural awareness even without a live Fireblocks integration
-- Source: user
-- Primary owning slice: M007/S01
-- Supporting slices: none
-- Validation: mapped
-- Notes: Existing README has Key Capabilities table — add Custody row and expanded section
-
 ## Validated
 
 ### R001 — Users can connect a Solana wallet (Phantom, Solflare) to the app and see their connected address in the UI
@@ -314,6 +292,28 @@ This file is the explicit capability and coverage contract for the project.
 - Validation: rsync + remote npm install/build + systemctl restart completed; curl https://gherkinpay.lacertalabs.xyz returns HTTP 200; all M006 features (FX presets, post+crank, FX landing page card) live at demo URL
 - Notes: Deploy procedure documented in infra/README.md; EC2 at 3.8.170.147, Nginx + systemd
 
+### R031 — Wallet addresses (payer, payee, authority) in the agreement detail page display an "MPC Compatible" badge with a tooltip explaining Fireblocks/Fordefi/MPC custody provider compatibility
+- Class: differentiator
+- Status: validated
+- Description: Wallet addresses (payer, payee, authority) in the agreement detail page display an "MPC Compatible" badge with a tooltip explaining Fireblocks/Fordefi/MPC custody provider compatibility
+- Why it matters: Fireblocks is a hackathon partner; showing custody awareness signals institutional readiness to judges
+- Source: user
+- Primary owning slice: M007/S01
+- Supporting slices: none
+- Validation: MPC badges render next to payer, payee, and authority addresses in agreement detail page. Hovering shows Fireblocks/Fordefi custody compatibility tooltip. bun run build exits 0. grep -c MpcBadge returns 4 (1 import + 3 usages).
+- Notes: No contract changes; badges are informational UI labels based on the fact that escrow PDAs use standard Solana signers
+
+### R032 — The project README includes a Custody Integration section explaining that any MPC custody provider (Fireblocks, Fordefi, etc.) can act as payer or payee since the protocol uses standard Solana signers
+- Class: differentiator
+- Status: validated
+- Description: The project README includes a Custody Integration section explaining that any MPC custody provider (Fireblocks, Fordefi, etc.) can act as payer or payee since the protocol uses standard Solana signers
+- Why it matters: Documentation proves architectural awareness even without a live Fireblocks integration
+- Source: user
+- Primary owning slice: M007/S02
+- Supporting slices: none
+- Validation: README contains ### Custody Integration subsection between Compliance Stack and Tech Stack sections. grep -c "Custody Integration" README.md returns 1. grep -c "Fireblocks|Fordefi|Anchorage" README.md returns 3. Section documents MPC wallet compatibility, PDA-based escrow design, and lists three example custody providers in a table.
+- Notes: 14-line section with provider table (Fireblocks, Fordefi, Anchorage Digital). Positioned at line 80 in README.
+
 ## Deferred
 
 ### R018 — UI for browsing and selecting Pyth price feeds by symbol when creating oracle conditions
@@ -396,12 +396,12 @@ This file is the explicit capability and coverage contract for the project.
 | R028 | core-capability | validated | M006/S01 | none | usePostAndCrankOracle hook implements full Hermes fetch → PriceUpdateV2 post → crankOracle flow via PythSolanaReceiver SDK. Replaces old useCrankOracle for all oracle conditions. Stale price errors surface FX market guidance. Build passes clean. Runtime verification deferred to UAT. |
 | R029 | differentiator | validated | M006/S02 | none | grep -c "FX" app/web/src/app/page.tsx returns 3 (card title, description, stats label); stats bar shows "6 Condition types" and "3 FX pairs"; bun run build exits 0 |
 | R030 | operability | validated | M006/S02 | M007/S01 | rsync + remote npm install/build + systemctl restart completed; curl https://gherkinpay.lacertalabs.xyz returns HTTP 200; all M006 features (FX presets, post+crank, FX landing page card) live at demo URL |
-| R031 | differentiator | active | M007/S01 | none | mapped |
-| R032 | differentiator | active | M007/S01 | none | mapped |
+| R031 | differentiator | validated | M007/S01 | none | MPC badges render next to payer, payee, and authority addresses in agreement detail page. Hovering shows Fireblocks/Fordefi custody compatibility tooltip. bun run build exits 0. grep -c MpcBadge returns 4 (1 import + 3 usages). |
+| R032 | differentiator | validated | M007/S02 | none | README contains ### Custody Integration subsection between Compliance Stack and Tech Stack sections. grep -c "Custody Integration" README.md returns 1. grep -c "Fireblocks|Fordefi|Anchorage" README.md returns 3. Section documents MPC wallet compatibility, PDA-based escrow design, and lists three example custody providers in a table. |
 
 ## Coverage Summary
 
-- Active requirements: 3
-- Mapped to slices: 3
-- Validated: 25 (R001, R002, R003, R004, R005, R006, R007, R008, R009, R010, R011, R012, R013, R014, R015, R016, R017, R022, R023, R024, R025, R027, R028, R029, R030)
+- Active requirements: 1
+- Mapped to slices: 1
+- Validated: 27 (R001, R002, R003, R004, R005, R006, R007, R008, R009, R010, R011, R012, R013, R014, R015, R016, R017, R022, R023, R024, R025, R027, R028, R029, R030, R031, R032)
 - Unmapped active requirements: 0
