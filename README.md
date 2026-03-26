@@ -77,6 +77,20 @@ Conditions are composable with AND/OR logic. Each payment (or milestone) can hav
 └─────────────────────────────────────────────┘
 ```
 
+### Custody Integration
+
+GherkinPay uses standard Solana Ed25519 signers — any wallet that can sign a transaction works as payer, payee, or authority, including MPC wallets from institutional custody providers.
+
+Funds are held in program-derived addresses (PDAs), not in user wallets. The custody provider's key only needs to sign funding and release transactions — it never holds escrowed funds directly.
+
+| Provider | Notes |
+|---|---|
+| **Fireblocks** | StableHacks partner; MPC-based Solana signing |
+| **Fordefi** | MPC wallet with policy engine |
+| **Anchorage Digital** | Qualified custodian with Solana support |
+
+No protocol changes are needed. Every wallet address is MPC-compatible by design.
+
 ## Tech Stack
 
 | Layer | Technology |

@@ -10,6 +10,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { MpcBadge } from "~/components/mpc-badge";
 
 /* ── status badge colors ──────────────── */
 
@@ -157,11 +158,17 @@ export default function AgreementDetailPage() {
           <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm md:grid-cols-4">
             <div>
               <dt className="text-muted-foreground">Payer</dt>
-              <dd className="font-mono text-xs">{truncatePubkey(payment.payer)}</dd>
+              <dd className="flex items-center gap-1.5 font-mono text-xs">
+                {truncatePubkey(payment.payer)}
+                <MpcBadge />
+              </dd>
             </div>
             <div>
               <dt className="text-muted-foreground">Payee</dt>
-              <dd className="font-mono text-xs">{truncatePubkey(payment.payee)}</dd>
+              <dd className="flex items-center gap-1.5 font-mono text-xs">
+                {truncatePubkey(payment.payee)}
+                <MpcBadge />
+              </dd>
             </div>
             <div>
               <dt className="text-muted-foreground">Total Amount</dt>
@@ -177,7 +184,10 @@ export default function AgreementDetailPage() {
             </div>
             <div>
               <dt className="text-muted-foreground">Authority</dt>
-              <dd className="font-mono text-xs">{truncatePubkey(payment.authority)}</dd>
+              <dd className="flex items-center gap-1.5 font-mono text-xs">
+                {truncatePubkey(payment.authority)}
+                <MpcBadge />
+              </dd>
             </div>
             <div>
               <dt className="text-muted-foreground">Token Mint</dt>
