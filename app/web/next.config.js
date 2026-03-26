@@ -18,6 +18,11 @@ const config = {
       fs: { browser: "./empty-module.js" },
       net: { browser: "./empty-module.js" },
       tls: { browser: "./empty-module.js" },
+      // Stub jito-ts — transitive dep from @pythnetwork/solana-utils that
+      // requires an incompatible rpc-websockets version. We never use Jito.
+      "jito-ts": "./jito-ts-stub.js",
+      "jito-ts/dist/sdk/block-engine/types": "./jito-ts-stub.js",
+      "jito-ts/dist/sdk/block-engine/searcher": "./jito-ts-stub.js",
     },
   },
 
