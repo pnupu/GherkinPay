@@ -213,6 +213,8 @@ export interface ConditionBuilderProps {
   onChange: (value: ConditionBuilderValue) => void;
   /** Called when validation state changes */
   onValidChange?: (valid: boolean) => void;
+  /** Payee wallet address from step 1 — used to auto-fill Token-Gated holder */
+  payeeWallet?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -303,6 +305,7 @@ export function ConditionBuilder({
   value,
   onChange,
   onValidChange,
+  payeeWallet,
 }: ConditionBuilderProps) {
   const suppressSync = useRef(false);
 
@@ -433,6 +436,7 @@ export function ConditionBuilder({
             onRemove={() => remove(index)}
             canRemove={fields.length > 1}
             setValue={(name, value, options) => setValue(name as never, value as never, options)}
+            payeeWallet={payeeWallet}
           />
         ))}
       </div>
@@ -477,6 +481,7 @@ interface ConditionRowProps {
   onRemove: () => void;
   canRemove: boolean;
   setValue: (name: string, value: unknown, options?: { shouldValidate?: boolean }) => void;
+  payeeWallet?: string;
 }
 
 function ConditionRow({
@@ -487,6 +492,7 @@ function ConditionRow({
   onRemove,
   canRemove,
   setValue,
+  payeeWallet,
 }: ConditionRowProps) {
   const conditionType = useWatch({
     control,
@@ -578,6 +584,8 @@ function ConditionRow({
           index={index}
           control={control}
           errors={conditionErrors as never}
+          setValue={setValue}
+          payeeWallet={payeeWallet}
         />
       )}
     </div>
@@ -593,6 +601,7 @@ interface FieldProps {
   control: Control<ConditionBuilderValue>;
   errors: Record<string, { message?: string } | undefined> | undefined;
   setValue?: (name: string, value: unknown, options?: { shouldValidate?: boolean }) => void;
+  payeeWallet?: string;
 }
 
 function FieldError({ message }: { message?: string }) {
@@ -1026,7 +1035,10 @@ function WebhookFields({ index, control, errors }: FieldProps) {
 
 // -- TokenGated --
 
-function TokenGatedFields({ index, control, errors }: FieldProps) {
+function TokenGatedFields({ index, control, errors, setValue, payeeWallet }: FieldProps) {
+  const holderValue = useWatch({ control, name: `conditions.${index}.holder` as never }) as string;
+  const holderIsPayee = payeeWallet && holderValue === payeeWallet;
+
   return (
     <div className="space-y-3">
       <div className="space-y-1">
@@ -1087,12 +1099,27 @@ function TokenGatedFields({ index, control, errors }: FieldProps) {
       </div>
 
       <div className="space-y-1">
-        <Label
-          htmlFor={`condition-${index}-holder`}
-          className="text-xs text-muted-foreground"
-        >
-          Token Holder
-        </Label>
+        <div className="flex items-center justify-between">
+          <Label
+            htmlFor={`condition-${index}-holder`}
+            className="text-xs text-muted-foreground"
+          >
+            Token Holder
+          </Label>
+          {payeeWallet && !holderIsPayee && setValue && (
+            <button
+              type="button"
+              className="text-[10px] text-emerald-400 hover:text-emerald-300 transition-colors"
+              onClick={() =>
+                setValue(`conditions.${index}.holder`, payeeWallet, {
+                  shouldValidate: true,
+                })
+              }
+            >
+              Use payee wallet
+            </button>
+          )}
+        </div>
         <Controller
           control={control}
           name={`conditions.${index}.holder` as never}
@@ -1108,6 +1135,11 @@ function TokenGatedFields({ index, control, errors }: FieldProps) {
             />
           )}
         />
+        {holderIsPayee && (
+          <p className="text-[10px] text-muted-foreground">
+            Using payee wallet from step 1
+          </p>
+        )}
         <FieldError
           message={getErrorMessage(errors, "")}
         />

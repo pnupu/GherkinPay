@@ -20,6 +20,7 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Separator } from "~/components/ui/separator";
 import { Badge } from "~/components/ui/badge";
+import { Checkbox } from "~/components/ui/checkbox";
 
 import {
   ConditionBuilder,
@@ -32,6 +33,7 @@ import {
   type ConditionInput,
   type MilestoneInput,
 } from "~/lib/mutations/create-payment";
+import { useComplianceEntry } from "~/lib/queries/compliance";
 
 import {
   Select,
@@ -152,6 +154,13 @@ export function CreatePaymentWizard() {
   const [customMint, setCustomMint] = useState("");
   const [milestoneCount, setMilestoneCount] = useState(2);
   const [milestoneAmounts, setMilestoneAmounts] = useState<string[]>(["", ""]);
+  const [requireKyc, setRequireKyc] = useState(false);
+  const [expiryDate, setExpiryDate] = useState("");
+
+  // KYC compliance check for payee wallet
+  const payeeIsValid = payeeWallet && isValidPublicKey(payeeWallet);
+  const { data: payeeCompliance, isLoading: complianceLoading } =
+    useComplianceEntry(payeeIsValid ? payeeWallet : null);
 
   // Step 2 fields — simple mode gets one builder, milestone mode gets one per milestone
   const [simpleConditions, setSimpleConditions] =
@@ -187,6 +196,8 @@ export function CreatePaymentWizard() {
       setMetadataUri("");
       setSelectedToken(DEFAULT_TOKEN_SYMBOL);
       setCustomMint("");
+      setRequireKyc(false);
+      setExpiryDate("");
       setMilestoneCount(2);
       setMilestoneAmounts(["", ""]);
       setSimpleConditions(DEFAULT_CONDITION_VALUE);
@@ -266,10 +277,13 @@ export function CreatePaymentWizard() {
     });
   }, [mode, milestoneAmounts]);
 
+  const kycPassed = !requireKyc || (payeeCompliance?.isAllowed === true);
+
   const step1Valid =
     isValidPublicKey(payeeWallet) &&
     totalAmountValid &&
     tokenMintValid &&
+    kycPassed &&
     (mode === "simple" ||
       (milestoneAmountsAllValid && milestoneSumValid));
 
@@ -464,6 +478,51 @@ export function CreatePaymentWizard() {
               )}
             </div>
 
+            {/* Require KYC toggle */}
+            <div className="flex items-start gap-2.5 rounded-lg border border-input p-3">
+              <Checkbox
+                id="require-kyc"
+                checked={requireKyc}
+                onCheckedChange={(checked) => setRequireKyc(checked === true)}
+                className="mt-0.5"
+              />
+              <div className="space-y-0.5">
+                <Label htmlFor="require-kyc" className="text-sm cursor-pointer">
+                  Require payee KYC
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Payee wallet must be on the compliance allowlist before creating this agreement
+                </p>
+                {requireKyc && payeeIsValid && complianceLoading && (
+                  <p className="text-xs text-muted-foreground">Checking compliance status…</p>
+                )}
+                {requireKyc && payeeIsValid && !complianceLoading && payeeCompliance?.isAllowed && (
+                  <p className="text-xs text-green-400">✓ Payee wallet is KYC-approved</p>
+                )}
+                {requireKyc && payeeIsValid && !complianceLoading && !payeeCompliance?.isAllowed && (
+                  <p className="text-xs text-destructive">
+                    ✗ Payee wallet is not KYC-approved — register it on the KYC / AML page first
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Agreement expiry */}
+            <div className="space-y-1.5">
+              <Label htmlFor="expiry-date">Agreement Expiry</Label>
+              <Input
+                id="expiry-date"
+                type="datetime-local"
+                value={expiryDate}
+                onChange={(e) =>
+                  setExpiryDate((e.target as HTMLInputElement).value)
+                }
+              />
+              <p className="text-xs text-muted-foreground">
+                Optional — if conditions aren&apos;t met by this date, the authority can cancel and refund the payer
+              </p>
+            </div>
+
             {/* Token mint selector */}
             <div className="space-y-1.5">
               <Label>Token Mint</Label>
@@ -616,6 +675,7 @@ export function CreatePaymentWizard() {
                   value={simpleConditions}
                   onChange={setSimpleConditions}
                   onValidChange={setSimpleConditionsValid}
+                  payeeWallet={payeeWallet}
                 />
               </div>
             ) : (
@@ -651,6 +711,7 @@ export function CreatePaymentWizard() {
                           next[i] = valid;
                           setMilestoneConditionsValid(next);
                         }}
+                        payeeWallet={payeeWallet}
                       />
                     </TabsContent>
                   ))}
@@ -700,6 +761,27 @@ export function CreatePaymentWizard() {
                   <span className="text-muted-foreground">Metadata URI</span>
                   <span className="font-mono text-xs truncate max-w-[200px]">
                     {metadataUri}
+                  </span>
+                </div>
+              )}
+
+              {requireKyc && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Payee KYC</span>
+                  <Badge variant="outline" className="text-green-400 border-green-700/40">
+                    ✓ Required &amp; verified
+                  </Badge>
+                </div>
+              )}
+
+              {expiryDate && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Expiry</span>
+                  <span className="text-xs">
+                    {new Date(expiryDate).toLocaleString("en-US", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
                   </span>
                 </div>
               )}
